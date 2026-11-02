@@ -1,0 +1,30 @@
+# 과제 데이터 원본은 올리지 않는다 (용량 3.2GB, LMS 배포 자료)
+*.zip
+data/
+fashion_tagging_assignment.pdf
+
+# 데이터 이미지가 들어 있는 작업용 폴더
+tmp/
+
+# 학습 산출물 (체크포인트, 예측 파일, 로그). 결과 공유는 공유 폴더로 한다
+runs/
+report/
+vis/
+preds/
+*.pt
+*.pth
+*.ckpt
+*.npz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / 편집기
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

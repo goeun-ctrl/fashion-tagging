@@ -1,0 +1,28 @@
+# 11-2 회의록의 "추천 시작값"을 그대로 옮긴 기준선 설정. 확정된 최적값이 아니라 출발점이다.
+# 실험마다 이 파일을 복사해 바꾼 항목만 수정하고, exp_id를 새로 붙인다.
+exp_id: S1_convnext_tiny_bce_384_pad
+owner: ""                     # 담당자 이름
+model: convnext_tiny.fb_in22k_ft_in1k_384   # 22k 사전학습으로 통일 (통합안 제안, 팀 합의 필요)
+head: gap_linear_27
+loss: bce                     # bce | asl
+optimizer: adamw
+lr_backbone: 1.0e-4
+lr_head: 1.0e-3
+weight_decay: 0.05
+epochs: 30
+early_stopping: {patience: 5, metric: macro_f1, on: holdout}   # 공식 val이 아니라 내부 holdout
+scheduler: cosine
+warmup_ratio: 0.05
+batch_size: 32
+seed: 42
+input_size: 384
+preprocess_mode: pad          # pad | resize
+resize_interp: bicubic
+pad_color: [0, 0, 0]          # 정규화 전 검정
+augmentation: {hflip_p: 0.5}
+threshold: 0.5
+mean_std: from_timm           # 모델마다 다르다. common/preprocess.py의 timm_mean_std 사용
+splits:
+  train: common/splits/train_inner.txt
+  holdout: common/splits/holdout.txt
+  official_val: val           # 최종 보고용. 모델 선택에 쓰지 않는다.

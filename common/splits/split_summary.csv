@@ -1,0 +1,28 @@
+﻿class,train_inner,holdout,holdout_pct
+"shirt, blouse",5694,421,6.9
+"top, t-shirt, sweatshirt",15356,820,5.1
+sweater,1362,123,8.3
+cardigan,987,114,10.4
+jacket,7239,503,6.5
+vest,635,82,11.4
+pants,11617,730,5.9
+shorts,2529,216,7.9
+skirt,4702,332,6.6
+coat,2842,243,7.9
+dress,17732,934,5.0
+jumpsuit,854,68,7.4
+cape,136,16,10.5
+glasses,4443,405,8.4
+hat,2260,254,10.1
+"headband, head covering, hair accessory",2719,265,8.9
+tie,1313,142,9.8
+glove,674,83,11.0
+watch,3069,304,9.0
+belt,6177,490,7.3
+leg warmer,53,8,13.1
+"tights, stockings",1977,225,10.2
+sock,1290,155,10.7
+shoe,22515,1439,6.0
+"bag, wallet",6407,500,7.2
+scarf,1212,150,11.0
+umbrella,114,20,14.9
