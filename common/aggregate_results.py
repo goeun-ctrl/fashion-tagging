@@ -33,8 +33,10 @@ from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa
 PARAM_LIMIT = 50_000_000
 TOL = 6e-4  # CSV scores are rounded to 4 decimals
 M3 = ("micro_f1", "macro_f1", "image_f1")
-SETTING_COLS = ["model", "loss", "optimizer", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
+SETTING_COLS = ["model", "loss", "optimizer", "pooling", "head", "scheduler", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
                 "effective_batch", "seed", "input_size", "preprocess_mode", "threshold"]
+# CSVs written before these columns existed came from the fixed baseline code
+LEGACY_DEFAULTS = {"pooling": "gap", "head": "linear", "scheduler": "cosine"}
 
 
 def num(x):
@@ -51,6 +53,8 @@ def read_rows(paths):
             for r in csv.DictReader(f):
                 if (r.get("exp_id") or "").strip():
                     r = {k: (v or "").strip() for k, v in r.items() if k}
+                    for k, v in LEGACY_DEFAULTS.items():
+                        r.setdefault(k, v)
                     r["_source"] = os.path.basename(p)
                     rows.append(r)
     return rows
@@ -237,7 +241,7 @@ def main(argv=None):
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "results_summary.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")
-    cols = ["exp_id", "owner", "model"] + SETTING_COLS[3:] + ["params_total"] + [f"{w}_{k}" for w in ("holdout", "val") for k in M3] + \
+    cols = ["exp_id", "owner"] + SETTING_COLS + ["params_total"] + [f"{w}_{k}" for w in ("holdout", "val") for k in M3] + \
            ["train_minutes", "infer_ms_per_img", "max_vram_gb", "notes", "_source", "_verified"]
     with open(os.path.join(a.out, "results_summary.csv"), "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")

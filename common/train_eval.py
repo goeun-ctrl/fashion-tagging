@@ -1,11 +1,15 @@
 """Train one model on train_inner, pick the epoch on the internal holdout, report on both
 holdout and the official val, and append one row to the shared results CSV.
 
-Only BCE + AdamW + cosine are implemented here (the team baseline). Anything else
-(ASL, other optimizers) is another person's experiment and should reuse load/eval parts.
+The defaults are the team baseline (GAP + linear head, BCE, AdamW, warmup + cosine). Each part can
+be swapped on its own (change one thing per experiment):
+  --pooling gap|gmp|gapgmp   --head linear|mlp|query         (common/heads.py)
+  --loss bce|asl                                             (common/losses.py)
+  --optimizer adamw|muon|soap   --scheduler cosine|constant  (common/optim.py)
 
     python common/train_eval.py --exp_id S1_cnxt_t_pad --train_dir data/train --val_dir data/val
     python common/train_eval.py ... --preprocess_mode resize      # only the change under study
+    python common/train_eval.py ... --head query --lr_head 1e-4  # C2 query head
 
 Outputs in <out_dir>/<exp_id>/: best.pt, last.pt, preds_holdout.npz, preds_val.npz, log.json
 and one appended row in --results_csv (columns follow configs/results_template.csv).
@@ -23,14 +27,16 @@ from datetime import date
 
 import numpy as np
 import torch
-import torch.nn.functional as F
 import timm
 from torch.utils.data import DataLoader
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from dataset import FashionDataset, read_names  # noqa: E402
+from heads import HEADS, POOLS, build_model  # noqa: E402
 from labels import load_split  # noqa: E402
+from losses import LOSSES, build_loss  # noqa: E402
+from optim import OPTIMIZERS, SCHEDULERS, build_optimizers, build_schedulers, describe  # noqa: E402
 from metrics import binarize, compute_metrics, save_predictions, sigmoid  # noqa: E402
 from preprocess import IMAGENET_MEAN, IMAGENET_STD, timm_mean_std  # noqa: E402
 
@@ -57,6 +63,24 @@ def parse_args(argv=None):
     ap.add_argument("--lr_head", type=float, default=1e-3)
     ap.add_argument("--weight_decay", type=float, default=0.05)
     ap.add_argument("--warmup_ratio", type=float, default=0.05)
+    ap.add_argument("--scheduler", default="cosine", choices=SCHEDULERS)
+    # pooling / head
+    ap.add_argument("--pooling", default="gap", choices=list(POOLS), help="ignored by --head query")
+    ap.add_argument("--head", default="linear", choices=HEADS)
+    ap.add_argument("--mlp_hidden", type=int, default=1024)
+    ap.add_argument("--query_dim", type=int, default=384)
+    ap.add_argument("--query_heads", type=int, default=8)
+    ap.add_argument("--head_dropout", type=float, default=0.1, help="mlp and query heads")
+    # loss
+    ap.add_argument("--loss", default="bce", choices=LOSSES)
+    ap.add_argument("--asl_gamma_neg", type=float, default=4.0)
+    ap.add_argument("--asl_gamma_pos", type=float, default=0.0)
+    ap.add_argument("--asl_clip", type=float, default=0.05)
+    # optimizer
+    ap.add_argument("--optimizer", default="adamw", choices=OPTIMIZERS)
+    ap.add_argument("--muon_momentum", type=float, default=0.95)
+    ap.add_argument("--muon_lr_scale", type=float, default=1.0, help="multiplies lr of the Muon groups only")
+    ap.add_argument("--muon_head", action="store_true", help="also put the head's inner matrices in Muon")
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--num_workers", type=int, default=4)
@@ -143,40 +167,44 @@ def main(argv=None):
     val_loader = DataLoader(ds_val, batch_size=a.batch_size, **kw)
 
     # ---- model ------------------------------------------------------------------------
-    extra = {"img_size": a.size} if a.set_img_size else {}
-    model = timm.create_model(a.model, pretrained=not a.no_pretrained, num_classes=len(cats), **extra).to(device)
+    model = build_model(a.model, len(cats), pooling=a.pooling, head=a.head, pretrained=not a.no_pretrained,
+                        img_size=a.size if a.set_img_size else None, mlp_hidden=a.mlp_hidden,
+                        query_dim=a.query_dim, query_heads=a.query_heads, head_dropout=a.head_dropout).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
-    head_ids = {id(p) for p in model.get_classifier().parameters()}
-    head = [p for p in model.parameters() if id(p) in head_ids]
-    body = [p for p in model.parameters() if id(p) not in head_ids]
-    opt = torch.optim.AdamW([{"params": body, "lr": a.lr_backbone}, {"params": head, "lr": a.lr_head}],
-                            weight_decay=a.weight_decay)
+    loss_fn = build_loss(a.loss, a.asl_gamma_neg, a.asl_gamma_pos, a.asl_clip)
+    opts = build_optimizers(model, a.optimizer, a.lr_backbone, a.lr_head, a.weight_decay,
+                            muon_momentum=a.muon_momentum, muon_head=a.muon_head, muon_lr_scale=a.muon_lr_scale)
     updates = a.epochs * math.ceil(len(train_loader) / a.accum)
     warm = max(1, int(a.warmup_ratio * updates))
-    sched = torch.optim.lr_scheduler.LambdaLR(
-        opt, lambda s: (s + 1) / warm if s < warm else 0.5 * (1 + math.cos(math.pi * (s - warm) / max(1, updates - warm))))
+    scheds = build_schedulers(opts, a.scheduler, warm, updates)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    setting = f"pool={a.pooling if a.head != 'query' else '-'} head={a.head} sched={a.scheduler}"
     print(f"[{a.exp_id}] device={device} params={n_params:,} train={len(ds_train)} holdout={len(ds_hold)} "
-          f"val={len(ds_val)} mode={a.preprocess_mode} size={a.size}", flush=True)
+          f"val={len(ds_val)} mode={a.preprocess_mode} size={a.size} {setting} loss={a.loss}\n"
+          f"  optimizer: {describe(opts)}", flush=True)
 
     # ---- train ------------------------------------------------------------------------
     best, best_ep, log, t_start = -1.0, -1, [], time.time()
     for ep in range(a.epochs):
         model.train()
-        opt.zero_grad(set_to_none=True)
+        for o in opts:
+            o.zero_grad(set_to_none=True)
         run_loss, seen, t_ep = 0.0, 0, time.time()
         for it, (x, y) in enumerate(train_loader):
             x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
                 out = model(x)
-            loss = F.binary_cross_entropy_with_logits(out.float(), y)
+            loss = loss_fn(out.float(), y)
             scaler.scale(loss / a.accum).backward()
             if (it + 1) % a.accum == 0 or it + 1 == len(train_loader):
-                scaler.step(opt)
+                for o in opts:          # GradScaler unscales each optimizer's grads before its step
+                    scaler.step(o)
                 scaler.update()
-                opt.zero_grad(set_to_none=True)
-                sched.step()
+                for o in opts:
+                    o.zero_grad(set_to_none=True)
+                for s in scheds:
+                    s.step()
             run_loss += loss.item() * len(x)
             seen += len(x)
         logits, _ = predict(model, hold_loader, device, use_amp)
@@ -208,8 +236,9 @@ def main(argv=None):
     json.dump({"args": vars(a), "best_epoch": best_ep, "params": n_params, "log": log},
               open(os.path.join(run_dir, "log.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     append_row(a.results_csv, {
-        "exp_id": a.exp_id, "owner": a.owner, "date": date.today().isoformat(), "model": a.model, "loss": "bce",
-        "optimizer": "adamw", "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
+        "exp_id": a.exp_id, "owner": a.owner, "date": date.today().isoformat(), "model": a.model, "loss": a.loss,
+        "optimizer": a.optimizer, "pooling": a.pooling if a.head != "query" else "-", "head": a.head,
+        "scheduler": a.scheduler, "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
         "epochs_run": len(log), "batch_size": a.batch_size, "effective_batch": a.batch_size * a.accum, "seed": a.seed,
         "input_size": a.size, "preprocess_mode": a.preprocess_mode, "threshold": a.threshold, "params_total": n_params,
         "holdout_micro_f1": f"{m_ho['micro_f1']:.4f}", "holdout_macro_f1": f"{m_ho['macro_f1']:.4f}",
