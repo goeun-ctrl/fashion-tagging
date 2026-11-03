@@ -33,10 +33,12 @@ from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa
 PARAM_LIMIT = 50_000_000
 TOL = 6e-4  # CSV scores are rounded to 4 decimals
 M3 = ("micro_f1", "macro_f1", "image_f1")
-SETTING_COLS = ["model", "loss", "optimizer", "pooling", "head", "scheduler", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
+SETTING_COLS = ["model", "loss", "optimizer", "pooling", "head", "scheduler", "optimizer_args", "layer_decay",
+                "drop_path", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
                 "effective_batch", "seed", "input_size", "preprocess_mode", "threshold"]
 # CSVs written before these columns existed came from the fixed baseline code
-LEGACY_DEFAULTS = {"pooling": "gap", "head": "linear", "scheduler": "cosine"}
+LEGACY_DEFAULTS = {"pooling": "gap", "head": "linear", "scheduler": "cosine", "optimizer_args": "",
+                   "layer_decay": "0.0", "drop_path": "0.0"}
 
 
 def num(x):

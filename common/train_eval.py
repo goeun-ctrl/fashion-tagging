@@ -81,6 +81,8 @@ def parse_args(argv=None):
     ap.add_argument("--muon_momentum", type=float, default=0.95)
     ap.add_argument("--muon_lr_scale", type=float, default=1.0, help="multiplies lr of the Muon groups only")
     ap.add_argument("--muon_head", action="store_true", help="also put the head's inner matrices in Muon")
+    ap.add_argument("--layer_decay", type=float, default=0.0, help="layer-wise lr decay, e.g. 0.75 (0 = off)")
+    ap.add_argument("--drop_path", type=float, default=0.0, help="stochastic depth rate, e.g. 0.1 (0 = off)")
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--num_workers", type=int, default=4)
@@ -169,12 +171,17 @@ def main(argv=None):
     # ---- model ------------------------------------------------------------------------
     model = build_model(a.model, len(cats), pooling=a.pooling, head=a.head, pretrained=not a.no_pretrained,
                         img_size=a.size if a.set_img_size else None, mlp_hidden=a.mlp_hidden,
-                        query_dim=a.query_dim, query_heads=a.query_heads, head_dropout=a.head_dropout).to(device)
+                        query_dim=a.query_dim, query_heads=a.query_heads, head_dropout=a.head_dropout,
+                        drop_path=a.drop_path).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
     loss_fn = build_loss(a.loss, a.asl_gamma_neg, a.asl_gamma_pos, a.asl_clip)
     opts = build_optimizers(model, a.optimizer, a.lr_backbone, a.lr_head, a.weight_decay,
-                            muon_momentum=a.muon_momentum, muon_head=a.muon_head, muon_lr_scale=a.muon_lr_scale)
+                            muon_momentum=a.muon_momentum, muon_head=a.muon_head, muon_lr_scale=a.muon_lr_scale,
+                            layer_decay=a.layer_decay or None)
+    opt_desc = describe(opts)   # before the schedulers, which scale lr by the first warmup factor
+    optimizer_args = (f"momentum={a.muon_momentum};lr_scale={a.muon_lr_scale};muon_head={int(a.muon_head)}"
+                      if a.optimizer == "muon" else "")
     updates = a.epochs * math.ceil(len(train_loader) / a.accum)
     warm = max(1, int(a.warmup_ratio * updates))
     scheds = build_schedulers(opts, a.scheduler, warm, updates)
@@ -182,7 +189,7 @@ def main(argv=None):
     setting = f"pool={a.pooling if a.head != 'query' else '-'} head={a.head} sched={a.scheduler}"
     print(f"[{a.exp_id}] device={device} params={n_params:,} train={len(ds_train)} holdout={len(ds_hold)} "
           f"val={len(ds_val)} mode={a.preprocess_mode} size={a.size} {setting} loss={a.loss}\n"
-          f"  optimizer: {describe(opts)}", flush=True)
+          f"  optimizer: {opt_desc}", flush=True)
 
     # ---- train ------------------------------------------------------------------------
     best, best_ep, log, t_start = -1.0, -1, [], time.time()
@@ -238,7 +245,8 @@ def main(argv=None):
     append_row(a.results_csv, {
         "exp_id": a.exp_id, "owner": a.owner, "date": date.today().isoformat(), "model": a.model, "loss": a.loss,
         "optimizer": a.optimizer, "pooling": a.pooling if a.head != "query" else "-", "head": a.head,
-        "scheduler": a.scheduler, "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
+        "scheduler": a.scheduler, "optimizer_args": optimizer_args, "layer_decay": a.layer_decay,
+        "drop_path": a.drop_path, "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
         "epochs_run": len(log), "batch_size": a.batch_size, "effective_batch": a.batch_size * a.accum, "seed": a.seed,
         "input_size": a.size, "preprocess_mode": a.preprocess_mode, "threshold": a.threshold, "params_total": n_params,
         "holdout_micro_f1": f"{m_ho['micro_f1']:.4f}", "holdout_macro_f1": f"{m_ho['macro_f1']:.4f}",

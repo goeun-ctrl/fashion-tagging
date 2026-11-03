@@ -1,0 +1,41 @@
+# 5번(Optimizer + Head) 실험 목록. common/run_queue.py 로 실행한다.
+#   python common/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
+#       --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
+# 한 줄 = train_eval.py 인자. 적지 않은 값은 팀 기준선 기본값(30 epoch, batch 32, 384px, pad, BCE, AdamW,
+# lr 1e-4/1e-3, wd 0.05, cosine, warmup 5%, holdout macro F1 early stop patience 5).
+# exp_id는 팀 전체에서 겹치지 않게 R5_ 로 시작한다. 한 실험에서 한 가지만 바꾼다.
+
+# ---- P0. 기준선 (1·2번의 S1 결과가 공유되면 돌리지 않고 그 결과를 쓴다) ---------------------------
+[P0] --exp_id R5_cnxt_adamw_s42 --seed 42
+
+# ---- P1. Head·Pooling 예비 비교 (ConvNeXt-T, 나머지는 기준선과 동일) --------------------------------
+# 통합안상 head 확정 비교는 백본·손실·해상도가 정해진 뒤. 여기서는 경향만 본다.
+[P1] --exp_id R5_cnxt_query_s42 --head query --lr_head 1e-4 --seed 42
+[P1] --exp_id R5_cnxt_mlp_s42 --head mlp --seed 42
+[P1] --exp_id R5_cnxt_gmp_s42 --pooling gmp --seed 42
+[P1] --exp_id R5_cnxt_gapgmp_s42 --pooling gapgmp --seed 42
+
+# ---- P2. Muon 학습률 탐색 (짧게 10 epoch, AdamW 10 epoch 짝과 비교) ---------------------------------
+# muon_lr_scale은 Muon 그룹의 lr만 곱한다(AdamW 쪽 bias·norm·head는 그대로).
+[P2] --exp_id R5_cnxt_adamw_e10_s42 --epochs 10 --seed 42
+[P2] --exp_id R5_cnxt_muon_x0.5_e10_s42 --optimizer muon --muon_lr_scale 0.5 --epochs 10 --seed 42
+[P2] --exp_id R5_cnxt_muon_x1_e10_s42 --optimizer muon --muon_lr_scale 1 --epochs 10 --seed 42
+[P2] --exp_id R5_cnxt_muon_x2_e10_s42 --optimizer muon --muon_lr_scale 2 --epochs 10 --seed 42
+
+# ---- P3. ConvNeXt-T 본 비교 AdamW vs Muon, seed 3개 -------------------------------------------------
+# P2에서 고른 --muon_lr_scale 로 바꾼 뒤 실행. AdamW s42는 P0(또는 팀 S1)을 쓴다.
+[P3] --exp_id R5_cnxt_muon_s42 --optimizer muon --muon_lr_scale 1 --seed 42
+[P3] --exp_id R5_cnxt_adamw_s43 --seed 43
+[P3] --exp_id R5_cnxt_muon_s43 --optimizer muon --muon_lr_scale 1 --seed 43
+[P3] --exp_id R5_cnxt_adamw_s44 --seed 44
+[P3] --exp_id R5_cnxt_muon_s44 --optimizer muon --muon_lr_scale 1 --seed 44
+
+# ---- P4. EVA02-S 본 비교 AdamW vs Muon (통합안: Muon은 EVA02에서 우선) ---------------------------------
+# 378px(14의 배수), layer decay 0.75, drop path 0.1은 통합안 시작값. 3번(EVA02 담당) 설정과 같게 맞춘 뒤 실행.
+[P4] --exp_id R5_eva_adamw_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --seed 42
+[P4] --exp_id R5_eva_muon_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --optimizer muon --seed 42
+[P4] --exp_id R5_eva_adamw_s43 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --seed 43
+[P4] --exp_id R5_eva_muon_s43 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --optimizer muon --seed 43
+
+# ---- P5. SOAP (선택, 시간·GPU 여유가 있을 때만) ---------------------------------------------------------
+[P5] --exp_id R5_eva_soap_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --optimizer soap --seed 42

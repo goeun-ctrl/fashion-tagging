@@ -89,12 +89,14 @@ class FashionTagger(nn.Module):
 
 
 def build_model(model_name, num_classes, pooling="gap", head="linear", pretrained=True, img_size=None,
-                mlp_hidden=1024, query_dim=384, query_heads=8, head_dropout=0.1):
+                mlp_hidden=1024, query_dim=384, query_heads=8, head_dropout=0.1, drop_path=0.0):
     if pooling not in POOLS:
         raise ValueError(f"unknown pooling {pooling!r}; choose from {list(POOLS)}")
     if head not in HEADS:
         raise ValueError(f"unknown head {head!r}; choose from {list(HEADS)}")
     extra = {"img_size": img_size} if img_size else {}
+    if drop_path:
+        extra["drop_path_rate"] = drop_path   # stochastic depth (plan: 0.1 for ViT); 0 = team baseline
     if head == "linear":
         return timm.create_model(model_name, pretrained=pretrained, num_classes=num_classes,
                                  global_pool=POOLS[pooling], **extra)

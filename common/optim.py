@@ -12,13 +12,17 @@
   soap   SOAP from the pytorch-optimizer package (pip install pytorch-optimizer), same two groups as
          adamw. Optional: only for when time and GPU allow.
 
+layer_decay (e.g. 0.65-0.75 for EVA02 in the plan): lr of backbone layer i is multiplied by
+  layer_decay ** (depth - i) using timm's layer map, and biases / norms get no weight decay. Applies to
+  every optimizer above, so AdamW and Muon runs can share it. Off (None) = team baseline.
+
 Changing the optimizer usually needs its own lr / weight decay; record them in the results CSV.
 """
 import math
 
 import torch
 
-from heads import head_named_parameters
+from heads import FashionTagger, head_named_parameters
 
 OPTIMIZERS = ("adamw", "muon", "soap")
 SCHEDULERS = ("cosine", "constant")
@@ -34,33 +38,51 @@ def _muon_ok(name, p, in_head=False):
     return not any(k in name for k in _BODY_NOT_MUON)
 
 
-def _groups(pairs_by_lr, weight_decay):
-    return [{"params": [p for _, p in ps], "lr": lr, "weight_decay": weight_decay}
-            for lr, ps in pairs_by_lr if ps]
+def _settings(model, lr_backbone, lr_head, weight_decay, layer_decay):
+    """(name, param, lr, weight_decay, in_head) for every trainable parameter. Head params are named as in
+    head_named_parameters ("head.*" / "classifier.*") so the Muon rules above apply to them."""
+    head_names = {id(p): n for n, p in head_named_parameters(model)}
+    scale, wd_of = {}, {}
+    if layer_decay:
+        # timm's ViT/ConvNeXt layer map: lr_scale = layer_decay ** (depth - layer); 1D params get no decay
+        from timm.optim._param_groups import param_groups_layer_decay
+        target = model.backbone if isinstance(model, FashionTagger) else model
+        for g in param_groups_layer_decay(target, weight_decay=weight_decay, layer_decay=layer_decay):
+            for p in g["params"]:
+                scale[id(p)], wd_of[id(p)] = g["lr_scale"], g["weight_decay"]
+    out = []
+    for n, p in model.named_parameters():
+        if p.requires_grad:
+            h = id(p) in head_names
+            lr = (lr_head if h else lr_backbone) * scale.get(id(p), 1.0)   # wrapper heads: scale 1 (top)
+            out.append((head_names.get(id(p), n), p, lr, wd_of.get(id(p), weight_decay), h))
+    return out
+
+
+def _groups(items, lr_mult=1.0):
+    """Merge parameters with the same (lr, weight decay) into one param group, in model order."""
+    by = {}
+    for _, p, lr, wd, _ in items:
+        by.setdefault((lr * lr_mult, wd), []).append(p)
+    return [{"params": ps, "lr": lr, "weight_decay": wd} for (lr, wd), ps in by.items()]
 
 
 def build_optimizers(model, name="adamw", lr_backbone=1e-4, lr_head=1e-3, weight_decay=0.05,
-                     muon_momentum=0.95, muon_head=False, muon_lr_scale=1.0):
-    head = [(n, p) for n, p in head_named_parameters(model) if p.requires_grad]
-    head_ids = {id(p) for _, p in head}
-    body = [(n, p) for n, p in model.named_parameters() if p.requires_grad and id(p) not in head_ids]
+                     muon_momentum=0.95, muon_head=False, muon_lr_scale=1.0, layer_decay=None):
+    items = _settings(model, lr_backbone, lr_head, weight_decay, layer_decay)
 
     if name == "adamw":
-        return [torch.optim.AdamW(_groups([(lr_backbone, body), (lr_head, head)], weight_decay))]
+        return [torch.optim.AdamW(_groups(items))]
 
     if name == "muon":
         if not hasattr(torch.optim, "Muon"):
             raise RuntimeError(f"torch.optim.Muon needs PyTorch >= 2.9 (found {torch.__version__})")
-        body_m = [(n, p) for n, p in body if _muon_ok(n, p)]
-        head_m = [(n, p) for n, p in head if muon_head and _muon_ok(n, p, in_head=True)]
-        m_ids = {id(p) for _, p in body_m + head_m}
-        body_a = [(n, p) for n, p in body if id(p) not in m_ids]
-        head_a = [(n, p) for n, p in head if id(p) not in m_ids]
-        opts = [torch.optim.AdamW(_groups([(lr_backbone, body_a), (lr_head, head_a)], weight_decay))]
-        m_groups = _groups([(lr_backbone * muon_lr_scale, body_m), (lr_head * muon_lr_scale, head_m)],
-                           weight_decay)
-        if m_groups:
-            opts.insert(0, torch.optim.Muon(m_groups, momentum=muon_momentum, adjust_lr_fn="match_rms_adamw"))
+        to_muon = [it for it in items if _muon_ok(it[0], it[1], in_head=it[4]) and (muon_head or not it[4])]
+        m_ids = {id(it[1]) for it in to_muon}
+        opts = [torch.optim.AdamW(_groups([it for it in items if id(it[1]) not in m_ids]))]
+        if to_muon:
+            opts.insert(0, torch.optim.Muon(_groups(to_muon, muon_lr_scale), momentum=muon_momentum,
+                                            adjust_lr_fn="match_rms_adamw"))
         return opts
 
     if name == "soap":
@@ -68,7 +90,7 @@ def build_optimizers(model, name="adamw", lr_backbone=1e-4, lr_head=1e-3, weight
             from pytorch_optimizer import SOAP
         except ImportError as e:
             raise ImportError("SOAP needs the pytorch-optimizer package: pip install pytorch-optimizer") from e
-        return [SOAP(_groups([(lr_backbone, body), (lr_head, head)], weight_decay))]
+        return [SOAP(_groups(items))]
 
     raise ValueError(f"unknown optimizer {name!r}; choose from {list(OPTIMIZERS)}")
 
@@ -92,9 +114,15 @@ def build_schedulers(optimizers, kind, warmup_steps, total_steps):
 
 
 def describe(optimizers):
-    """Short text for logs: optimizer type and parameter count per group."""
+    """Short text for logs: optimizer type and parameter count per group (summarised when there are many)."""
     out = []
     for o in optimizers:
-        sizes = [f"lr={g['lr']:g}:{sum(p.numel() for p in g['params']):,}" for g in o.param_groups]
-        out.append(f"{type(o).__name__}[{', '.join(sizes)}]")
+        gs = o.param_groups
+        if len(gs) <= 4:
+            body = ", ".join(f"lr={g['lr']:g}:{sum(p.numel() for p in g['params']):,}" for g in gs)
+        else:
+            lrs = [g["lr"] for g in gs]
+            body = (f"{len(gs)} groups, lr {min(lrs):.3g}..{max(lrs):.3g}, "
+                    f"{sum(p.numel() for g in gs for p in g['params']):,} params")
+        out.append(f"{type(o).__name__}[{body}]")
     return " + ".join(out)
