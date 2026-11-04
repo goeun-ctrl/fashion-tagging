@@ -40,3 +40,11 @@
 
 # ---- P5. SOAP (선택, 시간·GPU 여유가 있을 때만) ---------------------------------------------------------
 [P5] --exp_id R5_eva_soap_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --optimizer soap --seed 42
+
+# ---- R. 과적합 대응 (ConvNeXt-T, AdamW 10 epoch = P2의 R5_cnxt_adamw_e10_s42와 한 가지씩만 다름) -----------
+# 근거: EMA(CLIP fine-tuning 연구), LP-FT(Kumar+ ICLR22), layer decay(BEiT), drop path(AugReg). 학습 길이는 P2 결과로 다시 정함.
+[R] --exp_id R5_cnxt_adamw_e10_ema_s42 --epochs 10 --ema 0.9995 --seed 42 --num_workers 6
+[R] --exp_id R5_cnxt_adamw_e10_lp1_s42 --epochs 10 --lp_epochs 1 --seed 42 --num_workers 6
+[R] --exp_id R5_cnxt_adamw_e10_ld08_s42 --epochs 10 --layer_decay 0.8 --seed 42 --num_workers 6
+[R] --exp_id R5_cnxt_adamw_e10_dp01_s42 --epochs 10 --drop_path 0.1 --seed 42 --num_workers 6
+# soup은 O3의 seed 3개가 나온 뒤: scripts/model_soup.py --runs R5_cnxt_adamw_s42 R5_cnxt_adamw_s43 R5_cnxt_adamw_s44

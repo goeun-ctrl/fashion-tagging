@@ -13,6 +13,7 @@
 | `--muon_lr_scale`, `--muon_momentum`, `--muon_head` | Muon 그룹만 조정 | `src/fashion_tagging/training/optim.py` |
 | `--layer_decay` | 예: `0.75` (ViT용, 0 = 끔) | `src/fashion_tagging/training/optim.py` |
 | `--drop_path` | 예: `0.1` (0 = 끔) | `src/fashion_tagging/models/heads.py` |
+| `--ema`, `--lp_epochs`, `--init_seed` | EMA / LP-FT / soup용 초기값 고정 (모두 기본 끔) | `scripts/train.py` |
 
 Muon+AdamW 분할: 백본의 2D 행렬(ViT qkv·proj·mlp, ConvNeXt pwconv)은 Muon, 나머지(4D conv, bias, norm,
 위치 임베딩, 분류기)는 AdamW. Muon lr은 `adjust_lr_fn="match_rms_adamw"`라 AdamW와 같은 눈금이다.

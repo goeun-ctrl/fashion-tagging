@@ -67,6 +67,7 @@ fashion-tagging/
 ├── scripts/                      ── 실행하는 코드 ──
 │   ├── train.py                  학습 + holdout으로 epoch 선택 + holdout/val 평가 + 결과 CSV 한 줄
 │   ├── run_queue.py              실험 목록 파일을 빈 GPU에 하나씩 실행
+│   ├── model_soup.py             여러 실험 가중치 평균 (uniform / greedy soup)
 │   ├── compare_runs.py           두 실험 그룹 비교 보고서 (seed 평균±표준편차, 부트스트랩, 수렴, 비용, 클래스별)
 │   ├── compare_preprocess.py     pad vs resize를 같은 설정으로 학습해 비교
 │   ├── aggregate_results.py      팀원 results CSV를 합친 통합 결과표
@@ -151,6 +152,9 @@ python scripts/train.py --exp_id smoke --max_train 256 --max_eval 128 --epochs 2
 | 배치 | `--batch_size`, `--accum` | 32, 1 | 실효 배치 = batch × accum |
 | 외부 데이터 | `--extra_train`, `--extra_weight`, `--extra_max` | 없음, 1, 0 | 라벨 1/0/-1 폴더를 학습에만 추가. 평가는 원본 그대로 (7-1장) |
 | 외부 데이터 색 | `--extra_color`, `--extra_color_jitter` | `off`, 0.2 | `match`: 폴더별 채도·밝기를 train_inner 평균에 맞춤 (±jitter) |
+| 과적합 대응 | `--ema` | 0 (끔) | 가중치 이동 평균(예: 0.9995). holdout 선택·체크포인트·최종 예측에 EMA 가중치 사용 |
+| 과적합 대응 | `--lp_epochs` | 0 (끔) | LP-FT: 처음 N epoch는 head만 학습(백본 고정), 이후 전체 학습(학습률 warmup 다시 시작) |
+| soup 준비 | `--init_seed` | -1 (끔) | 새 head 초기값만 고정. seed만 다른 실험이 같은 가중치에서 출발 → model soup용 |
 | 기타 | `--seed`, `--threshold` | 42, 0.5 | |
 
 **결과물**
@@ -170,6 +174,10 @@ python scripts/compare_runs.py --a S1_a_s42 S1_a_s43 --b S1_b_s42 S1_b_s43 --lab
 
 # pad vs resize
 python scripts/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val
+
+# model soup: 같은 설정·다른 seed 실험의 가중치 평균 (추론 비용 그대로). --greedy는 holdout이 오를 때만 추가
+python scripts/model_soup.py --exp_id S1_soup --runs S1_s42 S1_s43 S1_s44 --runs_dir runs \
+    --train_dir data/train --val_dir data/val --greedy
 
 # 오류 이미지 (worst / fn / fp / random / ok)
 python scripts/visualize_errors.py --pred runs/S1_cnxt_t_pad/preds_val.npz --images data/val --mode worst --out vis/s1
