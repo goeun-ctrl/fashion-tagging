@@ -54,6 +54,17 @@ external_merged/
 
 ## 3. 이미지 받기 (git에는 이미지가 없음)
 
+**방법 A — 이미지 포함 ZIP (추천, 바로 사용)**: GitHub Release `external_merged-v1`
+(https://github.com/goeun-ctrl/fashion-tagging/releases/tag/external_merged-v1)
+```
+gh release download external_merged-v1 -R goeun-ctrl/fashion-tagging
+cat external_merged_v1.zip.parta external_merged_v1.zip.partb > external_merged_v1.zip   # Windows: copy /b A + B out.zip
+shasum -a 256 -c SHA256SUMS.txt
+unzip external_merged_v1.zip -d data/external/
+```
+파일당 2GB 제한 때문에 2조각(1.31GB + 1.14GB)이다. 합친 ZIP의 SHA-256은 `36cac6f6…3ddf3c`.
+
+**방법 B — 원본 사이트에서 다시 받기**
 ```
 python scripts/external/fetch_external_images.py --dataset data/external/external_merged
 ```
