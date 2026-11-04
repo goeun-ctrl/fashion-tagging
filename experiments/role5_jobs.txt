@@ -11,6 +11,7 @@
 # ---- P1. Head·Pooling 예비 비교 (ConvNeXt-T, 나머지는 기준선과 동일) --------------------------------
 # 통합안상 head 확정 비교는 백본·손실·해상도가 정해진 뒤. 여기서는 경향만 본다.
 [P1] --exp_id R5_cnxt_query_s42 --head query --lr_head 1e-4 --seed 42
+[P1] --exp_id R5_cnxt_queryms_s42 --head query_ms --lr_head 1e-4 --seed 42
 [P1] --exp_id R5_cnxt_mlp_s42 --head mlp --seed 42
 [P1] --exp_id R5_cnxt_gmp_s42 --pooling gmp --seed 42
 [P1] --exp_id R5_cnxt_gapgmp_s42 --pooling gapgmp --seed 42

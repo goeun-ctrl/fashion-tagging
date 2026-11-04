@@ -6,7 +6,7 @@
 | 옵션 | 값 | 파일 |
 |---|---|---|
 | `--pooling` | `gap`(기본) / `gmp` / `gapgmp` | `src/fashion_tagging/models/heads.py` |
-| `--head` | `linear`(기본) / `mlp` / `query`(Q2L 계열, 통합안 C2) | `src/fashion_tagging/models/heads.py` |
+| `--head` | `linear`(기본) / `mlp` / `query`(Q2L 계열, 통합안 C2) / `query_ms`(C3, stride 16+32) | `src/fashion_tagging/models/heads.py` |
 | `--loss` | `bce`(기본) / `asl` (`--asl_gamma_neg 4 --asl_gamma_pos 0 --asl_clip 0.05`) | `src/fashion_tagging/training/losses.py` |
 | `--optimizer` | `adamw`(기본) / `muon`(Muon+AdamW) / `soap` | `src/fashion_tagging/training/optim.py` |
 | `--scheduler` | `cosine`(기본) / `constant` | `src/fashion_tagging/training/optim.py` |

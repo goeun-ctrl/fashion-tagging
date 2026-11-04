@@ -56,9 +56,9 @@ fashion-tagging/
 │   │   ├── preprocess.py         RGB → 종횡비 유지 resize → 검정 padding(또는 강제 resize) → 정규화
 │   │   └── dataset.py            FashionDataset (폴더 또는 ZIP, 학습 증강은 좌우 반전만)
 │   ├── models/
-│   │   └── heads.py              pooling(gap/gmp/gapgmp) + head(linear/mlp/query) + build_model
+│   │   └── heads.py              pooling(gap/gmp/gapgmp) + head(linear/mlp/query/query_ms) + build_model
 │   ├── training/
-│   │   ├── losses.py             BCE, ASL
+│   │   ├── losses.py             BCE, ASL (라벨 -1 = 모름은 손실에서 제외)
 │   │   └── optim.py              AdamW / Muon+AdamW / SOAP, layer decay, cosine·constant 스케줄
 │   └── evaluation/
 │       ├── metrics.py            Micro·Macro·Image-wise F1, 클래스별 TP/FP/FN, 예측 저장·불러오기
@@ -71,7 +71,8 @@ fashion-tagging/
 │   ├── compare_preprocess.py     pad vs resize를 같은 설정으로 학습해 비교
 │   ├── aggregate_results.py      팀원 results CSV를 합친 통합 결과표
 │   ├── visualize_errors.py       틀린 이미지 시트 (선정 규칙 고정·기록)
-│   └── make_split.py             train → train_inner / holdout 고정 분할 (이미 만들어져 있음)
+│   ├── make_split.py             train → train_inner / holdout 고정 분할 (이미 만들어져 있음)
+│   └── external/                 외부 데이터 만들기: build_external_labels → download_external_images → prepare_external
 │
 ├── configs/
 │   ├── baseline_convnext_tiny.yaml   기준선 설정 기록 (train.py가 읽지는 않음. 옵션은 명령줄로)
@@ -140,7 +141,7 @@ python scripts/train.py --exp_id smoke --max_train 256 --max_eval 128 --epochs 2
 | 모델 | `--model` | `convnext_tiny.fb_in22k_ft_in1k_384` | timm 모델 이름. ViT는 `--set_img_size` 추가 |
 | 입력 | `--size`, `--preprocess_mode` | 384, `pad` | `pad` / `resize` |
 | Pooling | `--pooling` | `gap` | `gap` / `gmp` / `gapgmp` (`--head query`에서는 안 씀) |
-| Head | `--head` | `linear` | `linear` / `mlp`(`--mlp_hidden`) / `query`(`--query_dim`, `--query_heads`) |
+| Head | `--head` | `linear` | `linear` / `mlp`(`--mlp_hidden`) / `query`(C2, `--query_dim`, `--query_heads`) / `query_ms`(C3, stride 16+32, CNN만) |
 | Loss | `--loss` | `bce` | `bce` / `asl` (`--asl_gamma_neg 4 --asl_gamma_pos 0 --asl_clip 0.05`) |
 | Optimizer | `--optimizer` | `adamw` | `adamw` / `muon`(`--muon_lr_scale`, `--muon_momentum`, `--muon_head`) / `soap` |
 | 학습률 | `--lr_backbone`, `--lr_head` | 1e-4, 1e-3 | |
@@ -148,6 +149,7 @@ python scripts/train.py --exp_id smoke --max_train 256 --max_eval 128 --epochs 2
 | 스케줄 | `--scheduler`, `--warmup_ratio` | `cosine`, 0.05 | `cosine` / `constant` |
 | 길이 | `--epochs`, `--patience` | 30, 5 | holdout Macro F1이 patience번 연속 안 오르면 종료 |
 | 배치 | `--batch_size`, `--accum` | 32, 1 | 실효 배치 = batch × accum |
+| 외부 데이터 | `--extra_train`, `--extra_weight`, `--extra_max` | 없음, 1, 0 | 라벨 1/0/-1 폴더를 학습에만 추가. 평가는 원본 그대로 (8장 참고) |
 | 기타 | `--seed`, `--threshold` | 42, 0.5 | |
 
 **결과물**
@@ -191,6 +193,22 @@ python tests/test_visualize.py
 ```
 
 ---
+
+## 7-1. 외부 데이터 (희귀 클래스 보강)
+
+jumpsuit·glove·vest·cape·umbrella 보강용으로 LVIS·Open Images 이미지를 우리 27개 클래스 라벨로 바꾼 폴더를 만든다.
+외부 데이터셋은 27개를 모두 주석하지 않으므로 라벨은 **1(있음) / 0(없음 확인) / -1(모름)**이고, -1은 손실에서 빠진다.
+```
+python scripts/external/build_external_labels.py --root ~/fashion_tagging/external --categories data/train/categories.txt
+python scripts/external/download_external_images.py --root ~/fashion_tagging/external
+python scripts/external/prepare_external.py --root ~/fashion_tagging/external \
+    --ours data/train data/val data/test_public data/examples_labeled --out data/external/rare_extra_clean
+python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/rare_extra_clean --train_dir data/train --val_dir data/val
+```
+- `prepare_external.py`는 깨진·작은 이미지, **우리 train/val/test와 겹치는 이미지**(지각 해시), 외부끼리 중복을 뺀다.
+  `report.md`(제외 이유·클래스별 라벨 수)와 `review/<클래스>.jpg`(눈으로 확인용)를 만든다.
+- 외부 이미지는 학습에만 쓴다. holdout·공식 val은 원본 그대로여서 외부 데이터 없이 돌린 실험과 바로 비교된다.
+- 데이터는 git에 올리지 않는다(`data/external/`). leg warmer는 외부에서 찾지 못했다.
 
 ## 8. 꼭 지킬 것 (자세히: `docs/guide/README_팀공유.md`)
 

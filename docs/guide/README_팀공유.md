@@ -13,7 +13,7 @@
 | `src/fashion_tagging/data/dataset.py` | `FashionDataset`. 폴더 또는 ZIP에서 읽음. train은 hflip p=0.5만 |
 | `src/fashion_tagging/evaluation/metrics.py` | Micro / Macro / Image-wise F1, 클래스별 TP·FP·FN, 확률 저장·불러오기 |
 | `src/fashion_tagging/evaluation/bootstrap.py` | 같은 이미지에 대한 두 예측의 짝지은 부트스트랩 구간 |
-| `src/fashion_tagging/models/heads.py` | pooling(gap/gmp/gapgmp)·head(linear/mlp/query)와 모델 생성 |
+| `src/fashion_tagging/models/heads.py` | pooling(gap/gmp/gapgmp)·head(linear/mlp/query/query_ms)와 모델 생성 |
 | `src/fashion_tagging/training/losses.py`, `optim.py` | loss(BCE/ASL), optimizer(AdamW/Muon/SOAP)·scheduler |
 | `src/fashion_tagging/paths.py` | 저장소 경로(configs, data/splits, scripts) |
 | `scripts/train.py` | 학습·평가. 기본값은 BCE+AdamW+cosine 기준선. holdout으로 epoch 선택, holdout/val 예측(.npz)과 결과 CSV 한 줄 저장 |
@@ -23,6 +23,7 @@
 | `scripts/aggregate_results.py` | 팀원들의 results CSV를 합쳐 통합 결과표(성능·설정·비용·클래스별 F1)와 경고 목록을 만든다 |
 | `scripts/visualize_errors.py` | 틀린 이미지를 정답·예측·확률과 함께 보여 주는 시트(JPG)와 기록(JSON) 생성 |
 | `scripts/run_queue.py` | 실험 목록을 빈 GPU에 하나씩 실행 |
+| `scripts/external/*.py` | 외부 데이터(LVIS·Open Images) 라벨 변환·다운로드·정리(중복 제거) |
 | `data/splits/train_inner.txt`, `holdout.txt` | 학습용 43,197장, 내부 검증용 2,425장 (파일명 목록) |
 | `data/splits/split_summary.csv` | 클래스별 split 개수 |
 | `configs/` | 기준선 YAML, 결과 CSV 양식 |
