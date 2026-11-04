@@ -1,6 +1,6 @@
 """Merge the team's results CSVs into one comparison report.
 
-    python common/aggregate_results.py --csv results/*.csv --runs_dirs runs server2/runs \
+    python common/tools/aggregate_results.py --csv results/*.csv --runs_dirs runs server2/runs \
         --baseline S1_cnxt_t_pad --out report/
 
 Inputs
@@ -25,8 +25,9 @@ import sys
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.abspath(__file__))       # common/tools
+COMMON = os.path.dirname(HERE)                          # common/
+sys.path[:0] = [COMMON, HERE]
 sys.stdout.reconfigure(errors="replace")
 from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
 

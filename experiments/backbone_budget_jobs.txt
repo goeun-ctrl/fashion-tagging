@@ -1,5 +1,5 @@
 # 백본 비교: 같은 튜닝 예산 (설명: experiments/backbone_equal_budget.md)
-#   python common/run_queue.py --jobs experiments/backbone_budget_jobs.txt --gpus 0 1 2 3 --only B1 \
+#   python common/tools/run_queue.py --jobs experiments/backbone_budget_jobs.txt --gpus 0 1 2 3 --only B1 \
 #       --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
 # 공통: BCE, AdamW, wd 0.05, batch 32, warmup 5% + cosine, pad, hflip, threshold 0.5, head lr = backbone lr x 10.
 

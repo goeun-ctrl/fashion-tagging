@@ -23,14 +23,14 @@ Muon+AdamW 분할: 백본의 2D 행렬(ViT qkv·proj·mlp, ConvNeXt pwconv)은 M
 ## 실행 순서 (GPU 서버)
 ```
 # 1) 실험 목록 확인 (아무것도 실행하지 않음)
-python common/run_queue.py --jobs experiments/role5_jobs.txt --only P1 --train_dir data/train --val_dir data/val --dry_run
+python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --only P1 --train_dir data/train --val_dir data/val --dry_run
 
 # 2) 실행: 빈 GPU마다 한 개씩. SSH가 끊겨도 돌도록 nohup으로
-nohup python common/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
+nohup python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
     --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv > queue_P1.log 2>&1 &
 
 # 3) 두 그룹 비교 (seed가 여러 개면 같은 순서로 나열)
-python common/compare_runs.py --a R5_cnxt_adamw_s42 --b R5_cnxt_query_s42 --labels linear query \
+python common/tools/compare_runs.py --a R5_cnxt_adamw_s42 --b R5_cnxt_query_s42 --labels linear query \
     --runs_dirs runs --csv results/results.csv --out report/linear_vs_query
 ```
 - 끝난 실험(`runs/<exp_id>/preds_val.npz`가 있음)은 다시 돌리지 않는다. 중간에 끊긴 실험은 처음부터 다시 돈다.

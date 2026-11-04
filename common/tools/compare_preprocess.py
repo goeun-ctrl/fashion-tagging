@@ -6,7 +6,7 @@ batch size) except --preprocess_mode, then compares the saved predictions:
   * paired bootstrap over images: is the difference larger than resampling noise?
   * per-class F1 for both modes
 
-    python common/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val \
+    python common/tools/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val \
         --out_dir runs --results_csv results/results.csv
 Extra arguments (--model, --epochs, --size, --batch_size, ...) are passed through to train_eval.py.
 Use --skip_train to only redo the comparison of runs that already exist.
@@ -20,8 +20,9 @@ import sys
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.abspath(__file__))       # common/tools
+COMMON = os.path.dirname(HERE)                          # common/
+sys.path[:0] = [COMMON, HERE]
 sys.stdout.reconfigure(errors="replace")  # Windows consoles (cp949) must not crash on a special character
 from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
 
@@ -31,7 +32,7 @@ KEYS = (("micro_f1", "Micro F1"), ("macro_f1", "Macro F1"), ("image_f1", "Image-
 
 def run_pair(prefix, args, rest):
     for mode in MODES:
-        cmd = [sys.executable, os.path.join(HERE, "train_eval.py"), "--exp_id", f"{prefix}_{mode}",
+        cmd = [sys.executable, os.path.join(COMMON, "train_eval.py"), "--exp_id", f"{prefix}_{mode}",
                "--preprocess_mode", mode, "--seed", str(args.seed), "--threshold", str(args.threshold),
                "--out_dir", args.out_dir, "--results_csv", args.results_csv] + rest
         print("RUN", " ".join(cmd), flush=True)

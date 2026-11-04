@@ -7,18 +7,19 @@
 ```
 .
 ├── README.md                    이 파일
-├── common/                      팀 공통 코드 (모든 실험이 같이 쓴다. 경로를 바꾸지 않는다)
+├── common/                      팀 공통 코드 (바로 아래 모듈은 팀원 코드가 import하므로 위치 고정)
 │   ├── README_팀공유.md          공통 코드 사용법·지표 정의·지켜야 할 규칙
 │   ├── labels.py  dataset.py  preprocess.py  metrics.py      데이터·전처리·평가
 │   ├── train_eval.py            학습·평가 (pooling/head/loss/optimizer 옵션, 기본값 = 팀 기준선)
 │   ├── heads.py  losses.py  optim.py                          train_eval.py의 교체 가능한 부품
-│   ├── make_split.py            train → train_inner / holdout 고정 분할
-│   ├── compare_preprocess.py    pad vs resize 비교
-│   ├── compare_runs.py          두 실험 그룹 비교 보고서 (seed 평균, 부트스트랩, 수렴, 비용)
-│   ├── aggregate_results.py     팀 결과 CSV 통합표
-│   ├── visualize_errors.py      오류 이미지 시트
-│   ├── run_queue.py             실험 목록을 빈 GPU에 순서대로 실행
-│   ├── test_*.py                검증 테스트
+│   ├── tools/                   실행용 도구
+│   │   ├── make_split.py            train → train_inner / holdout 고정 분할
+│   │   ├── compare_preprocess.py    pad vs resize 비교
+│   │   ├── compare_runs.py          두 실험 그룹 비교 보고서 (seed 평균, 부트스트랩, 수렴, 비용)
+│   │   ├── aggregate_results.py     팀 결과 CSV 통합표
+│   │   ├── visualize_errors.py      오류 이미지 시트
+│   │   └── run_queue.py             실험 목록을 빈 GPU에 순서대로 실행
+│   ├── tests/                   검증 테스트 (test_metrics, test_data, test_aggregate, test_visualize)
 │   ├── configs/                 기준선 YAML, 결과 CSV 양식
 │   └── splits/                  train_inner.txt, holdout.txt, split_summary.csv (클래스별 분포)
 ├── experiments/                 실험 계획과 실행 목록

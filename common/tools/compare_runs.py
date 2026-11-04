@@ -4,7 +4,7 @@ Each group is one or more exp_ids (different seeds of the same setting). Uses on
 train_eval.py already writes: runs/<exp_id>/preds_holdout.npz, preds_val.npz, log.json, and optionally
 the results CSV for cost columns.
 
-    python common/compare_runs.py --a S1_cnxt_adamw_s42 S1_cnxt_adamw_s43 --b S5_cnxt_muon_s42 S5_cnxt_muon_s43 \
+    python common/tools/compare_runs.py --a S1_cnxt_adamw_s42 S1_cnxt_adamw_s43 --b S5_cnxt_muon_s42 S5_cnxt_muon_s43 \
         --labels AdamW Muon --runs_dirs runs --csv results/results.csv --out report/adamw_vs_muon
 
 Report (<out>/comparison.md, comparison_per_class.csv, curves.png if matplotlib is installed)
@@ -24,8 +24,9 @@ import sys
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.abspath(__file__))       # common/tools
+COMMON = os.path.dirname(HERE)                          # common/
+sys.path[:0] = [COMMON, HERE]
 sys.stdout.reconfigure(errors="replace")
 from compare_preprocess import KEYS, bootstrap_diff  # noqa: E402
 from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402

@@ -7,7 +7,7 @@ official val is not reused for selection.
 Rare classes are filled first so that every class gets about HOLDOUT_FRAC of
 its positives in the holdout (a plain random 5% would leave ~3 leg warmers).
 
-Usage:  python common/make_split.py --train_zip MAT4091_fashion_train.zip
+Usage:  python common/tools/make_split.py --train_zip MAT4091_fashion_train.zip
 Outputs (common/splits/): train_inner.txt, holdout.txt, split_summary.csv
 """
 import argparse
@@ -18,7 +18,8 @@ import sys
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+COMMON = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # common/
+sys.path.insert(0, COMMON)
 from labels import load_split_from_zip  # noqa: E402
 
 HOLDOUT_FRAC = 0.05
@@ -48,7 +49,7 @@ def make_split(targets, frac=HOLDOUT_FRAC, seed=SEED):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--train_zip", required=True)
-    ap.add_argument("--out_dir", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "splits"))
+    ap.add_argument("--out_dir", default=os.path.join(COMMON, "splits"))
     a = ap.parse_args()
 
     cats, names, targets = load_split_from_zip(a.train_zip, "train")

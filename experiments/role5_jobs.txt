@@ -1,5 +1,5 @@
-# 5번(Optimizer + Head) 실험 목록. common/run_queue.py 로 실행한다.
-#   python common/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
+# 5번(Optimizer + Head) 실험 목록. common/tools/run_queue.py 로 실행한다.
+#   python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
 #       --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
 # 한 줄 = train_eval.py 인자. 적지 않은 값은 팀 기준선 기본값(30 epoch, batch 32, 384px, pad, BCE, AdamW,
 # lr 1e-4/1e-3, wd 0.05, cosine, warmup 5%, holdout macro F1 early stop patience 5).

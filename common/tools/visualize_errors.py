@@ -11,9 +11,9 @@ Selection modes (deterministic; nothing is hand-picked):
   ok      random correctly predicted images, seeded (to see what success looks like)
 
 Examples
-  python common/visualize_errors.py --pred preds/exp1_val.npz --images MAT4091_fashion_val.zip \
+  python common/tools/visualize_errors.py --pred preds/exp1_val.npz --images MAT4091_fashion_val.zip \
       --zip_prefix val --mode worst --out vis/exp1
-  python common/visualize_errors.py --pred preds/exp1_val.npz --images data/val \
+  python common/tools/visualize_errors.py --pred preds/exp1_val.npz --images data/val \
       --mode fn --class watch --k 12 --out vis/exp1
 """
 import argparse
@@ -24,7 +24,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # common/
 from dataset import FashionDataset  # noqa: E402
 from metrics import binarize, load_predictions, sigmoid  # noqa: E402
 

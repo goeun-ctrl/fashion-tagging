@@ -3,7 +3,7 @@
 - 받는 사람: 2번(ConvNeXt-T), 3번(EVA02-S)
 - 보내는 사람: 5번 (Optimizer·Head)
 - 작성일: 2026-11-04
-- 관련 파일: `experiments/backbone_budget_jobs.txt` (실험 목록), `common/compare_runs.py` (비교 보고서)
+- 관련 파일: `experiments/backbone_budget_jobs.txt` (실험 목록), `common/tools/compare_runs.py` (비교 보고서)
 
 ---
 
@@ -134,17 +134,17 @@ S2의 epoch당 약 4분(학습 구간, batch 16, 공유 GPU)으로 추정. EVA02
 
 ```
 cd /data/eunjin/DL/fassion_tagging        # 또는 각자 공통 코드 최신본(8a2de2c 이상) 위치
-python common/run_queue.py --jobs experiments/backbone_budget_jobs.txt --only B1 --dry_run \
+python common/tools/run_queue.py --jobs experiments/backbone_budget_jobs.txt --only B1 --dry_run \
     --train_dir data/train --val_dir data/val           # 실행할 명령 확인만
 
-nohup python common/run_queue.py --jobs experiments/backbone_budget_jobs.txt --gpus 0 1 2 3 --only B1 \
+nohup python common/tools/run_queue.py --jobs experiments/backbone_budget_jobs.txt --gpus 0 1 2 3 --only B1 \
     --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv > queue_B1.log 2>&1 &
 ```
 
 - 1단계 결과를 보고 `backbone_budget_jobs.txt`의 B2 줄에 고른 lr(또는 drop path/layer decay)을 채운 뒤 `--only B2`로 실행.
 - 비교:
   ```
-  python common/compare_runs.py --a B2_cnxt_best_s42 B2_cnxt_best_s43 B2_cnxt_best_s44 \
+  python common/tools/compare_runs.py --a B2_cnxt_best_s42 B2_cnxt_best_s43 B2_cnxt_best_s44 \
       --b B2_eva_best_s42 B2_eva_best_s43 B2_eva_best_s44 --labels ConvNeXt-T EVA02-S \
       --runs_dirs runs --csv results/results.csv --out report/backbone
   ```

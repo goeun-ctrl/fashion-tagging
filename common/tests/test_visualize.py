@@ -1,4 +1,4 @@
-"""Tests for the error-visualisation tool. Run:  python common/test_visualize.py
+"""Tests for the error-visualisation tool. Run:  python common/tests/test_visualize.py
 
 Uses synthetic logits (NOT model output) on real val images, only to check the tool.
 """
@@ -11,8 +11,9 @@ import tempfile
 import numpy as np
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.abspath(__file__))       # common/tests
+COMMON = os.path.dirname(HERE)                          # common/
+sys.path[:0] = [COMMON, os.path.join(COMMON, "tools")]
 from labels import load_split_from_zip  # noqa: E402
 from metrics import binarize, save_predictions, sigmoid  # noqa: E402
 from visualize_errors import select  # noqa: E402
@@ -38,7 +39,7 @@ assert r1 == select("random", y_true, probs, pred, names, k=2, seed=7)[0]   # se
 assert set(r1) <= {0, 1, 3}                                                  # only images with errors
 
 # 2. end-to-end CLI on real val ZIP images with synthetic logits
-root = os.path.dirname(HERE)
+root = os.path.dirname(COMMON)
 vz = os.path.join(root, "MAT4091_fashion_val.zip")
 cats, vnames, vt = load_split_from_zip(vz, "val")
 n = 60
@@ -47,7 +48,7 @@ logits = (vt[:n] * 4.0 - 2.0) + rng.normal(0, 2.5, size=(n, 27))
 with tempfile.TemporaryDirectory() as d:
     p = os.path.join(d, "fake.npz")
     save_predictions(p, vnames[:n], vt[:n], logits, cats)
-    cmd = [sys.executable, "-I", os.path.join(HERE, "visualize_errors.py"), "--pred", p, "--images", vz,
+    cmd = [sys.executable, "-I", os.path.join(COMMON, "tools", "visualize_errors.py"), "--pred", p, "--images", vz,
            "--zip_prefix", "val", "--out", d]
     for extra in (["--mode", "worst", "--k", "8"], ["--mode", "fn", "--class", "shoe", "--k", "4"],
                   ["--mode", "fp", "--class", "shirt, blouse", "--k", "4"], ["--mode", "random", "--k", "5"]):

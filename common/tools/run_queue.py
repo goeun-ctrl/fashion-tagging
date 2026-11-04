@@ -1,9 +1,9 @@
 """Run a list of train_eval.py jobs on several GPUs, one job per GPU at a time.
 
-    python common/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 \
+    python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 \
         --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
-    python common/run_queue.py --jobs ... --only P1          # only the lines tagged [P1]
-    python common/run_queue.py --jobs ... --dry_run          # print the commands, run nothing
+    python common/tools/run_queue.py --jobs ... --only P1          # only the lines tagged [P1]
+    python common/tools/run_queue.py --jobs ... --dry_run          # print the commands, run nothing
 
 Job file: one job per line = train_eval.py arguments (must contain --exp_id). '#' starts a comment.
 A leading tag like "[P1]" groups jobs for --only. A job is skipped when runs/<exp_id>/preds_val.npz
@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+COMMON = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # common/
 
 
 def parse_jobs(path, only):
@@ -60,7 +60,7 @@ def main():
         if os.path.exists(os.path.join(a.out_dir, exp_id, "preds_val.npz")):
             print(f"skip {exp_id} (already finished)")
             continue
-        cmd = [sys.executable, os.path.join(HERE, "train_eval.py"), *args, "--train_dir", a.train_dir,
+        cmd = [sys.executable, os.path.join(COMMON, "train_eval.py"), *args, "--train_dir", a.train_dir,
                "--val_dir", a.val_dir, "--out_dir", a.out_dir, "--results_csv", a.results_csv]
         todo.append((exp_id, cmd))
     print(f"{len(todo)} job(s) on GPU(s) {', '.join(a.gpus)}")
