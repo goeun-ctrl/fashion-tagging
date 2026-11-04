@@ -202,9 +202,14 @@ jumpsuit·glove·vest·cape·umbrella 보강용으로 LVIS·Open Images 이미�
 ```
 python scripts/external/build_external_labels.py --root ~/fashion_tagging/external --categories data/train/categories.txt
 python scripts/external/download_external_images.py --root ~/fashion_tagging/external
+python scripts/external/flag_domains.py --dataset ~/fashion_tagging/external/rare_extra_clean --out flags/flagged_domains.csv
 python scripts/external/prepare_external.py --root ~/fashion_tagging/external \
-    --ours data/train data/val data/test_public data/examples_labeled --out data/external/rare_extra_clean
-python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/rare_extra_clean --train_dir data/train --val_dir data/val
+    --ours data/train data/val data/test_public data/examples_labeled --out ~/fashion_tagging/external/rare_extra_clean \
+    --exclude_list flags/exclude_6domains.csv
+python scripts/external/merge_external.py --inputs ~/fashion_tagging/external/rare_extra_clean \
+    ~/fashion_tagging/external/legwarmer_web_crop --out data/external/external_merged
+python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/external_merged --extra_color match \
+    --train_dir data/train --val_dir data/val
 ```
 - `prepare_external.py`는 깨진·작은 이미지, **우리 train/val/test와 겹치는 이미지**(지각 해시), 외부끼리 중복을 뺀다.
   `report.md`(제외 이유·클래스별 라벨 수)와 `review/<클래스>.jpg`(눈으로 확인용)를 만든다.
@@ -214,6 +219,9 @@ python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/rare_
   → `data/external/legwarmer_web_crop` (183장, leg warmer = 1, 나머지 -1).
 - `flag_domains.py`(CLIP)로 스포츠·군대·작업복 등 패션과 먼 장면을 표시할 수 있다(적용은 수동 확인 후).
 - **주의**: 원본 train_inner에 holdout 47장·val 19장과 사실상 같은 사진이 있다(`prepare_external`류 지각 해시+픽셀 비교).
+- **학습에 쓰는 폴더는 `data/external/external_merged` 하나**(9,731장: LVIS·Open Images 9,548 + leg warmer 웹 크롭 183).
+  CLIP으로 야구·군대·단체 구기·기타 경기·장난감·탈것 장면 1,826장, 야구 장면의 glove 563장은 이미 뺐다.
+  `sources.csv`의 `group`별로 `--extra_color match` 색 보정 배율을 따로 계산한다.
 - 데이터는 git에 올리지 않는다(`data/external/`).
 
 ## 8. 꼭 지킬 것 (자세히: `docs/guide/README_팀공유.md`)
