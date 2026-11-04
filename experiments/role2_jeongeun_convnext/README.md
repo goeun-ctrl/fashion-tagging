@@ -4,6 +4,8 @@
 
 ## 먼저 읽을 자료
 
+- [전체 27개 카테고리 결과: holdout·val 정답 수 / Precision / Recall / F1 / TP·FP·FN](artifacts/팀공유_보고서/ConvNeXt_Tiny_전체27개_클래스별결과.md)
+
 - [한국어 팀 공유 보고서](artifacts/팀공유_보고서/ConvNeXt_Tiny_팀공유_실험보고서.md)
 - [6쪽 PDF](artifacts/팀공유_보고서/ConvNeXt_Tiny_팀공유_실험보고서.pdf)
 - [클래스별 약점·과적합 상세 분석](artifacts/클래스별_약점_과적합_분석.md)
