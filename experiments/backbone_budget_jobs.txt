@@ -1,0 +1,23 @@
+# 백본 비교: 같은 튜닝 예산 (설명: experiments/backbone_equal_budget.md)
+#   python common/run_queue.py --jobs experiments/backbone_budget_jobs.txt --gpus 0 1 2 3 --only B1 \
+#       --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
+# 공통: BCE, AdamW, wd 0.05, batch 32, warmup 5% + cosine, pad, hflip, threshold 0.5, head lr = backbone lr x 10.
+
+# ---- B1. 1단계 예비 탐색: 백본당 4개, 10 epoch, seed 42 ----------------------------------------------
+[B1] --exp_id B1_cnxt_lr5e-5_e10 --lr_backbone 5e-5 --lr_head 5e-4 --epochs 10 --seed 42
+[B1] --exp_id B1_cnxt_lr1e-4_e10 --lr_backbone 1e-4 --lr_head 1e-3 --epochs 10 --seed 42
+[B1] --exp_id B1_cnxt_lr2e-4_e10 --lr_backbone 2e-4 --lr_head 2e-3 --epochs 10 --seed 42
+[B1] --exp_id B1_cnxt_lr1e-4_dp0.1_e10 --lr_backbone 1e-4 --lr_head 1e-3 --drop_path 0.1 --epochs 10 --seed 42
+[B1] --exp_id B1_eva_lr5e-5_e10 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 5e-5 --lr_head 5e-4 --epochs 10 --seed 42
+[B1] --exp_id B1_eva_lr1e-4_e10 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 1e-4 --lr_head 1e-3 --epochs 10 --seed 42
+[B1] --exp_id B1_eva_lr2e-4_e10 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 2e-4 --lr_head 2e-3 --epochs 10 --seed 42
+[B1] --exp_id B1_eva_lr1e-4_ld0.65_e10 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.65 --drop_path 0.1 --lr_backbone 1e-4 --lr_head 1e-3 --epochs 10 --seed 42
+
+# ---- B2. 2단계 본 비교: 백본당 최고 설정 x seed 3개, 30 epoch (patience 5) ---------------------------------
+# !! 실행 전에 B1 결과로 고른 값으로 아래 lr / drop_path / layer_decay를 바꾼다 (지금 값은 자리표시: 기준 1e-4).
+[B2] --exp_id B2_cnxt_best_s42 --lr_backbone 1e-4 --lr_head 1e-3 --seed 42
+[B2] --exp_id B2_cnxt_best_s43 --lr_backbone 1e-4 --lr_head 1e-3 --seed 43
+[B2] --exp_id B2_cnxt_best_s44 --lr_backbone 1e-4 --lr_head 1e-3 --seed 44
+[B2] --exp_id B2_eva_best_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 1e-4 --lr_head 1e-3 --seed 42
+[B2] --exp_id B2_eva_best_s43 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 1e-4 --lr_head 1e-3 --seed 43
+[B2] --exp_id B2_eva_best_s44 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --lr_backbone 1e-4 --lr_head 1e-3 --seed 44
