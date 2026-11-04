@@ -175,6 +175,9 @@ python scripts/compare_runs.py --a S1_a_s42 S1_a_s43 --b S1_b_s42 S1_b_s43 --lab
 # pad vs resize
 python scripts/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val
 
+# 임계값 조정: holdout으로 공통·클래스별 임계값 선택, 반반 교차 점검, val은 보고만
+python scripts/tune_threshold.py --run runs/S1_cnxt_t_pad --out report/thr_S1
+
 # model soup: 같은 설정·다른 seed 실험의 가중치 평균 (추론 비용 그대로). --greedy는 holdout이 오를 때만 추가
 python scripts/model_soup.py --exp_id S1_soup --runs S1_s42 S1_s43 S1_s44 --runs_dir runs \
     --train_dir data/train --val_dir data/val --greedy
