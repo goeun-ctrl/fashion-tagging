@@ -16,6 +16,8 @@ tmp/
 
 # 학습 산출물 (체크포인트, 예측 파일, 로그). 결과 공유는 공유 폴더로 한다
 runs/
+results/
+queue_*.log
 report/
 vis/
 preds/
