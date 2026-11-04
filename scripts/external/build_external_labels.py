@@ -8,6 +8,8 @@ Only clear one-to-one meanings are mapped; ambiguous external classes (generic s
 parasol, suit, robe, helmet, ...) are left out, so they only ever produce -1.
 
 Candidates = images positive for at least one target class (jumpsuit, glove, vest, cape, umbrella, leg warmer).
+Context rule: an image whose target positive is only explained by sport gear is dropped, e.g. a glove positive
+in a baseball scene (baseball/softball gloves are not fashion). See EXCLUDE_CONTEXT.
 
     python scripts/external/build_external_labels.py --root ~/fashion_tagging/external --categories data/train/categories.txt
 Needs under --root: lvis/lvis_v1_{train,val}.json, openimages/oidv7-class-descriptions.csv,
@@ -65,6 +67,26 @@ MAP = {
 }
 assert set(MAP) == set(CATS), set(CATS) ^ set(MAP)
 
+# drop the image when it is positive for <our class> and also contains one of these external classes
+EXCLUDE_CONTEXT = {
+    "glove": (
+        {"baseball", "baseball_bat", "baseball_glove", "baseball_base", "home_plate_(baseball)", "mound_(baseball)",
+         "softball"},                                                       # LVIS (baseball_cap is kept: fashion)
+        {"Baseball (ball)", "Baseball (sport)", "Baseball bat", "Baseball equipment", "Baseball field",
+         "Baseball glove", "Baseball park", "Baseball player", "Baseball positions", "Baseball protective gear",
+         "Baseball umpire", "Baseball uniform", "Batting glove", "Batting helmet", "Catcher", "College baseball",
+         "College softball"}),                                              # Open Images
+}
+excluded = defaultdict(int)
+
+
+def excluded_by_context(lab, pos_names, source_idx):
+    for cls, ctx in EXCLUDE_CONTEXT.items():
+        if lab[CATS.index(cls)] == 1 and pos_names & ctx[source_idx]:
+            excluded[(cls, ("lvis", "openimages")[source_idx])] += 1
+            return True
+    return False
+
 
 def decide(pos_names, neg_names, mapped):
     if not mapped:
@@ -88,7 +110,7 @@ for split in ("train", "val"):
         p = pos.get(im["id"], set())
         neg = {cname[i] for i in im.get("neg_category_ids", [])}
         lab = [decide(p, neg, MAP[c][0]) for c in CATS]
-        if any(lab[CATS.index(t)] == 1 for t in TARGETS):
+        if any(lab[CATS.index(t)] == 1 for t in TARGETS) and not excluded_by_context(lab, p, 0):
             rows.append(["lvis", split, im["id"], im["coco_url"], *lab])
 
 # ---------------- Open Images ----------------
@@ -107,7 +129,7 @@ for split, fn in files.items():
             (pos if r[3] == "1" else neg)[r[0]].add(name)
     for iid in set(pos) | set(neg):
         lab = [decide(pos[iid], neg[iid], MAP[c][1]) for c in CATS]
-        if any(lab[CATS.index(t)] == 1 for t in TARGETS):
+        if any(lab[CATS.index(t)] == 1 for t in TARGETS) and not excluded_by_context(lab, pos[iid], 1):
             rows.append(["openimages", split, iid, f"https://open-images-dataset.s3.amazonaws.com/{split}/{iid}.jpg", *lab])
 
 with open(os.path.join(E, "external_labels.csv"), "w", newline="", encoding="utf-8") as fh:
@@ -127,6 +149,7 @@ by = defaultdict(int)
 for r in rows:
     by[r[0]] += 1
 print(f"candidate images: {len(rows)} ({dict(by)})")
+print("dropped by context rule:", {f"{c} ({s})": n for (c, s), n in excluded.items()})
 print(f"{'class':42s}{'pos':>7s}{'neg':>7s}{'unknown':>9s}")
 for c, p, n, u in summ:
     print(f"{c:42s}{p:7d}{n:7d}{u:9d}")
