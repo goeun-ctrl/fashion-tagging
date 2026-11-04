@@ -6,7 +6,7 @@
 # exp_id는 팀 전체에서 겹치지 않게 R5_ 로 시작한다. 한 실험에서 한 가지만 바꾼다.
 
 # ---- P0. 기준선 (1·2번의 S1 결과가 공유되면 돌리지 않고 그 결과를 쓴다) ---------------------------
-[P0] --exp_id R5_cnxt_adamw_s42 --seed 42
+[P0] --exp_id R5_cnxt_adamw_s42 --seed 42 --num_workers 6
 
 # ---- P1. Head·Pooling 예비 비교 (ConvNeXt-T, 나머지는 기준선과 동일) --------------------------------
 # 통합안상 head 확정 비교는 백본·손실·해상도가 정해진 뒤. 여기서는 경향만 본다.
@@ -18,10 +18,10 @@
 
 # ---- P2. Muon 학습률 탐색 (짧게 10 epoch, AdamW 10 epoch 짝과 비교) ---------------------------------
 # muon_lr_scale은 Muon 그룹의 lr만 곱한다(AdamW 쪽 bias·norm·head는 그대로).
-[P2] --exp_id R5_cnxt_adamw_e10_s42 --epochs 10 --seed 42
-[P2] --exp_id R5_cnxt_muon_x0.5_e10_s42 --optimizer muon --muon_lr_scale 0.5 --epochs 10 --seed 42
-[P2] --exp_id R5_cnxt_muon_x1_e10_s42 --optimizer muon --muon_lr_scale 1 --epochs 10 --seed 42
-[P2] --exp_id R5_cnxt_muon_x2_e10_s42 --optimizer muon --muon_lr_scale 2 --epochs 10 --seed 42
+[P2] --exp_id R5_cnxt_adamw_e10_s42 --epochs 10 --seed 42 --num_workers 6
+[P2] --exp_id R5_cnxt_muon_x0.5_e10_s42 --optimizer muon --muon_lr_scale 0.5 --epochs 10 --seed 42 --num_workers 6
+[P2] --exp_id R5_cnxt_muon_x1_e10_s42 --optimizer muon --muon_lr_scale 1 --epochs 10 --seed 42 --num_workers 6
+[P2] --exp_id R5_cnxt_muon_x2_e10_s42 --optimizer muon --muon_lr_scale 2 --epochs 10 --seed 42 --num_workers 6
 
 # ---- P3. ConvNeXt-T 본 비교 AdamW vs Muon, seed 3개 -------------------------------------------------
 # P2에서 고른 --muon_lr_scale 로 바꾼 뒤 실행. AdamW s42는 P0(또는 팀 S1)을 쓴다.
