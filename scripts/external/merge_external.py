@@ -20,9 +20,8 @@ def main():
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     out = os.path.expanduser(a.out)
-    if os.path.exists(out):
-        shutil.rmtree(out)                          # rebuilt from the inputs every time
-    os.makedirs(os.path.join(out, "images"))
+    shutil.rmtree(os.path.join(out, "images"), ignore_errors=True)   # rebuilt from the inputs every time;
+    os.makedirs(os.path.join(out, "images"))                         # README.md and other notes are kept
     cats, header, labels, sources, keys = None, None, [], [], ["file_name", "group"]
     counts = {}
     for d in map(os.path.expanduser, a.inputs):

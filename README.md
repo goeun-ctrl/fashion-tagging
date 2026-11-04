@@ -219,6 +219,8 @@ python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/exter
   → `data/external/legwarmer_web_crop` (183장, leg warmer = 1, 나머지 -1).
 - `flag_domains.py`(CLIP)로 스포츠·군대·작업복 등 패션과 먼 장면을 표시할 수 있다(적용은 수동 확인 후).
 - **주의**: 원본 train_inner에 holdout 47장·val 19장과 사실상 같은 사진이 있다(`prepare_external`류 지각 해시+픽셀 비교).
+- **바로 쓰려면**: `python scripts/external/fetch_external_images.py --dataset data/external/external_merged`로 이미지를 받는다
+  (git에는 README·labels.csv·sources.csv만 있다). 구조·라벨 의미·출처는 `data/external/external_merged/README.md`.
 - **학습에 쓰는 폴더는 `data/external/external_merged` 하나**(9,731장: LVIS·Open Images 9,548 + leg warmer 웹 크롭 183).
   CLIP으로 야구·군대·단체 구기·기타 경기·장난감·탈것 장면 1,826장, 야구 장면의 glove 563장은 이미 뺐다.
   `sources.csv`의 `group`별로 `--extra_color match` 색 보정 배율을 따로 계산한다.

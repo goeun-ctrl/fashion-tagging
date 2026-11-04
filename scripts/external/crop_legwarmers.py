@@ -68,13 +68,13 @@ def main():
         t = [-1] * len(cats)
         t[li] = 1
         rows.append([fn, *t])
-        prov.append([fn, m["file_name"], m["source"], m["license"], m["license_version"], m["creator"], m["page"],
+        prov.append([fn, m["file_name"], m["source"], m["license"], m["license_version"], m["creator"], m["page"], m["url"],
                      f"{best:.3f}", f"{int(cx0)},{int(cy0)},{int(cx1)},{int(cy1)}"])
     shutil.copyfile(a.categories, os.path.join(a.out, "categories.txt"))
     with open(os.path.join(a.out, "labels.csv"), "w", newline="", encoding="utf-8") as fh:
         csv.writer(fh).writerows([["file_name", *cats], *rows])
     with open(os.path.join(a.out, "sources.csv"), "w", newline="", encoding="utf-8") as fh:
-        csv.writer(fh).writerows([["file_name", "raw_file", "source", "license", "license_version", "creator", "page",
+        csv.writer(fh).writerows([["file_name", "raw_file", "source", "license", "license_version", "creator", "page", "url",
                                    "score", "crop_box"], *prov])
     print(f"input {len(meta)}, kept {len(rows)}, dropped {dropped}")
     cell, cols = 160, 8
