@@ -27,7 +27,7 @@ from ..models.heads import FashionTagger, head_named_parameters
 OPTIMIZERS = ("adamw", "muon", "soap")
 SCHEDULERS = ("cosine", "constant")
 _BODY_NOT_MUON = ("embed", "token")                                   # embedding-like matrices
-_HEAD_NOT_MUON = ("head.query", "head.fc_w", "head.fc2.weight", "classifier.")   # queries and output layers
+_HEAD_NOT_MUON = ("head.query", "head.fc_w", "head.level_embed", "head.fc2.weight", "classifier.")  # embeddings, outputs
 
 
 def _muon_ok(name, p, in_head=False):

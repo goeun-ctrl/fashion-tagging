@@ -16,6 +16,10 @@ Heads (vector or tokens -> 27 logits)
   query   Query2Label-style (C2 in the plan): 27 learned class queries cross-attend to the
           backbone's token map (no self-attention), FFN, then one logit per query. Pooling is not
           used. Tokens get no positional encoding.
+  query_ms  C3 in the plan: the same decoder, but keys/values are the stride-16 AND stride-32 feature
+          maps (each with its own LayerNorm + projection and a learned level embedding), so small
+          accessories keep a finer map. Needs a backbone whose last two stages have different strides
+          (ConvNeXt); a plain ViT such as EVA02 has one stride and is rejected.
 
 Pooling goes through timm's own pooling, so the pretrained post-pool LayerNorm of ConvNeXt is kept
 for every pooling type. ViT-family models (EVA02) may not accept "max"/"avgmax" in every timm version;
@@ -26,7 +30,8 @@ import torch.nn as nn
 import timm
 
 POOLS = {"gap": "avg", "gmp": "max", "gapgmp": "avgmax"}
-HEADS = ("linear", "mlp", "query")
+HEADS = ("linear", "mlp", "query", "query_ms")
+TOKEN_HEADS = ("query", "query_ms")   # heads that read the token map instead of a pooled vector
 
 
 class MLPHead(nn.Module):
@@ -60,13 +65,35 @@ class QueryHead(nn.Module):
         nn.init.trunc_normal_(self.query, std=0.02)
         nn.init.trunc_normal_(self.fc_w, std=0.02)
 
-    def forward(self, tokens):
-        kv = self.proj(self.in_norm(tokens))
-        q = self.query.unsqueeze(0).expand(tokens.size(0), -1, -1)
+    def decode(self, kv):
+        """kv: projected tokens [B, L, dim] -> logits [B, C]."""
+        q = self.query.unsqueeze(0).expand(kv.size(0), -1, -1)
         a, _ = self.attn(q, kv, kv, need_weights=False)
         x = self.norm1(q + a)
         x = self.norm2(x + self.ffn(x))
         return (x * self.fc_w).sum(-1) + self.fc_b
+
+    def forward(self, tokens):
+        return self.decode(self.proj(self.in_norm(tokens)))
+
+
+class MultiScaleQueryHead(QueryHead):
+    """C3: QueryHead whose keys/values are several feature maps (finest first, coarsest last).
+    The coarsest level reuses QueryHead's in_norm/proj, so the extra cost over C2 is one LayerNorm +
+    Linear per finer level and a [levels, dim] level embedding."""
+
+    def __init__(self, in_dims, num_classes, dim=384, num_heads=8, ffn_mult=4, dropout=0.1):
+        super().__init__(in_dims[-1], num_classes, dim, num_heads, ffn_mult, dropout)
+        self.extra_norms = nn.ModuleList(nn.LayerNorm(d) for d in in_dims[:-1])
+        self.extra_projs = nn.ModuleList(nn.Linear(d, dim) for d in in_dims[:-1])
+        self.level_embed = nn.Parameter(torch.empty(len(in_dims), dim))
+        nn.init.trunc_normal_(self.level_embed, std=0.02)
+
+    def forward(self, levels):
+        norms = list(self.extra_norms) + [self.in_norm]
+        projs = list(self.extra_projs) + [self.proj]
+        kv = [p(n(t)) + self.level_embed[i] for i, (n, p, t) in enumerate(zip(norms, projs, levels))]
+        return self.decode(torch.cat(kv, dim=1))
 
 
 class FashionTagger(nn.Module):
@@ -82,9 +109,16 @@ class FashionTagger(nn.Module):
             return f.flatten(2).transpose(1, 2)
         return f[:, getattr(self.backbone, "num_prefix_tokens", 0):]   # ViT: drop cls/register tokens
 
+    def levels(self, x):
+        """Last two stage outputs (stride 16, stride 32) as token lists [B, HW, C], finest first."""
+        maps = self.backbone.forward_intermediates(x, indices=[-2, -1], intermediates_only=True)
+        return [m.flatten(2).transpose(1, 2) for m in maps]
+
     def forward(self, x):
         if self.head_type == "query":
             return self.head(self.tokens(x))
+        if self.head_type == "query_ms":
+            return self.head(self.levels(x))
         return self.head(self.backbone(x))               # backbone(x) = pooled (+normed) features
 
 
@@ -105,8 +139,15 @@ def build_model(model_name, num_classes, pooling="gap", head="linear", pretraine
                                global_pool=POOLS[pooling], **extra)
         return FashionTagger(bb, MLPHead(bb.num_features, num_classes, mlp_hidden, head_dropout), head)
     bb = timm.create_model(model_name, pretrained=pretrained, num_classes=0, global_pool="", **extra)
-    return FashionTagger(bb, QueryHead(bb.num_features, num_classes, query_dim, query_heads,
-                                       dropout=head_dropout), head)
+    if head == "query":
+        return FashionTagger(bb, QueryHead(bb.num_features, num_classes, query_dim, query_heads,
+                                           dropout=head_dropout), head)
+    info = bb.feature_info[-2:]
+    if info[0]["reduction"] == info[1]["reduction"]:
+        raise ValueError(f"{model_name}: last two stages share stride {info[0]['reduction']}; "
+                         "query_ms needs a multi-scale (CNN) backbone. Use --head query instead.")
+    return FashionTagger(bb, MultiScaleQueryHead([f["num_chs"] for f in info], num_classes, query_dim,
+                                                 query_heads, dropout=head_dropout), head)
 
 
 def head_named_parameters(model):

@@ -28,12 +28,12 @@ from datetime import date
 import numpy as np
 import torch
 import timm
-from torch.utils.data import DataLoader
+from torch.utils.data import ConcatDataset, DataLoader, WeightedRandomSampler
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))  # repo/src
 from fashion_tagging.data.dataset import FashionDataset, read_names  # noqa: E402
-from fashion_tagging.models.heads import HEADS, POOLS, build_model  # noqa: E402
-from fashion_tagging.data.labels import load_split  # noqa: E402
+from fashion_tagging.models.heads import HEADS, POOLS, TOKEN_HEADS, build_model  # noqa: E402
+from fashion_tagging.data.labels import load_partial_labels, load_split  # noqa: E402
 from fashion_tagging.paths import RESULTS_TEMPLATE, SPLITS_DIR  # noqa: E402
 from fashion_tagging.training.losses import LOSSES, build_loss  # noqa: E402
 from fashion_tagging.training.optim import OPTIMIZERS, SCHEDULERS, build_optimizers, build_schedulers, describe  # noqa: E402
@@ -65,7 +65,7 @@ def parse_args(argv=None):
     ap.add_argument("--warmup_ratio", type=float, default=0.05)
     ap.add_argument("--scheduler", default="cosine", choices=SCHEDULERS)
     # pooling / head
-    ap.add_argument("--pooling", default="gap", choices=list(POOLS), help="ignored by --head query")
+    ap.add_argument("--pooling", default="gap", choices=list(POOLS), help="ignored by --head query and query_ms")
     ap.add_argument("--head", default="linear", choices=HEADS)
     ap.add_argument("--mlp_hidden", type=int, default=1024)
     ap.add_argument("--query_dim", type=int, default=384)
@@ -83,6 +83,11 @@ def parse_args(argv=None):
     ap.add_argument("--muon_head", action="store_true", help="also put the head's inner matrices in Muon")
     ap.add_argument("--layer_decay", type=float, default=0.0, help="layer-wise lr decay, e.g. 0.75 (0 = off)")
     ap.add_argument("--drop_path", type=float, default=0.0, help="stochastic depth rate, e.g. 0.1 (0 = off)")
+    # external data with partial labels (labels.csv values 1 / 0 / -1 = unknown, skipped by the loss)
+    ap.add_argument("--extra_train", nargs="*", default=[], help="folders with categories.txt, labels.csv, images/")
+    ap.add_argument("--extra_weight", type=float, default=1.0,
+                    help="sampling weight of one external image relative to one original image (1 = plain shuffle)")
+    ap.add_argument("--extra_max", type=int, default=0, help="use at most N images from each extra folder")
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--num_workers", type=int, default=4)
@@ -164,7 +169,23 @@ def main(argv=None):
     ds_val = make_ds(a.val_dir, "val", vnames, vtargets, a, mean, std, False)
     g = torch.Generator().manual_seed(a.seed)
     kw = dict(num_workers=a.num_workers, pin_memory=device.type == "cuda", persistent_workers=a.num_workers > 0)
-    train_loader = DataLoader(ds_train, batch_size=a.batch_size, shuffle=True, generator=g, **kw)
+    extra_sets, extra_desc = [], []
+    for path in a.extra_train:   # training only; holdout and the official val stay original
+        en, et = load_partial_labels(path, cats)
+        if a.extra_max:
+            en, et = en[:a.extra_max], et[:a.extra_max]
+        extra_sets.append(FashionDataset(path, en, et, size=a.size, mode=a.preprocess_mode, train=True,
+                                         mean=mean, std=std))
+        extra_desc.append(f"{os.path.basename(os.path.normpath(path))}:{len(en)}")
+    if a.extra_weight != 1 and extra_desc:
+        extra_desc.append(f"w={a.extra_weight:g}")
+    ds_fit = ConcatDataset([ds_train, *extra_sets]) if extra_sets else ds_train
+    if extra_sets and a.extra_weight != 1:
+        w = torch.cat([torch.ones(len(ds_train)), torch.full((len(ds_fit) - len(ds_train),), a.extra_weight)])
+        sampler = WeightedRandomSampler(w, num_samples=len(ds_fit), replacement=True, generator=g)
+        train_loader = DataLoader(ds_fit, batch_size=a.batch_size, sampler=sampler, **kw)
+    else:
+        train_loader = DataLoader(ds_fit, batch_size=a.batch_size, shuffle=True, generator=g, **kw)
     hold_loader = DataLoader(ds_hold, batch_size=a.batch_size, **kw)
     val_loader = DataLoader(ds_val, batch_size=a.batch_size, **kw)
 
@@ -186,8 +207,9 @@ def main(argv=None):
     warm = max(1, int(a.warmup_ratio * updates))
     scheds = build_schedulers(opts, a.scheduler, warm, updates)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
-    setting = f"pool={a.pooling if a.head != 'query' else '-'} head={a.head} sched={a.scheduler}"
-    print(f"[{a.exp_id}] device={device} params={n_params:,} train={len(ds_train)} holdout={len(ds_hold)} "
+    setting = f"pool={a.pooling if a.head not in TOKEN_HEADS else '-'} head={a.head} sched={a.scheduler}"
+    print(f"[{a.exp_id}] device={device} params={n_params:,} train={len(ds_train)} "
+          f"extra={'+'.join(extra_desc) or '-'} holdout={len(ds_hold)} "
           f"val={len(ds_val)} mode={a.preprocess_mode} size={a.size} {setting} loss={a.loss}\n"
           f"  optimizer: {opt_desc}", flush=True)
 
@@ -244,9 +266,9 @@ def main(argv=None):
               open(os.path.join(run_dir, "log.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     append_row(a.results_csv, {
         "exp_id": a.exp_id, "owner": a.owner, "date": date.today().isoformat(), "model": a.model, "loss": a.loss,
-        "optimizer": a.optimizer, "pooling": a.pooling if a.head != "query" else "-", "head": a.head,
+        "optimizer": a.optimizer, "pooling": a.pooling if a.head not in TOKEN_HEADS else "-", "head": a.head,
         "scheduler": a.scheduler, "optimizer_args": optimizer_args, "layer_decay": a.layer_decay,
-        "drop_path": a.drop_path, "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
+        "drop_path": a.drop_path, "extra_train": ";".join(extra_desc), "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
         "epochs_run": len(log), "batch_size": a.batch_size, "effective_batch": a.batch_size * a.accum, "seed": a.seed,
         "input_size": a.size, "preprocess_mode": a.preprocess_mode, "threshold": a.threshold, "params_total": n_params,
         "holdout_micro_f1": f"{m_ho['micro_f1']:.4f}", "holdout_macro_f1": f"{m_ho['macro_f1']:.4f}",

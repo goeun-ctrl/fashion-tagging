@@ -66,6 +66,23 @@ def load_split(path, split):
     return categories, names, targets
 
 
+def load_partial_labels(path, categories):
+    """External data whose labels do not cover every class. `path` is a folder with categories.txt
+    (same 27 lines, same order), images/ and labels.csv = file_name + one column per class holding
+    1 (present), 0 (verified absent) or -1 (unknown; the loss skips it).
+    Returns (file_names, targets[N, C] float32 with -1 for unknown)."""
+    p = Path(path)
+    cats = load_categories(p / "categories.txt")
+    if cats != list(categories):
+        raise ValueError(f"{p}: categories.txt differs from the training categories")
+    rows = list(csv.DictReader(io.StringIO((p / "labels.csv").read_text(encoding="utf-8-sig"))))
+    names = [r["file_name"] for r in rows]
+    targets = np.array([[int(r[c]) for c in categories] for r in rows], dtype=np.float32)
+    if not np.isin(targets, (-1, 0, 1)).all():
+        raise ValueError(f"{p}/labels.csv: values must be 1, 0 or -1")
+    return names, targets
+
+
 def to_names(row, categories):
     """multi-hot row -> list of exact category names (empty list if none)."""
     return [categories[i] for i in np.flatnonzero(row)]
