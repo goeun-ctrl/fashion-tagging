@@ -32,7 +32,7 @@ from torch.utils.data import ConcatDataset, DataLoader, WeightedRandomSampler
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))  # repo/src
 from fashion_tagging.data.dataset import FashionDataset, read_names  # noqa: E402
-from fashion_tagging.models.heads import HEADS, POOLS, TOKEN_HEADS, build_model  # noqa: E402
+from fashion_tagging.models.heads import HEADS, POOLS, TOKEN_HEADS, build_model, head_named_parameters  # noqa: E402
 from fashion_tagging.data.labels import load_partial_labels, load_split  # noqa: E402
 from fashion_tagging.paths import RESULTS_TEMPLATE, SPLITS_DIR  # noqa: E402
 from fashion_tagging.training.losses import LOSSES, build_loss  # noqa: E402
@@ -88,6 +88,15 @@ def parse_args(argv=None):
     ap.add_argument("--extra_weight", type=float, default=1.0,
                     help="sampling weight of one external image relative to one original image (1 = plain shuffle)")
     ap.add_argument("--extra_max", type=int, default=0, help="use at most N images from each extra folder")
+    # overfitting control (off by default = team baseline)
+    ap.add_argument("--ema", type=float, default=0.0,
+                    help="EMA decay of the weights, e.g. 0.999 (0 = off). Holdout selection, checkpoints and the "
+                         "final predictions then use the EMA weights")
+    ap.add_argument("--init_seed", type=int, default=-1,
+                    help="seed for the new head's initial weights only (>= 0); runs that differ only in --seed then start "
+                         "from identical weights, which model soups need. -1 = use --seed (team baseline)")
+    ap.add_argument("--lp_epochs", type=int, default=0,
+                    help="LP-FT: train only the head for this many epochs (backbone frozen, lr 0), then everything")
     ap.add_argument("--extra_color", default="off", choices=["off", "match"],
                     help="match: scale saturation/brightness of each extra folder to the train_inner average")
     ap.add_argument("--extra_color_jitter", type=float, default=0.2, help="random +-range around the match factors")
@@ -215,10 +224,15 @@ def main(argv=None):
     val_loader = DataLoader(ds_val, batch_size=a.batch_size, **kw)
 
     # ---- model ------------------------------------------------------------------------
+    rng_state = torch.get_rng_state()
+    if a.init_seed >= 0:
+        torch.manual_seed(a.init_seed)
     model = build_model(a.model, len(cats), pooling=a.pooling, head=a.head, pretrained=not a.no_pretrained,
                         img_size=a.size if a.set_img_size else None, mlp_hidden=a.mlp_hidden,
                         query_dim=a.query_dim, query_heads=a.query_heads, head_dropout=a.head_dropout,
                         drop_path=a.drop_path).to(device)
+    if a.init_seed >= 0:
+        torch.set_rng_state(rng_state)             # data order / dropout keep following --seed
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
     loss_fn = build_loss(a.loss, a.asl_gamma_neg, a.asl_gamma_pos, a.asl_clip)
@@ -228,19 +242,32 @@ def main(argv=None):
     opt_desc = describe(opts)   # before the schedulers, which scale lr by the first warmup factor
     optimizer_args = (f"momentum={a.muon_momentum};lr_scale={a.muon_lr_scale};muon_head={int(a.muon_head)}"
                       if a.optimizer == "muon" else "")
-    updates = a.epochs * math.ceil(len(train_loader) / a.accum)
-    warm = max(1, int(a.warmup_ratio * updates))
-    scheds = build_schedulers(opts, a.scheduler, warm, updates)
+    steps_per_epoch = math.ceil(len(train_loader) / a.accum)
+    updates = a.epochs * steps_per_epoch
+    lp_steps = min(a.lp_epochs, a.epochs) * steps_per_epoch
+    warm = max(1, int(a.warmup_ratio * (updates - lp_steps)))
+    scheds = build_schedulers(opts, a.scheduler, warm, updates, lp_steps=lp_steps)
+    head_ids = {id(p) for _, p in head_named_parameters(model)}
+    body = [p for p in model.parameters() if id(p) not in head_ids and p.requires_grad]
+    ema = None
+    if a.ema:
+        from timm.utils import ModelEmaV3
+        ema = ModelEmaV3(model, decay=a.ema, use_warmup=True)   # warmup: short effective window early on
+    eval_model = ema.module if ema else model
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
-    setting = f"pool={a.pooling if a.head not in TOKEN_HEADS else '-'} head={a.head} sched={a.scheduler}"
+    setting = (f"pool={a.pooling if a.head not in TOKEN_HEADS else '-'} head={a.head} sched={a.scheduler}"
+               f"{f' ema={a.ema:g}' if a.ema else ''}{f' lp={a.lp_epochs}' if a.lp_epochs else ''}")
     print(f"[{a.exp_id}] device={device} params={n_params:,} train={len(ds_train)} "
           f"extra={'+'.join(extra_desc) or '-'} holdout={len(ds_hold)} "
           f"val={len(ds_val)} mode={a.preprocess_mode} size={a.size} {setting} loss={a.loss}\n"
           f"  optimizer: {opt_desc}", flush=True)
 
     # ---- train ------------------------------------------------------------------------
-    best, best_ep, log, t_start = -1.0, -1, [], time.time()
+    best, best_ep, log, t_start, step = -1.0, -1, [], time.time(), 0
     for ep in range(a.epochs):
+        lp = ep < a.lp_epochs                 # LP-FT: backbone frozen while only the head learns
+        for p in body:
+            p.requires_grad_(not lp)
         model.train()
         for o in opts:
             o.zero_grad(set_to_none=True)
@@ -259,9 +286,12 @@ def main(argv=None):
                     o.zero_grad(set_to_none=True)
                 for s in scheds:
                     s.step()
+                step += 1
+                if ema:
+                    ema.update(model, step=step)
             run_loss += loss.item() * len(x)
             seen += len(x)
-        logits, _ = predict(model, hold_loader, device, use_amp)
+        logits, _ = predict(eval_model, hold_loader, device, use_amp)
         m = compute_metrics(t_ho, binarize(sigmoid(logits), a.threshold))
         log.append({"epoch": ep + 1, "train_loss": run_loss / seen, "holdout_micro": m["micro_f1"],
                     "holdout_macro": m["macro_f1"], "holdout_image": m["image_f1"], "sec": time.time() - t_ep})
@@ -269,8 +299,8 @@ def main(argv=None):
               f"macro {m['macro_f1']:.4f} image {m['image_f1']:.4f}  ({time.time() - t_ep:.0f}s)", flush=True)
         if m["macro_f1"] > best:
             best, best_ep = m["macro_f1"], ep + 1
-            torch.save(model.state_dict(), os.path.join(run_dir, "best.pt"))
-        torch.save(model.state_dict(), os.path.join(run_dir, "last.pt"))
+            torch.save(eval_model.state_dict(), os.path.join(run_dir, "best.pt"))
+        torch.save(eval_model.state_dict(), os.path.join(run_dir, "last.pt"))
         if ep + 1 - best_ep >= a.patience:
             print(f"  early stop (no holdout macro-F1 gain for {a.patience} epochs)", flush=True)
             break
@@ -293,7 +323,7 @@ def main(argv=None):
         "exp_id": a.exp_id, "owner": a.owner, "date": date.today().isoformat(), "model": a.model, "loss": a.loss,
         "optimizer": a.optimizer, "pooling": a.pooling if a.head not in TOKEN_HEADS else "-", "head": a.head,
         "scheduler": a.scheduler, "optimizer_args": optimizer_args, "layer_decay": a.layer_decay,
-        "drop_path": a.drop_path, "extra_train": ";".join(extra_desc), "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
+        "drop_path": a.drop_path, "extra_train": ";".join(extra_desc), "ema": a.ema, "lp_epochs": a.lp_epochs, "init_seed": a.init_seed, "lr_backbone": a.lr_backbone, "lr_head": a.lr_head, "weight_decay": a.weight_decay,
         "epochs_run": len(log), "batch_size": a.batch_size, "effective_batch": a.batch_size * a.accum, "seed": a.seed,
         "input_size": a.size, "preprocess_mode": a.preprocess_mode, "threshold": a.threshold, "params_total": n_params,
         "holdout_micro_f1": f"{m_ho['micro_f1']:.4f}", "holdout_macro_f1": f"{m_ho['macro_f1']:.4f}",

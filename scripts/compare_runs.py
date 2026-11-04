@@ -75,7 +75,7 @@ def fmt_ms(m, s):
 def convergence(run, target):
     """(best epoch, epochs run, train minutes, epoch reaching target, minutes until then) from log.json."""
     log = run["log"]
-    if not log:
+    if not log or not log.get("log"):          # e.g. a model soup has no epoch history
         return None
     ep = log["log"]
     cum = np.cumsum([e["sec"] for e in ep]) / 60
@@ -94,7 +94,7 @@ def plot_curves(groups, labels, out):
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
     for g, lab, color in zip(groups, labels, ("#1f77b4", "#d62728")):
         for i, r in enumerate(g):
-            if not r["log"]:
+            if not r["log"] or not r["log"].get("log"):
                 continue
             ep = r["log"]["log"]
             x_ep = [e["epoch"] for e in ep]
@@ -184,7 +184,7 @@ def main():
         L += ["", "`*` = 구간이 0을 포함하지 않음. 그래도 seed 1쌍의 결과이므로 seed 변동과 함께 읽는다.", ""]
 
     # ---- convergence ---------------------------------------------------------------------------
-    best_a = [max(e["holdout_macro"] for e in r["log"]["log"]) for r in A if r["log"]]
+    best_a = [max(e["holdout_macro"] for e in r["log"]["log"]) for r in A if r["log"] and r["log"].get("log")]
     target = a.target or (0.98 * float(np.mean(best_a)) if best_a else 0.0)
     L += ["## 수렴 (log.json)", "", f"목표: holdout macro F1 ≥ {target:.4f}"
           + ("" if a.target else f" ({la} 평균 최고값의 98%)"), "",

@@ -33,11 +33,11 @@ PARAM_LIMIT = 50_000_000
 TOL = 6e-4  # CSV scores are rounded to 4 decimals
 M3 = ("micro_f1", "macro_f1", "image_f1")
 SETTING_COLS = ["model", "loss", "optimizer", "pooling", "head", "scheduler", "optimizer_args", "layer_decay",
-                "drop_path", "extra_train", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
+                "drop_path", "extra_train", "ema", "lp_epochs", "init_seed", "lr_backbone", "lr_head", "weight_decay", "epochs_run",
                 "effective_batch", "seed", "input_size", "preprocess_mode", "threshold"]
 # CSVs written before these columns existed came from the fixed baseline code
 LEGACY_DEFAULTS = {"pooling": "gap", "head": "linear", "scheduler": "cosine", "optimizer_args": "",
-                   "layer_decay": "0.0", "drop_path": "0.0", "extra_train": ""}
+                   "layer_decay": "0.0", "drop_path": "0.0", "extra_train": "", "ema": "0.0", "lp_epochs": "0", "init_seed": "-1"}
 
 
 def num(x):

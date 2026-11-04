@@ -60,11 +60,12 @@ def _settings(model, lr_backbone, lr_head, weight_decay, layer_decay):
 
 
 def _groups(items, lr_mult=1.0):
-    """Merge parameters with the same (lr, weight decay) into one param group, in model order."""
+    """Merge parameters with the same (lr, weight decay, head/backbone) into one param group, in model order.
+    Head and backbone never share a group (`is_head`), so LP-FT can schedule them separately."""
     by = {}
-    for _, p, lr, wd, _ in items:
-        by.setdefault((lr * lr_mult, wd), []).append(p)
-    return [{"params": ps, "lr": lr, "weight_decay": wd} for (lr, wd), ps in by.items()]
+    for _, p, lr, wd, h in items:
+        by.setdefault((lr * lr_mult, wd, h), []).append(p)
+    return [{"params": ps, "lr": lr, "weight_decay": wd, "is_head": h} for (lr, wd, h), ps in by.items()]
 
 
 def build_optimizers(model, name="adamw", lr_backbone=1e-4, lr_head=1e-3, weight_decay=0.05,
@@ -95,12 +96,18 @@ def build_optimizers(model, name="adamw", lr_backbone=1e-4, lr_head=1e-3, weight
     raise ValueError(f"unknown optimizer {name!r}; choose from {list(OPTIMIZERS)}")
 
 
-def lr_lambda(kind, warmup_steps, total_steps):
-    """Linear warmup, then cosine decay to 0 ('cosine', team baseline) or a flat lr ('constant')."""
+def lr_lambda(kind, warmup_steps, total_steps, start=0, before=0.0):
+    """Linear warmup, then cosine decay to 0 ('cosine', team baseline) or a flat lr ('constant').
+    With start > 0 (LP-FT) the factor is `before` for the first `start` updates and the warmup + decay
+    then runs over the remaining total_steps - start updates."""
     if kind not in SCHEDULERS:
         raise ValueError(f"unknown scheduler {kind!r}; choose from {list(SCHEDULERS)}")
+    total_steps = max(1, total_steps - start)
 
     def f(s):
+        if s < start:
+            return before
+        s -= start
         if s < warmup_steps:
             return (s + 1) / warmup_steps
         if kind == "constant":
@@ -109,8 +116,15 @@ def lr_lambda(kind, warmup_steps, total_steps):
     return f
 
 
-def build_schedulers(optimizers, kind, warmup_steps, total_steps):
-    return [torch.optim.lr_scheduler.LambdaLR(o, lr_lambda(kind, warmup_steps, total_steps)) for o in optimizers]
+def build_schedulers(optimizers, kind, warmup_steps, total_steps, lp_steps=0):
+    """One LambdaLR per optimizer. lp_steps > 0 = LP-FT: during the first lp_steps updates the head keeps its
+    full lr and the backbone gets 0 (train.py also freezes it); afterwards both warm up and decay together."""
+    out = []
+    for o in optimizers:
+        fns = [lr_lambda(kind, warmup_steps, total_steps, start=lp_steps,
+                         before=1.0 if g.get("is_head") else 0.0) for g in o.param_groups]
+        out.append(torch.optim.lr_scheduler.LambdaLR(o, fns))
+    return out
 
 
 def describe(optimizers):
