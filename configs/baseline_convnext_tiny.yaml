@@ -21,8 +21,8 @@ resize_interp: bicubic
 pad_color: [0, 0, 0]          # 정규화 전 검정
 augmentation: {hflip_p: 0.5}
 threshold: 0.5
-mean_std: from_timm           # 모델마다 다르다. common/preprocess.py의 timm_mean_std 사용
+mean_std: from_timm           # 모델마다 다르다. src/fashion_tagging/data/preprocess.py의 timm_mean_std 사용
 splits:
-  train: common/splits/train_inner.txt
-  holdout: common/splits/holdout.txt
+  train: data/splits/train_inner.txt
+  holdout: data/splits/holdout.txt
   official_val: val           # 최종 보고용. 모델 선택에 쓰지 않는다.

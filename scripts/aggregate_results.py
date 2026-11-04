@@ -1,10 +1,10 @@
 """Merge the team's results CSVs into one comparison report.
 
-    python common/tools/aggregate_results.py --csv results/*.csv --runs_dirs runs server2/runs \
+    python scripts/aggregate_results.py --csv results/*.csv --runs_dirs runs server2/runs \
         --baseline S1_cnxt_t_pad --out report/
 
 Inputs
-  --csv        one or more results CSVs (rows written by train_eval.py or by hand, columns as in
+  --csv        one or more results CSVs (rows written by scripts/train.py or by hand, columns as in
                configs/results_template.csv)
   --runs_dirs  folders holding <exp_id>/preds_val.npz and preds_holdout.npz. When the predictions are
                found the three F1 scores are RECOMPUTED and compared with the CSV; a mismatch is reported.
@@ -25,11 +25,9 @@ import sys
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))       # common/tools
-COMMON = os.path.dirname(HERE)                          # common/
-sys.path[:0] = [COMMON, HERE]
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))  # repo/src
 sys.stdout.reconfigure(errors="replace")
-from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
+from fashion_tagging.evaluation.metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
 
 PARAM_LIMIT = 50_000_000
 TOL = 6e-4  # CSV scores are rounded to 4 decimals

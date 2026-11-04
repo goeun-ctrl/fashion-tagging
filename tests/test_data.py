@@ -1,18 +1,16 @@
-"""Checks for preprocessing, split and Dataset. Run:  python common/tests/test_data.py"""
+"""Checks for preprocessing, split and Dataset. Run:  python tests/test_data.py"""
 import os
 import sys
 
 import numpy as np
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))       # common/tests
-COMMON = os.path.dirname(HERE)                          # common/
-sys.path[:0] = [COMMON, os.path.join(COMMON, "tools")]
-from dataset import FashionDataset, read_names  # noqa: E402
-from labels import load_split_from_zip  # noqa: E402
-from preprocess import IMAGENET_MEAN, IMAGENET_STD, preprocess  # noqa: E402
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # repo root
+sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "scripts")]
+from fashion_tagging.data.dataset import FashionDataset, read_names  # noqa: E402
+from fashion_tagging.data.labels import load_split_from_zip  # noqa: E402
+from fashion_tagging.data.preprocess import IMAGENET_MEAN, IMAGENET_STD, preprocess  # noqa: E402
 
-ROOT = os.path.dirname(COMMON)
 M, S = np.array(IMAGENET_MEAN, dtype=np.float32), np.array(IMAGENET_STD, dtype=np.float32)
 BLACK = (0 - M) / S  # normalised value of a black padding pixel
 
@@ -42,8 +40,8 @@ assert np.array_equal(preprocess(gray, 64, hflip=True), a[:, :, ::-1])
 
 # 4. split: disjoint, complete, files named in labels, class coverage
 cats, names, targets = load_split_from_zip(os.path.join(ROOT, "MAT4091_fashion_train.zip"), "train")
-inner = read_names(os.path.join(COMMON, "splits", "train_inner.txt"))
-hold = read_names(os.path.join(COMMON, "splits", "holdout.txt"))
+inner = read_names(os.path.join(ROOT, "data", "splits", "train_inner.txt"))
+hold = read_names(os.path.join(ROOT, "data", "splits", "holdout.txt"))
 assert not set(inner) & set(hold) and set(inner) | set(hold) == set(names)
 assert len(inner) + len(hold) == len(names) == 45622 and len(set(hold)) == len(hold)
 idx = {n: i for i, n in enumerate(names)}

@@ -3,38 +3,41 @@
 모든 팀원이 같은 라벨 읽기·전처리·평가를 쓰면 결과표를 그대로 합칠 수 있다.
 
 ## 파일
-| 파일 | 역할 |
-|---|---|
-`common/` 바로 아래 모듈은 팀원 코드가 직접 import하므로 위치를 바꾸지 않는다. 실행용 도구는 `tools/`, 테스트는 `tests/`에 있다.
+라이브러리는 `src/fashion_tagging/`, 실행 스크립트는 `scripts/`, 설정은 `configs/`, 고정 분할은 `data/splits/`에 있다.
+예전 `common/` 경로(`from labels import ...`, `python common/train_eval.py`)는 `common/`의 연결 파일로 계속 동작한다.
 
 | 파일 | 역할 |
 |---|---|
-| `labels.py` | categories.txt / labels.csv 읽기. 클래스 이름은 한 줄이 한 클래스(쉼표로 쪼개지 않음) |
-| `preprocess.py` | RGB 변환 → 종횡비 유지 후 검정 padding(또는 강제 resize) → 정규화 |
-| `dataset.py` | `FashionDataset`. 폴더 또는 ZIP에서 읽음. train은 hflip p=0.5만 |
-| `metrics.py` | Micro / Macro / Image-wise F1, 클래스별 TP·FP·FN, 확률 저장·불러오기 |
-| `train_eval.py` | 학습·평가. 기본값은 BCE+AdamW+cosine 기준선. holdout으로 epoch 선택, holdout/val 예측(.npz)과 결과 CSV 한 줄 저장 |
-| `heads.py`, `losses.py`, `optim.py` | `train_eval.py`의 pooling·head / loss / optimizer·scheduler 옵션 |
-| `splits/train_inner.txt`, `holdout.txt` | 학습용 43,197장, 내부 검증용 2,425장 (파일명 목록) |
-| `splits/split_summary.csv` | 클래스별 split 개수 |
+| `src/fashion_tagging/data/labels.py` | categories.txt / labels.csv 읽기. 클래스 이름은 한 줄이 한 클래스(쉼표로 쪼개지 않음) |
+| `src/fashion_tagging/data/preprocess.py` | RGB 변환 → 종횡비 유지 후 검정 padding(또는 강제 resize) → 정규화 |
+| `src/fashion_tagging/data/dataset.py` | `FashionDataset`. 폴더 또는 ZIP에서 읽음. train은 hflip p=0.5만 |
+| `src/fashion_tagging/evaluation/metrics.py` | Micro / Macro / Image-wise F1, 클래스별 TP·FP·FN, 확률 저장·불러오기 |
+| `src/fashion_tagging/evaluation/bootstrap.py` | 같은 이미지에 대한 두 예측의 짝지은 부트스트랩 구간 |
+| `src/fashion_tagging/models/heads.py` | pooling(gap/gmp/gapgmp)·head(linear/mlp/query)와 모델 생성 |
+| `src/fashion_tagging/training/losses.py`, `optim.py` | loss(BCE/ASL), optimizer(AdamW/Muon/SOAP)·scheduler |
+| `src/fashion_tagging/paths.py` | 저장소 경로(configs, data/splits, scripts) |
+| `scripts/train.py` | 학습·평가. 기본값은 BCE+AdamW+cosine 기준선. holdout으로 epoch 선택, holdout/val 예측(.npz)과 결과 CSV 한 줄 저장 |
+| `scripts/make_split.py` | Train에서 내부 holdout 5%를 고정(seed 42). 결과는 `data/splits/` |
+| `scripts/compare_preprocess.py` | `scripts/train.py`를 pad / resize로 두 번 돌려 지표·부트스트랩 구간·클래스별 F1을 비교 |
+| `scripts/compare_runs.py` | 두 실험 그룹 비교(seed 평균·표준편차, 부트스트랩, 수렴, 비용, 클래스별 F1) |
+| `scripts/aggregate_results.py` | 팀원들의 results CSV를 합쳐 통합 결과표(성능·설정·비용·클래스별 F1)와 경고 목록을 만든다 |
+| `scripts/visualize_errors.py` | 틀린 이미지를 정답·예측·확률과 함께 보여 주는 시트(JPG)와 기록(JSON) 생성 |
+| `scripts/run_queue.py` | 실험 목록을 빈 GPU에 하나씩 실행 |
+| `data/splits/train_inner.txt`, `holdout.txt` | 학습용 43,197장, 내부 검증용 2,425장 (파일명 목록) |
+| `data/splits/split_summary.csv` | 클래스별 split 개수 |
 | `configs/` | 기준선 YAML, 결과 CSV 양식 |
-| `tools/make_split.py` | Train에서 내부 holdout 5%를 고정(seed 42). 결과는 `splits/` |
-| `tools/compare_preprocess.py` | `train_eval.py`를 pad / resize로 두 번 돌려 지표·부트스트랩 구간·클래스별 F1을 비교 |
-| `tools/compare_runs.py` | 두 실험 그룹 비교(seed 평균·표준편차, 부트스트랩, 수렴, 비용, 클래스별 F1) |
-| `tools/aggregate_results.py` | 팀원들의 results CSV를 합쳐 통합 결과표(성능·설정·비용·클래스별 F1)와 경고 목록을 만든다 |
-| `tools/visualize_errors.py` | 틀린 이미지를 정답·예측·확률과 함께 보여 주는 시트(JPG)와 기록(JSON) 생성 |
-| `tools/run_queue.py` | 실험 목록을 빈 GPU에 하나씩 실행 |
 | `tests/test_*.py` | 검증 테스트 (metrics, data, aggregate, visualize) |
 
 ## 사용 순서
 1. 데이터 준비: 서버에서 ZIP을 풀어 `data/train/`, `data/val/` 구조로 둔다(`images/` 폴더가 그 안에 있음).
 2. 학습: 파일 목록으로 train / holdout 로더를 만든다.
    ```python
-   from labels import load_split_from_zip   # 또는 labels.csv를 parse_labels_csv로 읽기
-   from dataset import FashionDataset, read_names
-   from preprocess import timm_mean_std
+   import sys; sys.path.insert(0, "src")      # 저장소 최상위에서 실행할 때 (pip install -e . 했다면 생략)
+   from fashion_tagging.data.labels import load_split_from_zip   # 또는 labels.csv를 parse_labels_csv로 읽기
+   from fashion_tagging.data.dataset import FashionDataset, read_names
+   from fashion_tagging.data.preprocess import timm_mean_std
    mean, std = timm_mean_std("convnext_tiny.fb_in22k_ft_in1k_384")   # 모델마다 다르다
-   train_names = read_names("common/splits/train_inner.txt")
+   train_names = read_names("data/splits/train_inner.txt")
    ```
    `FashionDataset(root, names, targets, size=384, mode="pad", train=True, mean=mean, std=std)`
    (ZIP에서 바로 읽을 때는 `root="....zip", zip_prefix="train"`)
@@ -45,10 +48,10 @@
 ## 학습·전처리 비교 실행 (GPU 서버)
 ```
 # 기준선 1회 (pad)
-python common/train_eval.py --exp_id S1_cnxt_t_pad --owner 이름 --train_dir data/train --val_dir data/val
+python scripts/train.py --exp_id S1_cnxt_t_pad --owner 이름 --train_dir data/train --val_dir data/val
 
 # padding vs 강제 resize 비교 (같은 설정으로 2번 학습 → comparison.md 생성)
-python common/tools/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val
+python scripts/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/train --val_dir data/val
 ```
 - `--train_dir`/`--val_dir`에는 `labels.csv`와 `images/`가 있는 폴더 또는 ZIP 파일을 줄 수 있다.
 - 모델·epoch·batch 등은 `--model --epochs --batch_size --size` 로 바꾼다(비교 스크립트는 나머지 옵션을 그대로 넘긴다). EVA02 같은 ViT는 `--set_img_size` 를 추가한다.
@@ -60,7 +63,7 @@ python common/tools/compare_preprocess.py --prefix S4_cnxt_t --train_dir data/tr
 ## 결과 모으기 (11/9 통합용)
 각자 `results.csv`(한 줄 = 실험 1개)와 `runs/<exp_id>/preds_val.npz, preds_holdout.npz`를 공유 폴더에 올린다. 1번이 아래로 합친다.
 ```
-python common/tools/aggregate_results.py --csv 공유폴더/*/results.csv --runs_dirs 공유폴더/*/runs --baseline S1_cnxt_t_pad --out report
+python scripts/aggregate_results.py --csv 공유폴더/*/results.csv --runs_dirs 공유폴더/*/runs --baseline S1_cnxt_t_pad --out report
 ```
 - `report/results_summary.md`(보고서), `results_summary.csv`, `per_class_f1_val.csv`, `per_class_f1_holdout.csv`가 생긴다.
 - 맨 위 "확인 필요"에 문제가 모인다: exp_id 중복, smoke 테스트 행(제외됨), 50M 초과 모델, CSV 점수와 예측 파일로 다시 계산한 점수가 다른 경우, 예측 파일 누락, 실험 간 seed·threshold·평가 이미지 수 불일치.
@@ -72,8 +75,8 @@ python common/tools/aggregate_results.py --csv 공유폴더/*/results.csv --runs
 ## 오류 이미지 보기
 `save_predictions`로 저장한 `.npz`만 있으면 된다. 사례는 아래 규칙으로 자동 선정되고 선정 규칙이 이미지 위와 JSON에 기록된다(보기 좋은 것만 고르지 않기 위해).
 ```
-python common/tools/visualize_errors.py --pred preds/exp1_val.npz --images data/val --mode worst --out vis/exp1
-python common/tools/visualize_errors.py --pred preds/exp1_val.npz --images data/val --mode fn --class watch --out vis/exp1
+python scripts/visualize_errors.py --pred preds/exp1_val.npz --images data/val --mode worst --out vis/exp1
+python scripts/visualize_errors.py --pred preds/exp1_val.npz --images data/val --mode fn --class watch --out vis/exp1
 ```
 | mode | 고르는 기준 |
 |---|---|
@@ -100,7 +103,7 @@ ZIP에서 바로 읽을 때는 `--images 파일.zip --zip_prefix val`. 실패 �
 
 ## 테스트
 ```
-python common/tests/test_metrics.py
-python common/tests/test_data.py
+python tests/test_metrics.py
+python tests/test_data.py
 ```
 `test_data.py`, `test_aggregate.py`, `test_visualize.py`는 저장소 최상위에 두 ZIP(`MAT4091_fashion_train.zip`, `MAT4091_fashion_val.zip`)이 있어야 돈다.

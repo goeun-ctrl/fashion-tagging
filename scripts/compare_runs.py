@@ -1,10 +1,10 @@
 """Compare two experiment groups (A = reference, B = change), e.g. AdamW vs Muon or linear vs query head.
 
 Each group is one or more exp_ids (different seeds of the same setting). Uses only files that
-train_eval.py already writes: runs/<exp_id>/preds_holdout.npz, preds_val.npz, log.json, and optionally
+scripts/train.py already writes: runs/<exp_id>/preds_holdout.npz, preds_val.npz, log.json, and optionally
 the results CSV for cost columns.
 
-    python common/tools/compare_runs.py --a S1_cnxt_adamw_s42 S1_cnxt_adamw_s43 --b S5_cnxt_muon_s42 S5_cnxt_muon_s43 \
+    python scripts/compare_runs.py --a S1_cnxt_adamw_s42 S1_cnxt_adamw_s43 --b S5_cnxt_muon_s42 S5_cnxt_muon_s43 \
         --labels AdamW Muon --runs_dirs runs --csv results/results.csv --out report/adamw_vs_muon
 
 Report (<out>/comparison.md, comparison_per_class.csv, curves.png if matplotlib is installed)
@@ -24,12 +24,10 @@ import sys
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))       # common/tools
-COMMON = os.path.dirname(HERE)                          # common/
-sys.path[:0] = [COMMON, HERE]
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))  # repo/src
 sys.stdout.reconfigure(errors="replace")
-from compare_preprocess import KEYS, bootstrap_diff  # noqa: E402
-from metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
+from fashion_tagging.evaluation.bootstrap import KEYS, bootstrap_diff  # noqa: E402
+from fashion_tagging.evaluation.metrics import binarize, compute_metrics, load_predictions, sigmoid  # noqa: E402
 
 COST = (("params_total", "파라미터"), ("train_minutes", "학습 분"), ("infer_ms_per_img", "추론 ms/장"),
         ("max_vram_gb", "최대 VRAM GB"))

@@ -1,15 +1,14 @@
-"""Hand-computed checks. Run:  python common/tests/test_metrics.py"""
+"""Hand-computed checks. Run:  python tests/test_metrics.py"""
 import os
 import sys
 import tempfile
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))       # common/tests
-COMMON = os.path.dirname(HERE)                          # common/
-sys.path[:0] = [COMMON, os.path.join(COMMON, "tools")]
-from labels import parse_categories, parse_labels_csv, to_names  # noqa: E402
-from metrics import (binarize, compute_metrics, load_predictions,  # noqa: E402
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # repo root
+sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "scripts")]
+from fashion_tagging.data.labels import parse_categories, parse_labels_csv, to_names  # noqa: E402
+from fashion_tagging.evaluation.metrics import (binarize, compute_metrics, load_predictions,  # noqa: E402
                      save_predictions, sigmoid)
 
 

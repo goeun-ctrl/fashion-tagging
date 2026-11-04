@@ -1,14 +1,14 @@
-"""Run a list of train_eval.py jobs on several GPUs, one job per GPU at a time.
+"""Run a list of scripts/train.py jobs on several GPUs, one job per GPU at a time.
 
-    python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 \
+    python scripts/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 \
         --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv
-    python common/tools/run_queue.py --jobs ... --only P1          # only the lines tagged [P1]
-    python common/tools/run_queue.py --jobs ... --dry_run          # print the commands, run nothing
+    python scripts/run_queue.py --jobs ... --only P1          # only the lines tagged [P1]
+    python scripts/run_queue.py --jobs ... --dry_run          # print the commands, run nothing
 
-Job file: one job per line = train_eval.py arguments (must contain --exp_id). '#' starts a comment.
+Job file: one job per line = scripts/train.py arguments (must contain --exp_id). '#' starts a comment.
 A leading tag like "[P1]" groups jobs for --only. A job is skipped when runs/<exp_id>/preds_val.npz
 already exists (finished), so the queue can be restarted after an interruption; an unfinished run
-restarts from scratch (train_eval.py has no resume). Each job's console output goes to
+restarts from scratch (scripts/train.py has no resume). Each job's console output goes to
 <out_dir>/<exp_id>.log. Run the queue itself under nohup or tmux so it survives a dropped SSH session.
 """
 import argparse
@@ -19,7 +19,8 @@ import subprocess
 import sys
 import time
 
-COMMON = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # common/
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))  # repo/src
+from fashion_tagging.paths import TRAIN_SCRIPT  # noqa: E402
 
 
 def parse_jobs(path, only):
@@ -60,7 +61,7 @@ def main():
         if os.path.exists(os.path.join(a.out_dir, exp_id, "preds_val.npz")):
             print(f"skip {exp_id} (already finished)")
             continue
-        cmd = [sys.executable, os.path.join(COMMON, "train_eval.py"), *args, "--train_dir", a.train_dir,
+        cmd = [sys.executable, str(TRAIN_SCRIPT), *args, "--train_dir", a.train_dir,
                "--val_dir", a.val_dir, "--out_dir", a.out_dir, "--results_csv", a.results_csv]
         todo.append((exp_id, cmd))
     print(f"{len(todo)} job(s) on GPU(s) {', '.join(a.gpus)}")

@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fashion-tagging"
+version = "0.1.0"
+description = "MAT4091 fashion category tagging (27-class multi-label)"
+requires-python = ">=3.9"
+
+[tool.setuptools.packages.find]
+where = ["src"]

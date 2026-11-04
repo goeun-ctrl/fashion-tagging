@@ -22,7 +22,7 @@ import math
 
 import torch
 
-from heads import FashionTagger, head_named_parameters
+from ..models.heads import FashionTagger, head_named_parameters
 
 OPTIMIZERS = ("adamw", "muon", "soap")
 SCHEDULERS = ("cosine", "constant")

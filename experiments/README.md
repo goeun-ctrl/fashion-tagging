@@ -1,18 +1,18 @@
 # 5번 담당 실험 (Optimizer + Head)
 
-## 새로 생긴 옵션 (`common/train_eval.py`)
+## 새로 생긴 옵션 (`scripts/train.py`)
 아무 옵션도 주지 않으면 팀 기준선과 같다(GAP + Linear, BCE, AdamW, warmup + cosine).
 
 | 옵션 | 값 | 파일 |
 |---|---|---|
-| `--pooling` | `gap`(기본) / `gmp` / `gapgmp` | `common/heads.py` |
-| `--head` | `linear`(기본) / `mlp` / `query`(Q2L 계열, 통합안 C2) | `common/heads.py` |
-| `--loss` | `bce`(기본) / `asl` (`--asl_gamma_neg 4 --asl_gamma_pos 0 --asl_clip 0.05`) | `common/losses.py` |
-| `--optimizer` | `adamw`(기본) / `muon`(Muon+AdamW) / `soap` | `common/optim.py` |
-| `--scheduler` | `cosine`(기본) / `constant` | `common/optim.py` |
-| `--muon_lr_scale`, `--muon_momentum`, `--muon_head` | Muon 그룹만 조정 | `common/optim.py` |
-| `--layer_decay` | 예: `0.75` (ViT용, 0 = 끔) | `common/optim.py` |
-| `--drop_path` | 예: `0.1` (0 = 끔) | `common/heads.py` |
+| `--pooling` | `gap`(기본) / `gmp` / `gapgmp` | `src/fashion_tagging/models/heads.py` |
+| `--head` | `linear`(기본) / `mlp` / `query`(Q2L 계열, 통합안 C2) | `src/fashion_tagging/models/heads.py` |
+| `--loss` | `bce`(기본) / `asl` (`--asl_gamma_neg 4 --asl_gamma_pos 0 --asl_clip 0.05`) | `src/fashion_tagging/training/losses.py` |
+| `--optimizer` | `adamw`(기본) / `muon`(Muon+AdamW) / `soap` | `src/fashion_tagging/training/optim.py` |
+| `--scheduler` | `cosine`(기본) / `constant` | `src/fashion_tagging/training/optim.py` |
+| `--muon_lr_scale`, `--muon_momentum`, `--muon_head` | Muon 그룹만 조정 | `src/fashion_tagging/training/optim.py` |
+| `--layer_decay` | 예: `0.75` (ViT용, 0 = 끔) | `src/fashion_tagging/training/optim.py` |
+| `--drop_path` | 예: `0.1` (0 = 끔) | `src/fashion_tagging/models/heads.py` |
 
 Muon+AdamW 분할: 백본의 2D 행렬(ViT qkv·proj·mlp, ConvNeXt pwconv)은 Muon, 나머지(4D conv, bias, norm,
 위치 임베딩, 분류기)는 AdamW. Muon lr은 `adjust_lr_fn="match_rms_adamw"`라 AdamW와 같은 눈금이다.
@@ -23,14 +23,14 @@ Muon+AdamW 분할: 백본의 2D 행렬(ViT qkv·proj·mlp, ConvNeXt pwconv)은 M
 ## 실행 순서 (GPU 서버)
 ```
 # 1) 실험 목록 확인 (아무것도 실행하지 않음)
-python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --only P1 --train_dir data/train --val_dir data/val --dry_run
+python scripts/run_queue.py --jobs experiments/role5_jobs.txt --only P1 --train_dir data/train --val_dir data/val --dry_run
 
 # 2) 실행: 빈 GPU마다 한 개씩. SSH가 끊겨도 돌도록 nohup으로
-nohup python common/tools/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
+nohup python scripts/run_queue.py --jobs experiments/role5_jobs.txt --gpus 0 1 2 3 --only P1 \
     --train_dir data/train --val_dir data/val --out_dir runs --results_csv results/results.csv > queue_P1.log 2>&1 &
 
 # 3) 두 그룹 비교 (seed가 여러 개면 같은 순서로 나열)
-python common/tools/compare_runs.py --a R5_cnxt_adamw_s42 --b R5_cnxt_query_s42 --labels linear query \
+python scripts/compare_runs.py --a R5_cnxt_adamw_s42 --b R5_cnxt_query_s42 --labels linear query \
     --runs_dirs runs --csv results/results.csv --out report/linear_vs_query
 ```
 - 끝난 실험(`runs/<exp_id>/preds_val.npz`가 있음)은 다시 돌리지 않는다. 중간에 끊긴 실험은 처음부터 다시 돈다.

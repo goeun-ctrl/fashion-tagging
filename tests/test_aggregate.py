@@ -1,4 +1,4 @@
-"""Tests for aggregate_results.py with synthetic experiments. Run:  python common/tests/test_aggregate.py
+"""Tests for aggregate_results.py with synthetic experiments. Run:  python tests/test_aggregate.py
 
 Predictions here are fabricated from real val labels plus noise (NOT model output); they only
 exercise the merge / verification logic.
@@ -10,15 +10,14 @@ import tempfile
 
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))       # common/tests
-COMMON = os.path.dirname(HERE)                          # common/
-sys.path[:0] = [COMMON, os.path.join(COMMON, "tools")]
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # repo root
+sys.path[:0] = [os.path.join(ROOT, "src"), os.path.join(ROOT, "scripts")]
 from aggregate_results import main as aggregate  # noqa: E402
-from labels import load_split_from_zip  # noqa: E402
-from metrics import binarize, compute_metrics, save_predictions, sigmoid  # noqa: E402
+from fashion_tagging.data.labels import load_split_from_zip  # noqa: E402
+from fashion_tagging.evaluation.metrics import binarize, compute_metrics, save_predictions, sigmoid  # noqa: E402
 
-cats, names, T = load_split_from_zip(os.path.join(os.path.dirname(COMMON), "MAT4091_fashion_val.zip"), "val")
-HEADER = open(os.path.join(COMMON, "configs", "results_template.csv"), encoding="utf-8").readline().strip().split(",")
+cats, names, T = load_split_from_zip(os.path.join(ROOT, "MAT4091_fashion_val.zip"), "val")
+HEADER = open(os.path.join(ROOT, "configs", "results_template.csv"), encoding="utf-8").readline().strip().split(",")
 rng = np.random.default_rng(1)
 
 

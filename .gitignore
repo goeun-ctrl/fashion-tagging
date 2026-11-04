@@ -1,6 +1,8 @@
 # 과제 데이터 원본은 올리지 않는다 (용량 3.2GB, LMS 배포 자료)
 *.zip
-data/
+# data/ 안의 이미지·라벨은 올리지 않고, 고정 분할 목록(data/splits/)만 추적한다
+data/*
+!data/splits/
 fashion_tagging_assignment.pdf
 
 # 데이터 이미지가 들어 있는 작업용 폴더
