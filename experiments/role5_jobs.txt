@@ -23,6 +23,7 @@
 [P2] --exp_id R5_cnxt_muon_x1_e10_s42 --optimizer muon --muon_lr_scale 1 --epochs 10 --seed 42 --num_workers 6
 [P2] --exp_id R5_cnxt_muon_x2_e10_s42 --optimizer muon --muon_lr_scale 2 --epochs 10 --seed 42 --num_workers 6
 [P2b] --exp_id R5_cnxt_muon_x4_e10_s42 --optimizer muon --muon_lr_scale 4 --epochs 10 --seed 42 --num_workers 6
+[P2c] --exp_id R5_cnxt_muon_x8_e10_s42 --optimizer muon --muon_lr_scale 8 --epochs 10 --seed 42 --num_workers 4
 
 # ---- P4. EVA02-S 본 비교 AdamW vs Muon (통합안: Muon은 EVA02에서 우선) ---------------------------------
 # 378px(14의 배수), layer decay 0.75, drop path 0.1은 통합안 시작값. 3번(EVA02 담당) 설정과 같게 맞춘 뒤 실행.
