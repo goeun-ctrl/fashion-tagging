@@ -14,14 +14,14 @@
 - CSV와 NPZ의 파일명 순서·클래스 순서·타깃 값이 모두 일치한다.
 - 카테고리명의 쉼표는 구분자가 아니다. 예를 들어 `shirt, blouse`는 하나의 클래스다.
 - 현재 폴더에는 공개 테스트 샘플, 제공 baseline 코드, CVPR 템플릿이 없다.
-- 상세 통계와 확인 범위는 `DATA_INSPECTION_KO.md`를 참고한다.
+- 상세 통계와 확인 범위는 `docs/data/DATA_INSPECTION_KO.md`를 참고한다.
 
 ## 공통 프롬프트
 
 ```text
 너는 MAT4091 Fashion Category Tagging 팀 프로젝트의 구현·실험 파트너다.
 작업 폴더는 C:\Users\goeun_znjodao\Desktop\DL\fashion_tagging 이다.
-fashion_tagging_assignment.pdf, DATA_INSPECTION_KO.md와 기존 코드·실험 기록을 먼저 확인하고,
+fashion_tagging_assignment.pdf, docs/data/DATA_INSPECTION_KO.md와 기존 코드·실험 기록을 먼저 확인하고,
 현재 단계에 필요한 작업을 실제 파일과 실행 결과로 남겨라.
 
 다음 조건을 모든 단계에서 지켜라.
