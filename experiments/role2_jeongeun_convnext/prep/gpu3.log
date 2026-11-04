@@ -1,0 +1,42 @@
+Waiting for next atomic last.pt checkpoint before moving our training
+Our previous training stopped after checkpoint; other processes untouched
+13900 MiB, 100 %
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[S2_jeongeun_cnxt_t_bce_384_pad__smoke] smoke device=cuda:0 params=27,840,891 train=64 holdout=32 batch=16 accum=2 effective=32
+/home/frostpine/fashion_tagging/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+epoch=01 train_loss=0.575161 holdout_loss=0.517718 micro=0.167364 macro=0.083514 image=0.154638 train_sec=9.3 best_epoch=1
+{"run_kind": "smoke", "exp_id": "S2_jeongeun_cnxt_t_bce_384_pad__smoke", "best_epoch": 1, "epochs_run": 1, "params_total": 27840891, "train_wall_seconds": 9.279900263994932}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[S2_jeongeun_cnxt_t_bce_384_pad] baseline device=cuda:0 params=27,840,891 train=43197 holdout=2425 batch=16 accum=2 effective=32
+/home/frostpine/fashion_tagging/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+epoch=9 batch=100/2700 train_loss=0.009617 optimizer_steps=10847
+epoch=9 batch=200/2700 train_loss=0.008128 optimizer_steps=10897
+epoch=9 batch=300/2700 train_loss=0.008242 optimizer_steps=10947
+epoch=9 batch=400/2700 train_loss=0.008086 optimizer_steps=10997
+epoch=9 batch=500/2700 train_loss=0.008162 optimizer_steps=11046
+epoch=9 batch=600/2700 train_loss=0.008357 optimizer_steps=11096
+epoch=9 batch=700/2700 train_loss=0.008465 optimizer_steps=11146
+epoch=9 batch=800/2700 train_loss=0.008584 optimizer_steps=11196
+epoch=9 batch=900/2700 train_loss=0.008442 optimizer_steps=11246
+epoch=9 batch=1000/2700 train_loss=0.008474 optimizer_steps=11296
+epoch=9 batch=1100/2700 train_loss=0.008499 optimizer_steps=11346
+epoch=9 batch=1200/2700 train_loss=0.008524 optimizer_steps=11396
+epoch=9 batch=1300/2700 train_loss=0.008671 optimizer_steps=11446
+epoch=9 batch=1400/2700 train_loss=0.008889 optimizer_steps=11496
+epoch=9 batch=1500/2700 train_loss=0.009104 optimizer_steps=11546
+epoch=9 batch=1600/2700 train_loss=0.009374 optimizer_steps=11596
+epoch=9 batch=1700/2700 train_loss=0.009572 optimizer_steps=11646
+epoch=9 batch=1800/2700 train_loss=0.009703 optimizer_steps=11695
+epoch=9 batch=1900/2700 train_loss=0.009817 optimizer_steps=11745
+epoch=9 batch=2000/2700 train_loss=0.009865 optimizer_steps=11795
+epoch=9 batch=2100/2700 train_loss=0.009919 optimizer_steps=11845
+epoch=9 batch=2200/2700 train_loss=0.009941 optimizer_steps=11895
+epoch=9 batch=2300/2700 train_loss=0.009959 optimizer_steps=11945
+epoch=9 batch=2400/2700 train_loss=0.010012 optimizer_steps=11995
+epoch=9 batch=2500/2700 train_loss=0.010082 optimizer_steps=12045
+epoch=9 batch=2600/2700 train_loss=0.010195 optimizer_steps=12095
+epoch=9 batch=2700/2700 train_loss=0.010251 optimizer_steps=12145
+epoch=09 train_loss=0.010251 holdout_loss=0.257151 micro=0.802898 macro=0.674915 image=0.802914 train_sec=482.9 best_epoch=8
+Terminated

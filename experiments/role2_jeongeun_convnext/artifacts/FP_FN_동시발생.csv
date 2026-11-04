@@ -1,0 +1,696 @@
+﻿split,false_positive_class,false_negative_class,cooccurring_images
+holdout,dress,"top, t-shirt, sweatshirt",66
+holdout,dress,skirt,53
+holdout,"top, t-shirt, sweatshirt","shirt, blouse",46
+holdout,"top, t-shirt, sweatshirt",dress,45
+holdout,"top, t-shirt, sweatshirt",sweater,36
+holdout,skirt,dress,31
+holdout,"tights, stockings",pants,29
+holdout,jacket,coat,26
+holdout,dress,pants,20
+holdout,dress,jumpsuit,20
+holdout,dress,"shirt, blouse",19
+holdout,jacket,"shirt, blouse",18
+holdout,coat,jacket,18
+holdout,"top, t-shirt, sweatshirt",belt,16
+holdout,"top, t-shirt, sweatshirt","bag, wallet",16
+holdout,jacket,"bag, wallet",16
+holdout,"top, t-shirt, sweatshirt",jacket,14
+holdout,"top, t-shirt, sweatshirt",jumpsuit,14
+holdout,"top, t-shirt, sweatshirt",watch,14
+holdout,coat,dress,14
+holdout,belt,watch,14
+holdout,jacket,cardigan,13
+holdout,jacket,dress,13
+holdout,jacket,watch,13
+holdout,pants,jumpsuit,13
+holdout,"top, t-shirt, sweatshirt",pants,12
+holdout,skirt,shorts,12
+holdout,coat,cardigan,12
+holdout,dress,shorts,12
+holdout,dress,coat,12
+holdout,"top, t-shirt, sweatshirt",scarf,11
+holdout,coat,scarf,11
+holdout,dress,jacket,11
+holdout,dress,belt,11
+holdout,dress,sock,11
+holdout,hat,"headband, head covering, hair accessory",11
+holdout,belt,pants,11
+holdout,"shirt, blouse","top, t-shirt, sweatshirt",10
+holdout,"top, t-shirt, sweatshirt",vest,10
+holdout,"top, t-shirt, sweatshirt",glasses,10
+holdout,"top, t-shirt, sweatshirt",sock,10
+holdout,jacket,pants,10
+holdout,jacket,belt,10
+holdout,belt,"top, t-shirt, sweatshirt",10
+holdout,"bag, wallet",belt,10
+holdout,jacket,vest,9
+holdout,dress,glasses,9
+holdout,dress,"bag, wallet",9
+holdout,watch,belt,9
+holdout,"tights, stockings",sock,9
+holdout,"bag, wallet",scarf,9
+holdout,"top, t-shirt, sweatshirt","headband, head covering, hair accessory",8
+holdout,jacket,"top, t-shirt, sweatshirt",8
+holdout,coat,"shirt, blouse",8
+holdout,coat,belt,8
+holdout,dress,scarf,8
+holdout,"bag, wallet","top, t-shirt, sweatshirt",8
+holdout,"top, t-shirt, sweatshirt",coat,7
+holdout,sweater,"top, t-shirt, sweatshirt",7
+holdout,jacket,sweater,7
+holdout,jacket,scarf,7
+holdout,pants,shorts,7
+holdout,pants,scarf,7
+holdout,shorts,pants,7
+holdout,coat,"top, t-shirt, sweatshirt",7
+holdout,coat,"headband, head covering, hair accessory",7
+holdout,coat,"bag, wallet",7
+holdout,dress,sweater,7
+holdout,watch,"shirt, blouse",7
+holdout,belt,"shirt, blouse",7
+holdout,belt,skirt,7
+holdout,belt,coat,7
+holdout,belt,"headband, head covering, hair accessory",7
+holdout,"tights, stockings","shirt, blouse",7
+holdout,"tights, stockings","top, t-shirt, sweatshirt",7
+holdout,"bag, wallet","shirt, blouse",7
+holdout,"bag, wallet",watch,7
+holdout,"top, t-shirt, sweatshirt",shoe,6
+holdout,jacket,glasses,6
+holdout,pants,dress,6
+holdout,skirt,"bag, wallet",6
+holdout,coat,skirt,6
+holdout,coat,glasses,6
+holdout,coat,watch,6
+holdout,dress,hat,6
+holdout,dress,"headband, head covering, hair accessory",6
+holdout,dress,watch,6
+holdout,glasses,watch,6
+holdout,hat,"bag, wallet",6
+holdout,"headband, head covering, hair accessory",skirt,6
+holdout,"headband, head covering, hair accessory",hat,6
+holdout,watch,glasses,6
+holdout,watch,scarf,6
+holdout,belt,cardigan,6
+holdout,belt,tie,6
+holdout,belt,scarf,6
+holdout,"tights, stockings","headband, head covering, hair accessory",6
+holdout,sock,watch,6
+holdout,sock,belt,6
+holdout,"bag, wallet",pants,6
+holdout,"shirt, blouse",dress,5
+holdout,"top, t-shirt, sweatshirt","tights, stockings",5
+holdout,cardigan,jacket,5
+holdout,jacket,sock,5
+holdout,pants,"top, t-shirt, sweatshirt",5
+holdout,pants,belt,5
+holdout,shorts,skirt,5
+holdout,skirt,"top, t-shirt, sweatshirt",5
+holdout,skirt,jacket,5
+holdout,coat,pants,5
+holdout,coat,shorts,5
+holdout,coat,glove,5
+holdout,coat,sock,5
+holdout,dress,tie,5
+holdout,"headband, head covering, hair accessory","top, t-shirt, sweatshirt",5
+holdout,"headband, head covering, hair accessory",watch,5
+holdout,watch,sock,5
+holdout,belt,sweater,5
+holdout,belt,jacket,5
+holdout,belt,dress,5
+holdout,belt,"bag, wallet",5
+holdout,"tights, stockings",jacket,5
+holdout,"tights, stockings",skirt,5
+holdout,"tights, stockings",watch,5
+holdout,sock,sweater,5
+holdout,"bag, wallet",jacket,5
+holdout,"shirt, blouse",jacket,4
+holdout,"shirt, blouse",watch,4
+holdout,"shirt, blouse",scarf,4
+holdout,"top, t-shirt, sweatshirt",shorts,4
+holdout,"top, t-shirt, sweatshirt",hat,4
+holdout,"top, t-shirt, sweatshirt",tie,4
+holdout,jacket,skirt,4
+holdout,jacket,glove,4
+holdout,pants,skirt,4
+holdout,pants,watch,4
+holdout,pants,"tights, stockings",4
+holdout,shorts,dress,4
+holdout,shorts,watch,4
+holdout,shorts,belt,4
+holdout,skirt,vest,4
+holdout,skirt,pants,4
+holdout,skirt,belt,4
+holdout,coat,vest,4
+holdout,dress,shoe,4
+holdout,glasses,"shirt, blouse",4
+holdout,glasses,jacket,4
+holdout,glasses,dress,4
+holdout,glasses,"bag, wallet",4
+holdout,hat,"top, t-shirt, sweatshirt",4
+holdout,hat,cardigan,4
+holdout,hat,pants,4
+holdout,"headband, head covering, hair accessory",jacket,4
+holdout,watch,"top, t-shirt, sweatshirt",4
+holdout,watch,skirt,4
+holdout,watch,dress,4
+holdout,watch,"bag, wallet",4
+holdout,belt,glasses,4
+holdout,belt,sock,4
+holdout,"tights, stockings","bag, wallet",4
+holdout,sock,glasses,4
+holdout,sock,"headband, head covering, hair accessory",4
+holdout,"bag, wallet",glasses,4
+holdout,"bag, wallet","headband, head covering, hair accessory",4
+holdout,scarf,"top, t-shirt, sweatshirt",4
+holdout,scarf,cardigan,4
+holdout,scarf,glasses,4
+holdout,"shirt, blouse",pants,3
+holdout,"top, t-shirt, sweatshirt",cardigan,3
+holdout,"top, t-shirt, sweatshirt",skirt,3
+holdout,"top, t-shirt, sweatshirt",glove,3
+holdout,sweater,cardigan,3
+holdout,cardigan,"top, t-shirt, sweatshirt",3
+holdout,cardigan,skirt,3
+holdout,jacket,shorts,3
+holdout,jacket,"headband, head covering, hair accessory",3
+holdout,jacket,"tights, stockings",3
+holdout,vest,"shirt, blouse",3
+holdout,vest,belt,3
+holdout,pants,"bag, wallet",3
+holdout,shorts,jacket,3
+holdout,shorts,jumpsuit,3
+holdout,skirt,"shirt, blouse",3
+holdout,skirt,cardigan,3
+holdout,skirt,glasses,3
+holdout,skirt,"headband, head covering, hair accessory",3
+holdout,skirt,glove,3
+holdout,skirt,watch,3
+holdout,skirt,sock,3
+holdout,skirt,shoe,3
+holdout,coat,sweater,3
+holdout,coat,cape,3
+holdout,glasses,sock,3
+holdout,hat,sweater,3
+holdout,hat,sock,3
+holdout,"headband, head covering, hair accessory",pants,3
+holdout,"headband, head covering, hair accessory",shorts,3
+holdout,"headband, head covering, hair accessory","bag, wallet",3
+holdout,tie,scarf,3
+holdout,glove,"top, t-shirt, sweatshirt",3
+holdout,watch,sweater,3
+holdout,watch,jacket,3
+holdout,watch,pants,3
+holdout,watch,"headband, head covering, hair accessory",3
+holdout,watch,shoe,3
+holdout,belt,shoe,3
+holdout,"tights, stockings",sweater,3
+holdout,"tights, stockings",coat,3
+holdout,"tights, stockings",dress,3
+holdout,"tights, stockings",glasses,3
+holdout,shoe,"top, t-shirt, sweatshirt",3
+holdout,shoe,dress,3
+holdout,shoe,"headband, head covering, hair accessory",3
+holdout,shoe,sock,3
+holdout,"bag, wallet",sweater,3
+holdout,"bag, wallet",cardigan,3
+holdout,"bag, wallet",shorts,3
+holdout,"bag, wallet",hat,3
+holdout,"bag, wallet",tie,3
+holdout,"bag, wallet",sock,3
+holdout,scarf,pants,3
+holdout,scarf,dress,3
+holdout,scarf,"headband, head covering, hair accessory",3
+holdout,scarf,watch,3
+holdout,"shirt, blouse",sweater,2
+holdout,"shirt, blouse",coat,2
+holdout,"shirt, blouse",glasses,2
+holdout,"shirt, blouse","bag, wallet",2
+holdout,sweater,pants,2
+holdout,sweater,sock,2
+holdout,cardigan,sweater,2
+holdout,cardigan,vest,2
+holdout,cardigan,coat,2
+holdout,cardigan,belt,2
+holdout,cardigan,"bag, wallet",2
+holdout,cardigan,scarf,2
+holdout,jacket,jumpsuit,2
+holdout,jacket,hat,2
+holdout,jacket,tie,2
+holdout,vest,cardigan,2
+holdout,vest,jacket,2
+holdout,vest,shorts,2
+holdout,vest,"headband, head covering, hair accessory",2
+holdout,vest,tie,2
+holdout,vest,sock,2
+holdout,vest,"bag, wallet",2
+holdout,pants,"shirt, blouse",2
+holdout,pants,glasses,2
+holdout,pants,glove,2
+holdout,shorts,"shirt, blouse",2
+holdout,shorts,"headband, head covering, hair accessory",2
+holdout,shorts,scarf,2
+holdout,skirt,coat,2
+holdout,skirt,tie,2
+holdout,skirt,leg warmer,2
+holdout,skirt,scarf,2
+holdout,coat,jumpsuit,2
+holdout,coat,hat,2
+holdout,coat,shoe,2
+holdout,dress,cardigan,2
+holdout,dress,vest,2
+holdout,dress,glove,2
+holdout,jumpsuit,"top, t-shirt, sweatshirt",2
+holdout,jumpsuit,pants,2
+holdout,jumpsuit,shorts,2
+holdout,glasses,"top, t-shirt, sweatshirt",2
+holdout,glasses,vest,2
+holdout,glasses,pants,2
+holdout,glasses,skirt,2
+holdout,glasses,hat,2
+holdout,glasses,belt,2
+holdout,glasses,shoe,2
+holdout,glasses,scarf,2
+holdout,hat,jacket,2
+holdout,hat,skirt,2
+holdout,hat,coat,2
+holdout,hat,glasses,2
+holdout,hat,glove,2
+holdout,hat,belt,2
+holdout,"headband, head covering, hair accessory","shirt, blouse",2
+holdout,"headband, head covering, hair accessory",cardigan,2
+holdout,"headband, head covering, hair accessory",glasses,2
+holdout,"headband, head covering, hair accessory",belt,2
+holdout,"headband, head covering, hair accessory",sock,2
+holdout,tie,dress,2
+holdout,tie,"bag, wallet",2
+holdout,glove,glasses,2
+holdout,watch,shorts,2
+holdout,watch,coat,2
+holdout,watch,"tights, stockings",2
+holdout,belt,vest,2
+holdout,belt,shorts,2
+holdout,belt,hat,2
+holdout,"tights, stockings",hat,2
+holdout,"tights, stockings",glove,2
+holdout,"tights, stockings",belt,2
+holdout,"tights, stockings",shoe,2
+holdout,sock,cardigan,2
+holdout,sock,vest,2
+holdout,sock,pants,2
+holdout,sock,hat,2
+holdout,sock,glove,2
+holdout,sock,"tights, stockings",2
+holdout,shoe,jacket,2
+holdout,shoe,watch,2
+holdout,"bag, wallet",skirt,2
+holdout,"bag, wallet",coat,2
+holdout,"bag, wallet",dress,2
+holdout,"bag, wallet","tights, stockings",2
+holdout,scarf,"shirt, blouse",2
+holdout,scarf,glove,2
+holdout,scarf,sock,2
+holdout,scarf,"bag, wallet",2
+holdout,"shirt, blouse",cardigan,1
+holdout,"shirt, blouse",hat,1
+holdout,"shirt, blouse",belt,1
+holdout,"shirt, blouse",leg warmer,1
+holdout,"shirt, blouse",sock,1
+holdout,"top, t-shirt, sweatshirt",cape,1
+holdout,"top, t-shirt, sweatshirt",leg warmer,1
+holdout,sweater,"shirt, blouse",1
+holdout,sweater,vest,1
+holdout,sweater,shorts,1
+holdout,sweater,coat,1
+holdout,sweater,dress,1
+holdout,sweater,cape,1
+holdout,sweater,glasses,1
+holdout,sweater,watch,1
+holdout,sweater,"tights, stockings",1
+holdout,cardigan,pants,1
+holdout,cardigan,shorts,1
+holdout,cardigan,dress,1
+holdout,cardigan,cape,1
+holdout,cardigan,"headband, head covering, hair accessory",1
+holdout,cardigan,glove,1
+holdout,cardigan,watch,1
+holdout,jacket,shoe,1
+holdout,vest,"top, t-shirt, sweatshirt",1
+holdout,vest,pants,1
+holdout,vest,skirt,1
+holdout,vest,coat,1
+holdout,vest,dress,1
+holdout,vest,watch,1
+holdout,vest,scarf,1
+holdout,pants,vest,1
+holdout,pants,coat,1
+holdout,pants,leg warmer,1
+holdout,shorts,"top, t-shirt, sweatshirt",1
+holdout,shorts,coat,1
+holdout,shorts,glasses,1
+holdout,shorts,hat,1
+holdout,shorts,shoe,1
+holdout,skirt,sweater,1
+holdout,skirt,cape,1
+holdout,skirt,hat,1
+holdout,skirt,"tights, stockings",1
+holdout,coat,"tights, stockings",1
+holdout,coat,umbrella,1
+holdout,dress,leg warmer,1
+holdout,dress,umbrella,1
+holdout,jumpsuit,"shirt, blouse",1
+holdout,jumpsuit,sweater,1
+holdout,jumpsuit,jacket,1
+holdout,jumpsuit,coat,1
+holdout,jumpsuit,dress,1
+holdout,jumpsuit,hat,1
+holdout,jumpsuit,belt,1
+holdout,cape,"top, t-shirt, sweatshirt",1
+holdout,cape,jacket,1
+holdout,cape,skirt,1
+holdout,cape,shoe,1
+holdout,cape,"bag, wallet",1
+holdout,cape,scarf,1
+holdout,glasses,sweater,1
+holdout,glasses,shorts,1
+holdout,glasses,coat,1
+holdout,glasses,tie,1
+holdout,glasses,glove,1
+holdout,glasses,"tights, stockings",1
+holdout,glasses,umbrella,1
+holdout,hat,vest,1
+holdout,hat,shorts,1
+holdout,hat,dress,1
+holdout,hat,cape,1
+holdout,hat,watch,1
+holdout,hat,"tights, stockings",1
+holdout,hat,shoe,1
+holdout,"headband, head covering, hair accessory",sweater,1
+holdout,"headband, head covering, hair accessory",vest,1
+holdout,"headband, head covering, hair accessory",coat,1
+holdout,"headband, head covering, hair accessory",dress,1
+holdout,"headband, head covering, hair accessory",glove,1
+holdout,"headband, head covering, hair accessory",shoe,1
+holdout,tie,jacket,1
+holdout,tie,skirt,1
+holdout,tie,"headband, head covering, hair accessory",1
+holdout,tie,watch,1
+holdout,tie,sock,1
+holdout,glove,sweater,1
+holdout,glove,cardigan,1
+holdout,glove,jacket,1
+holdout,glove,pants,1
+holdout,glove,skirt,1
+holdout,glove,"headband, head covering, hair accessory",1
+holdout,glove,watch,1
+holdout,glove,sock,1
+holdout,glove,scarf,1
+holdout,watch,vest,1
+holdout,watch,jumpsuit,1
+holdout,watch,cape,1
+holdout,watch,hat,1
+holdout,belt,jumpsuit,1
+holdout,belt,glove,1
+holdout,belt,umbrella,1
+holdout,"tights, stockings",cardigan,1
+holdout,"tights, stockings",shorts,1
+holdout,"tights, stockings",jumpsuit,1
+holdout,"tights, stockings",cape,1
+holdout,sock,"shirt, blouse",1
+holdout,sock,"top, t-shirt, sweatshirt",1
+holdout,sock,jacket,1
+holdout,sock,skirt,1
+holdout,sock,dress,1
+holdout,sock,jumpsuit,1
+holdout,sock,tie,1
+holdout,sock,leg warmer,1
+holdout,sock,"bag, wallet",1
+holdout,sock,scarf,1
+holdout,shoe,shorts,1
+holdout,shoe,coat,1
+holdout,shoe,jumpsuit,1
+holdout,shoe,glasses,1
+holdout,shoe,hat,1
+holdout,shoe,glove,1
+holdout,shoe,belt,1
+holdout,shoe,"bag, wallet",1
+holdout,shoe,scarf,1
+holdout,"bag, wallet",vest,1
+holdout,"bag, wallet",jumpsuit,1
+holdout,"bag, wallet",glove,1
+holdout,"bag, wallet",shoe,1
+holdout,"bag, wallet",umbrella,1
+holdout,scarf,sweater,1
+holdout,scarf,jacket,1
+holdout,scarf,vest,1
+holdout,scarf,shorts,1
+holdout,scarf,skirt,1
+holdout,scarf,jumpsuit,1
+holdout,scarf,hat,1
+holdout,scarf,"tights, stockings",1
+holdout,scarf,shoe,1
+holdout,umbrella,"headband, head covering, hair accessory",1
+holdout,umbrella,glove,1
+val,dress,"top, t-shirt, sweatshirt",50
+val,dress,skirt,33
+val,"top, t-shirt, sweatshirt",dress,18
+val,"top, t-shirt, sweatshirt","shirt, blouse",17
+val,skirt,dress,13
+val,dress,pants,13
+val,"shirt, blouse","top, t-shirt, sweatshirt",11
+val,jacket,"top, t-shirt, sweatshirt",11
+val,"tights, stockings",pants,10
+val,coat,jacket,9
+val,"top, t-shirt, sweatshirt",scarf,8
+val,jacket,coat,8
+val,skirt,pants,8
+val,dress,jumpsuit,8
+val,"top, t-shirt, sweatshirt",jacket,7
+val,"top, t-shirt, sweatshirt",belt,7
+val,shorts,skirt,7
+val,skirt,shorts,7
+val,skirt,belt,7
+val,"top, t-shirt, sweatshirt",watch,6
+val,"top, t-shirt, sweatshirt","bag, wallet",6
+val,jacket,"shirt, blouse",6
+val,belt,"top, t-shirt, sweatshirt",6
+val,belt,skirt,6
+val,sweater,"top, t-shirt, sweatshirt",5
+val,pants,jumpsuit,5
+val,shorts,"top, t-shirt, sweatshirt",5
+val,"top, t-shirt, sweatshirt",vest,4
+val,"top, t-shirt, sweatshirt",pants,4
+val,"top, t-shirt, sweatshirt",coat,4
+val,"top, t-shirt, sweatshirt",glasses,4
+val,"top, t-shirt, sweatshirt",sock,4
+val,jacket,skirt,4
+val,jacket,belt,4
+val,jacket,"bag, wallet",4
+val,pants,shorts,4
+val,skirt,"shirt, blouse",4
+val,dress,jacket,4
+val,belt,jacket,4
+val,"tights, stockings","shirt, blouse",4
+val,"tights, stockings",sock,4
+val,"top, t-shirt, sweatshirt",sweater,3
+val,"top, t-shirt, sweatshirt",shorts,3
+val,"top, t-shirt, sweatshirt",jumpsuit,3
+val,jacket,cardigan,3
+val,jacket,"headband, head covering, hair accessory",3
+val,jacket,watch,3
+val,jacket,shoe,3
+val,vest,"shirt, blouse",3
+val,coat,"shirt, blouse",3
+val,coat,cardigan,3
+val,coat,dress,3
+val,dress,sweater,3
+val,dress,coat,3
+val,"headband, head covering, hair accessory",hat,3
+val,"headband, head covering, hair accessory",shoe,3
+val,watch,coat,3
+val,belt,"headband, head covering, hair accessory",3
+val,"tights, stockings","top, t-shirt, sweatshirt",3
+val,"bag, wallet",glasses,3
+val,"shirt, blouse",vest,2
+val,"shirt, blouse",scarf,2
+val,"top, t-shirt, sweatshirt",cardigan,2
+val,"top, t-shirt, sweatshirt",skirt,2
+val,"top, t-shirt, sweatshirt",hat,2
+val,"top, t-shirt, sweatshirt","headband, head covering, hair accessory",2
+val,"top, t-shirt, sweatshirt",glove,2
+val,cardigan,"top, t-shirt, sweatshirt",2
+val,jacket,vest,2
+val,jacket,pants,2
+val,jacket,dress,2
+val,jacket,scarf,2
+val,pants,sweater,2
+val,pants,watch,2
+val,shorts,"shirt, blouse",2
+val,shorts,jacket,2
+val,shorts,dress,2
+val,skirt,jacket,2
+val,skirt,glasses,2
+val,skirt,"headband, head covering, hair accessory",2
+val,skirt,watch,2
+val,skirt,shoe,2
+val,coat,"top, t-shirt, sweatshirt",2
+val,coat,cape,2
+val,coat,glasses,2
+val,coat,"tights, stockings",2
+val,coat,"bag, wallet",2
+val,coat,scarf,2
+val,dress,shorts,2
+val,dress,glasses,2
+val,dress,belt,2
+val,dress,shoe,2
+val,dress,scarf,2
+val,jumpsuit,"top, t-shirt, sweatshirt",2
+val,jumpsuit,pants,2
+val,glasses,jumpsuit,2
+val,hat,"headband, head covering, hair accessory",2
+val,hat,"bag, wallet",2
+val,"headband, head covering, hair accessory",jacket,2
+val,"headband, head covering, hair accessory",coat,2
+val,"headband, head covering, hair accessory",cape,2
+val,"headband, head covering, hair accessory",glasses,2
+val,"headband, head covering, hair accessory",belt,2
+val,"headband, head covering, hair accessory","bag, wallet",2
+val,belt,"shirt, blouse",2
+val,belt,cardigan,2
+val,"tights, stockings",shorts,2
+val,"tights, stockings",dress,2
+val,"tights, stockings",glasses,2
+val,"tights, stockings","headband, head covering, hair accessory",2
+val,"tights, stockings",belt,2
+val,"tights, stockings",leg warmer,2
+val,"tights, stockings",shoe,2
+val,"tights, stockings",scarf,2
+val,sock,"headband, head covering, hair accessory",2
+val,sock,scarf,2
+val,shoe,"top, t-shirt, sweatshirt",2
+val,shoe,pants,2
+val,"bag, wallet","top, t-shirt, sweatshirt",2
+val,"bag, wallet",sweater,2
+val,"bag, wallet",pants,2
+val,"bag, wallet",coat,2
+val,"bag, wallet",hat,2
+val,scarf,pants,2
+val,scarf,glove,2
+val,"shirt, blouse",jacket,1
+val,"shirt, blouse",pants,1
+val,"shirt, blouse",jumpsuit,1
+val,"shirt, blouse",glasses,1
+val,"shirt, blouse",hat,1
+val,"shirt, blouse","headband, head covering, hair accessory",1
+val,"shirt, blouse",belt,1
+val,"top, t-shirt, sweatshirt","tights, stockings",1
+val,sweater,"shirt, blouse",1
+val,sweater,jacket,1
+val,sweater,skirt,1
+val,sweater,coat,1
+val,sweater,belt,1
+val,cardigan,"shirt, blouse",1
+val,cardigan,sweater,1
+val,cardigan,vest,1
+val,cardigan,hat,1
+val,jacket,sweater,1
+val,jacket,shorts,1
+val,jacket,cape,1
+val,jacket,glasses,1
+val,jacket,hat,1
+val,jacket,glove,1
+val,jacket,sock,1
+val,vest,"top, t-shirt, sweatshirt",1
+val,vest,jacket,1
+val,vest,skirt,1
+val,vest,glasses,1
+val,vest,"headband, head covering, hair accessory",1
+val,vest,scarf,1
+val,pants,"shirt, blouse",1
+val,pants,hat,1
+val,pants,belt,1
+val,pants,leg warmer,1
+val,pants,"tights, stockings",1
+val,pants,scarf,1
+val,shorts,vest,1
+val,shorts,jumpsuit,1
+val,shorts,"headband, head covering, hair accessory",1
+val,shorts,belt,1
+val,shorts,leg warmer,1
+val,shorts,"tights, stockings",1
+val,skirt,"top, t-shirt, sweatshirt",1
+val,skirt,coat,1
+val,skirt,sock,1
+val,skirt,"bag, wallet",1
+val,skirt,scarf,1
+val,coat,vest,1
+val,coat,pants,1
+val,coat,belt,1
+val,coat,leg warmer,1
+val,coat,sock,1
+val,dress,vest,1
+val,dress,"headband, head covering, hair accessory",1
+val,dress,watch,1
+val,dress,leg warmer,1
+val,dress,"tights, stockings",1
+val,dress,"bag, wallet",1
+val,dress,umbrella,1
+val,glasses,"headband, head covering, hair accessory",1
+val,glasses,belt,1
+val,glasses,scarf,1
+val,hat,pants,1
+val,hat,skirt,1
+val,hat,glove,1
+val,"headband, head covering, hair accessory","top, t-shirt, sweatshirt",1
+val,"headband, head covering, hair accessory",pants,1
+val,"headband, head covering, hair accessory",skirt,1
+val,"headband, head covering, hair accessory",jumpsuit,1
+val,tie,belt,1
+val,glove,sweater,1
+val,glove,jacket,1
+val,glove,pants,1
+val,glove,scarf,1
+val,watch,"shirt, blouse",1
+val,watch,jacket,1
+val,watch,skirt,1
+val,watch,jumpsuit,1
+val,watch,hat,1
+val,watch,"bag, wallet",1
+val,belt,pants,1
+val,belt,shorts,1
+val,belt,coat,1
+val,belt,jumpsuit,1
+val,belt,glasses,1
+val,belt,leg warmer,1
+val,belt,sock,1
+val,belt,shoe,1
+val,belt,scarf,1
+val,"tights, stockings",sweater,1
+val,"tights, stockings",jacket,1
+val,"tights, stockings",coat,1
+val,"tights, stockings","bag, wallet",1
+val,sock,"shirt, blouse",1
+val,sock,cardigan,1
+val,sock,skirt,1
+val,sock,glasses,1
+val,sock,leg warmer,1
+val,sock,"bag, wallet",1
+val,shoe,skirt,1
+val,shoe,watch,1
+val,shoe,scarf,1
+val,"bag, wallet","shirt, blouse",1
+val,"bag, wallet",vest,1
+val,"bag, wallet",skirt,1
+val,"bag, wallet","headband, head covering, hair accessory",1
+val,"bag, wallet",watch,1
+val,"bag, wallet",sock,1
+val,"bag, wallet",scarf,1
+val,scarf,"top, t-shirt, sweatshirt",1
+val,scarf,jacket,1
+val,scarf,shorts,1
+val,scarf,dress,1
+val,scarf,cape,1
+val,scarf,leg warmer,1
+val,scarf,"tights, stockings",1
+val,scarf,sock,1

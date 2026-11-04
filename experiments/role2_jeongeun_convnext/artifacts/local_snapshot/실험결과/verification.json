@@ -1,0 +1,38 @@
+{
+  "verified": true,
+  "verified_at": "2026-11-03T18:19:33.450045+09:00",
+  "metrics_recomputed": {
+    "holdout": {
+      "micro_f1": 0.8054350308289564,
+      "macro_f1": 0.7073690541039253,
+      "image_f1": 0.8090350582076029
+    },
+    "val": {
+      "micro_f1": 0.8255376344086022,
+      "macro_f1": 0.660753694198495,
+      "image_f1": 0.8277403296185679
+    }
+  },
+  "files": {
+    "metrics_holdout.json": 3540,
+    "learning_curves.svg": 48010,
+    "status.json": 127,
+    "errors_holdout.csv": 351171,
+    "best.pt": 334354181,
+    "results.csv": 1091,
+    "resolved_config.json": 4896,
+    "metrics_val.json": 3427,
+    "last.pt": 334355141,
+    "history.csv": 3549,
+    "per_class_val.csv": 2059,
+    "library_versions.json": 150,
+    "summary.json": 8682,
+    "history.json": 8771,
+    "learning_curves.png": 87980,
+    "preds_holdout.npz": 210269,
+    "model_structure.txt": 12465,
+    "per_class_holdout.csv": 2153,
+    "preds_val.npz": 100554,
+    "errors_val.csv": 138345
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "page_count": 6,
+  "metrics_verified_against_summary": true,
+  "head_verified_against_code_and_CPU_structure": true,
+  "source_files": {
+    "local_snapshot\\실험결과\\summary.json": "7ccc3cb3d6a6ce9c87ba5112a1cb40a2868aa47f5e5496f3b22e61a23cb6e952",
+    "local_snapshot\\실험결과\\resolved_config.json": "460a93d2c394ae41864b3f144daeee480868c1ed4d77daa272b2f822ce33bafc",
+    "local_snapshot\\실험결과\\history.csv": "6ee667d69a31f47affe9aaacb5180cce90670cbc6438f09be92a3717671ee89b",
+    "CPU_체크포인트_로드검증.json": "5ae98a7201ccf1266bda18836ac08c2d9418995afbb1a3deacd43903b2477681",
+    "클래스별_전체지표.csv": "654016479abb8a5699cd0de4a8aae1282a1a32c9e0c0043964177fea80bf7e6b"
+  },
+  "outputs": {
+    "ConvNeXt_Tiny_팀공유_실험보고서.pdf": "35cf70252020f807b71727a34f5bdccbf13c08dd60e640bff520d7060d4822bd",
+    "ConvNeXt_Tiny_팀공유_실험보고서.md": "f6693c24be2241e504835d6d50952b75d7cb8732a2e06475bb1843a4dc22c2b0"
+  }
+}

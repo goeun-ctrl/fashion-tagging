@@ -1,0 +1,1 @@
+exp_id,owner,date,model,loss,optimizer,lr_backbone,lr_head,weight_decay,epochs_run,batch_size,effective_batch,seed,input_size,preprocess_mode,threshold,params_total,holdout_micro_f1,holdout_macro_f1,holdout_image_f1,val_micro_f1,val_macro_f1,val_image_f1,val_mean_pred_labels,val_empty_pred_rate,train_minutes,infer_ms_per_img,max_vram_gb,torch,timm,cuda,checkpoint,pred_file,notes

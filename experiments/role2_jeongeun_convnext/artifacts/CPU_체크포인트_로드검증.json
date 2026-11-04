@@ -1,0 +1,82 @@
+{
+  "verified": true,
+  "checkpoints": {
+    "best.pt": {
+      "sha256": "610db1a0251b4977100af4caf70ed794324aac3ec6991e8380adfdebd89a6139",
+      "strict_load": true,
+      "device": "cpu",
+      "tensor_keys": 182,
+      "parameters": 27840891,
+      "classifier_weight_shape": [
+        27,
+        768
+      ],
+      "head_structure": "NormMlpClassifierHead(\n  (global_pool): SelectAdaptivePool2d(pool_type=avg, flatten=Identity())\n  (norm): LayerNorm2d((768,), eps=1e-06, elementwise_affine=True)\n  (flatten): Flatten(start_dim=1, end_dim=-1)\n  (pre_logits): Identity()\n  (drop): Dropout(p=0.0, inplace=False)\n  (fc): Linear(in_features=768, out_features=27, bias=True)\n)",
+      "completed_epoch": 10,
+      "best_epoch": 10,
+      "checkpoint_keys": [
+        "format",
+        "model",
+        "optimizer",
+        "scheduler",
+        "scaler",
+        "config",
+        "completed_epoch",
+        "history",
+        "best_macro",
+        "best_epoch",
+        "global_step",
+        "skipped_steps",
+        "rng",
+        "train_wall_seconds",
+        "holdout_selection_seconds",
+        "peak_allocated",
+        "peak_reserved"
+      ],
+      "cuda_wheel": null,
+      "forward_or_inference_executed": false
+    },
+    "last.pt": {
+      "sha256": "f09778e55883f2e325c4260dd1a118b6848dfead31385f95fab0573d29f4c9dc",
+      "strict_load": true,
+      "device": "cpu",
+      "tensor_keys": 182,
+      "parameters": 27840891,
+      "classifier_weight_shape": [
+        27,
+        768
+      ],
+      "head_structure": "NormMlpClassifierHead(\n  (global_pool): SelectAdaptivePool2d(pool_type=avg, flatten=Identity())\n  (norm): LayerNorm2d((768,), eps=1e-06, elementwise_affine=True)\n  (flatten): Flatten(start_dim=1, end_dim=-1)\n  (pre_logits): Identity()\n  (drop): Dropout(p=0.0, inplace=False)\n  (fc): Linear(in_features=768, out_features=27, bias=True)\n)",
+      "completed_epoch": 15,
+      "best_epoch": 10,
+      "checkpoint_keys": [
+        "format",
+        "model",
+        "optimizer",
+        "scheduler",
+        "scaler",
+        "config",
+        "completed_epoch",
+        "history",
+        "best_macro",
+        "best_epoch",
+        "global_step",
+        "skipped_steps",
+        "rng",
+        "train_wall_seconds",
+        "holdout_selection_seconds",
+        "peak_allocated",
+        "peak_reserved"
+      ],
+      "cuda_wheel": null,
+      "forward_or_inference_executed": false
+    }
+  },
+  "local_cpu_library_versions": {
+    "torch": "2.8.0+cpu",
+    "torchvision": "0.23.0+cpu",
+    "timm": "1.0.22",
+    "numpy": "2.2.6",
+    "Pillow": "11.3.0"
+  }
+}

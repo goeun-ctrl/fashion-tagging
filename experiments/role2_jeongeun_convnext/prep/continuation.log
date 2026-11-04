@@ -1,0 +1,250 @@
+2026-11-03T17:03:47+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:04:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:05:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:06:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:07:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:08:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:09:48+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:10:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:11:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:12:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:13:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:14:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:15:49+09:00 WAITING: all GPUs occupied; no other process changed
+2026-11-03T17:16:49+09:00 SELECTED_GPU=0
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[S2_jeongeun_cnxt_t_bce_384_pad__smoke] smoke device=cuda:0 params=27,840,891 train=64 holdout=32 batch=16 accum=2 effective=32
+/home/frostpine/fashion_tagging/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+epoch=01 train_loss=0.575161 holdout_loss=0.517718 micro=0.167364 macro=0.083514 image=0.154638 train_sec=9.1 best_epoch=1
+{"run_kind": "smoke", "exp_id": "S2_jeongeun_cnxt_t_bce_384_pad__smoke", "best_epoch": 1, "epochs_run": 1, "params_total": 27840891, "train_wall_seconds": 9.068212531507015}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[S2_jeongeun_cnxt_t_bce_384_pad] baseline device=cuda:0 params=27,840,891 train=43197 holdout=2425 batch=16 accum=2 effective=32
+/home/frostpine/fashion_tagging/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+epoch=1 batch=100/2700 train_loss=0.640053 optimizer_steps=50
+epoch=1 batch=200/2700 train_loss=0.512712 optimizer_steps=100
+epoch=1 batch=300/2700 train_loss=0.430371 optimizer_steps=150
+epoch=1 batch=400/2700 train_loss=0.384433 optimizer_steps=200
+epoch=1 batch=500/2700 train_loss=0.352263 optimizer_steps=250
+epoch=1 batch=600/2700 train_loss=0.327355 optimizer_steps=300
+epoch=1 batch=700/2700 train_loss=0.307998 optimizer_steps=350
+epoch=1 batch=800/2700 train_loss=0.292203 optimizer_steps=400
+epoch=1 batch=900/2700 train_loss=0.278338 optimizer_steps=450
+epoch=1 batch=1000/2700 train_loss=0.266992 optimizer_steps=500
+epoch=1 batch=1100/2700 train_loss=0.257151 optimizer_steps=550
+epoch=1 batch=1200/2700 train_loss=0.248500 optimizer_steps=600
+epoch=1 batch=1300/2700 train_loss=0.240314 optimizer_steps=650
+epoch=1 batch=1400/2700 train_loss=0.233328 optimizer_steps=700
+epoch=1 batch=1500/2700 train_loss=0.226825 optimizer_steps=750
+epoch=1 batch=1600/2700 train_loss=0.220946 optimizer_steps=800
+epoch=1 batch=1700/2700 train_loss=0.215832 optimizer_steps=850
+epoch=1 batch=1800/2700 train_loss=0.210974 optimizer_steps=900
+epoch=1 batch=1900/2700 train_loss=0.206585 optimizer_steps=950
+epoch=1 batch=2000/2700 train_loss=0.202461 optimizer_steps=1000
+epoch=1 batch=2100/2700 train_loss=0.198831 optimizer_steps=1050
+epoch=1 batch=2200/2700 train_loss=0.195460 optimizer_steps=1100
+epoch=1 batch=2300/2700 train_loss=0.192330 optimizer_steps=1150
+epoch=1 batch=2400/2700 train_loss=0.189508 optimizer_steps=1200
+epoch=1 batch=2500/2700 train_loss=0.186674 optimizer_steps=1250
+epoch=1 batch=2600/2700 train_loss=0.184016 optimizer_steps=1300
+epoch=1 batch=2700/2700 train_loss=0.181583 optimizer_steps=1350
+epoch=01 train_loss=0.181583 holdout_loss=0.161568 micro=0.752543 macro=0.505908 image=0.743633 train_sec=231.2 best_epoch=1
+/home/frostpine/fashion_tagging/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+epoch=2 batch=100/2700 train_loss=0.109248 optimizer_steps=1400
+epoch=2 batch=200/2700 train_loss=0.106988 optimizer_steps=1450
+epoch=2 batch=300/2700 train_loss=0.107042 optimizer_steps=1500
+epoch=2 batch=400/2700 train_loss=0.108785 optimizer_steps=1550
+epoch=2 batch=500/2700 train_loss=0.108495 optimizer_steps=1600
+epoch=2 batch=600/2700 train_loss=0.108137 optimizer_steps=1650
+epoch=2 batch=700/2700 train_loss=0.107787 optimizer_steps=1700
+epoch=2 batch=800/2700 train_loss=0.107084 optimizer_steps=1750
+epoch=2 batch=900/2700 train_loss=0.106979 optimizer_steps=1800
+epoch=2 batch=1000/2700 train_loss=0.106845 optimizer_steps=1850
+epoch=2 batch=1100/2700 train_loss=0.106501 optimizer_steps=1900
+epoch=2 batch=1200/2700 train_loss=0.106927 optimizer_steps=1950
+epoch=2 batch=1300/2700 train_loss=0.106698 optimizer_steps=2000
+epoch=2 batch=1400/2700 train_loss=0.106174 optimizer_steps=2050
+epoch=2 batch=1500/2700 train_loss=0.105731 optimizer_steps=2100
+epoch=2 batch=1600/2700 train_loss=0.105498 optimizer_steps=2150
+epoch=2 batch=1700/2700 train_loss=0.105136 optimizer_steps=2200
+epoch=2 batch=1800/2700 train_loss=0.104996 optimizer_steps=2250
+epoch=2 batch=1900/2700 train_loss=0.105078 optimizer_steps=2300
+epoch=2 batch=2000/2700 train_loss=0.105192 optimizer_steps=2350
+epoch=2 batch=2100/2700 train_loss=0.104980 optimizer_steps=2400
+epoch=2 batch=2200/2700 train_loss=0.104911 optimizer_steps=2450
+epoch=2 batch=2300/2700 train_loss=0.104703 optimizer_steps=2500
+epoch=2 batch=2400/2700 train_loss=0.104599 optimizer_steps=2550
+epoch=2 batch=2500/2700 train_loss=0.104448 optimizer_steps=2600
+epoch=2 batch=2600/2700 train_loss=0.104298 optimizer_steps=2650
+epoch=2 batch=2700/2700 train_loss=0.104167 optimizer_steps=2700
+epoch=02 train_loss=0.104167 holdout_loss=0.148213 micro=0.781943 macro=0.621070 image=0.778294 train_sec=215.1 best_epoch=2
+epoch=3 batch=100/2700 train_loss=0.075766 optimizer_steps=2750
+epoch=3 batch=200/2700 train_loss=0.076034 optimizer_steps=2800
+epoch=3 batch=300/2700 train_loss=0.076856 optimizer_steps=2850
+epoch=3 batch=400/2700 train_loss=0.076935 optimizer_steps=2900
+epoch=3 batch=500/2700 train_loss=0.077580 optimizer_steps=2950
+epoch=3 batch=600/2700 train_loss=0.077493 optimizer_steps=3000
+epoch=3 batch=700/2700 train_loss=0.076904 optimizer_steps=3050
+epoch=3 batch=800/2700 train_loss=0.077693 optimizer_steps=3100
+epoch=3 batch=900/2700 train_loss=0.077554 optimizer_steps=3150
+epoch=3 batch=1000/2700 train_loss=0.077547 optimizer_steps=3200
+epoch=3 batch=1100/2700 train_loss=0.077497 optimizer_steps=3250
+epoch=3 batch=1200/2700 train_loss=0.077603 optimizer_steps=3300
+epoch=3 batch=1300/2700 train_loss=0.077691 optimizer_steps=3350
+epoch=3 batch=1400/2700 train_loss=0.077991 optimizer_steps=3400
+epoch=3 batch=1500/2700 train_loss=0.077747 optimizer_steps=3450
+epoch=3 batch=1600/2700 train_loss=0.077998 optimizer_steps=3500
+epoch=3 batch=1700/2700 train_loss=0.077778 optimizer_steps=3550
+epoch=3 batch=1800/2700 train_loss=0.077929 optimizer_steps=3600
+epoch=3 batch=1900/2700 train_loss=0.077667 optimizer_steps=3650
+epoch=3 batch=2000/2700 train_loss=0.077539 optimizer_steps=3700
+epoch=3 batch=2100/2700 train_loss=0.077358 optimizer_steps=3750
+epoch=3 batch=2200/2700 train_loss=0.077405 optimizer_steps=3800
+epoch=3 batch=2300/2700 train_loss=0.077399 optimizer_steps=3850
+epoch=3 batch=2400/2700 train_loss=0.077389 optimizer_steps=3900
+epoch=3 batch=2500/2700 train_loss=0.077343 optimizer_steps=3950
+epoch=3 batch=2600/2700 train_loss=0.077401 optimizer_steps=4000
+epoch=3 batch=2700/2700 train_loss=0.077381 optimizer_steps=4050
+epoch=03 train_loss=0.077381 holdout_loss=0.139571 micro=0.795681 macro=0.652264 image=0.795123 train_sec=213.9 best_epoch=3
+epoch=4 batch=100/2700 train_loss=0.052833 optimizer_steps=4100
+epoch=4 batch=200/2700 train_loss=0.050819 optimizer_steps=4150
+epoch=4 batch=300/2700 train_loss=0.051083 optimizer_steps=4200
+epoch=4 batch=400/2700 train_loss=0.051687 optimizer_steps=4250
+epoch=4 batch=500/2700 train_loss=0.051233 optimizer_steps=4299
+epoch=4 batch=600/2700 train_loss=0.050514 optimizer_steps=4349
+epoch=4 batch=700/2700 train_loss=0.051156 optimizer_steps=4399
+epoch=4 batch=800/2700 train_loss=0.051117 optimizer_steps=4449
+epoch=4 batch=900/2700 train_loss=0.051476 optimizer_steps=4499
+epoch=4 batch=1000/2700 train_loss=0.051867 optimizer_steps=4549
+epoch=4 batch=1100/2700 train_loss=0.052006 optimizer_steps=4599
+epoch=4 batch=1200/2700 train_loss=0.052386 optimizer_steps=4649
+epoch=4 batch=1300/2700 train_loss=0.052539 optimizer_steps=4699
+epoch=4 batch=1400/2700 train_loss=0.053006 optimizer_steps=4749
+epoch=4 batch=1500/2700 train_loss=0.053228 optimizer_steps=4799
+epoch=4 batch=1600/2700 train_loss=0.053399 optimizer_steps=4849
+epoch=4 batch=1700/2700 train_loss=0.053700 optimizer_steps=4899
+epoch=4 batch=1800/2700 train_loss=0.053869 optimizer_steps=4949
+epoch=4 batch=1900/2700 train_loss=0.054104 optimizer_steps=4999
+epoch=4 batch=2000/2700 train_loss=0.054194 optimizer_steps=5049
+epoch=4 batch=2100/2700 train_loss=0.054459 optimizer_steps=5099
+epoch=4 batch=2200/2700 train_loss=0.054263 optimizer_steps=5149
+epoch=4 batch=2300/2700 train_loss=0.054420 optimizer_steps=5199
+epoch=4 batch=2400/2700 train_loss=0.054587 optimizer_steps=5249
+epoch=4 batch=2500/2700 train_loss=0.054522 optimizer_steps=5299
+epoch=4 batch=2600/2700 train_loss=0.054563 optimizer_steps=5349
+epoch=4 batch=2700/2700 train_loss=0.054579 optimizer_steps=5399
+epoch=04 train_loss=0.054579 holdout_loss=0.149622 micro=0.802564 macro=0.673166 image=0.800458 train_sec=213.6 best_epoch=4
+epoch=5 batch=100/2700 train_loss=0.034453 optimizer_steps=5449
+epoch=5 batch=200/2700 train_loss=0.032087 optimizer_steps=5499
+epoch=5 batch=300/2700 train_loss=0.032582 optimizer_steps=5549
+epoch=5 batch=400/2700 train_loss=0.032372 optimizer_steps=5599
+epoch=5 batch=500/2700 train_loss=0.032611 optimizer_steps=5649
+epoch=5 batch=600/2700 train_loss=0.032898 optimizer_steps=5699
+epoch=5 batch=700/2700 train_loss=0.033241 optimizer_steps=5749
+epoch=5 batch=800/2700 train_loss=0.033385 optimizer_steps=5799
+epoch=5 batch=900/2700 train_loss=0.033511 optimizer_steps=5849
+epoch=5 batch=1000/2700 train_loss=0.033847 optimizer_steps=5899
+epoch=5 batch=1100/2700 train_loss=0.034182 optimizer_steps=5949
+epoch=5 batch=1200/2700 train_loss=0.034286 optimizer_steps=5999
+epoch=5 batch=1300/2700 train_loss=0.034515 optimizer_steps=6049
+epoch=5 batch=1400/2700 train_loss=0.034690 optimizer_steps=6099
+epoch=5 batch=1500/2700 train_loss=0.034908 optimizer_steps=6149
+epoch=5 batch=1600/2700 train_loss=0.034937 optimizer_steps=6199
+epoch=5 batch=1700/2700 train_loss=0.035058 optimizer_steps=6249
+epoch=5 batch=1800/2700 train_loss=0.035377 optimizer_steps=6299
+epoch=5 batch=1900/2700 train_loss=0.035647 optimizer_steps=6349
+epoch=5 batch=2000/2700 train_loss=0.035853 optimizer_steps=6399
+epoch=5 batch=2100/2700 train_loss=0.035990 optimizer_steps=6449
+epoch=5 batch=2200/2700 train_loss=0.036147 optimizer_steps=6499
+epoch=5 batch=2300/2700 train_loss=0.036332 optimizer_steps=6549
+epoch=5 batch=2400/2700 train_loss=0.036571 optimizer_steps=6599
+epoch=5 batch=2500/2700 train_loss=0.036582 optimizer_steps=6649
+epoch=5 batch=2600/2700 train_loss=0.036711 optimizer_steps=6698
+epoch=5 batch=2700/2700 train_loss=0.036744 optimizer_steps=6748
+epoch=05 train_loss=0.036744 holdout_loss=0.179781 micro=0.799015 macro=0.681589 image=0.800977 train_sec=213.0 best_epoch=5
+epoch=6 batch=100/2700 train_loss=0.022545 optimizer_steps=6798
+epoch=6 batch=200/2700 train_loss=0.021972 optimizer_steps=6848
+epoch=6 batch=300/2700 train_loss=0.022063 optimizer_steps=6898
+epoch=6 batch=400/2700 train_loss=0.022391 optimizer_steps=6948
+epoch=6 batch=500/2700 train_loss=0.022289 optimizer_steps=6998
+epoch=6 batch=600/2700 train_loss=0.022447 optimizer_steps=7048
+epoch=6 batch=700/2700 train_loss=0.022549 optimizer_steps=7098
+epoch=6 batch=800/2700 train_loss=0.023141 optimizer_steps=7148
+epoch=6 batch=900/2700 train_loss=0.023028 optimizer_steps=7198
+epoch=6 batch=1000/2700 train_loss=0.023467 optimizer_steps=7248
+epoch=6 batch=1100/2700 train_loss=0.023463 optimizer_steps=7298
+epoch=6 batch=1200/2700 train_loss=0.023691 optimizer_steps=7348
+epoch=6 batch=1300/2700 train_loss=0.023696 optimizer_steps=7398
+epoch=6 batch=1400/2700 train_loss=0.023786 optimizer_steps=7448
+epoch=6 batch=1500/2700 train_loss=0.023916 optimizer_steps=7498
+epoch=6 batch=1600/2700 train_loss=0.023955 optimizer_steps=7548
+epoch=6 batch=1700/2700 train_loss=0.023884 optimizer_steps=7598
+epoch=6 batch=1800/2700 train_loss=0.024036 optimizer_steps=7648
+epoch=6 batch=1900/2700 train_loss=0.024107 optimizer_steps=7698
+epoch=6 batch=2000/2700 train_loss=0.024139 optimizer_steps=7748
+epoch=6 batch=2100/2700 train_loss=0.024267 optimizer_steps=7798
+epoch=6 batch=2200/2700 train_loss=0.024355 optimizer_steps=7848
+epoch=6 batch=2300/2700 train_loss=0.024502 optimizer_steps=7898
+epoch=6 batch=2400/2700 train_loss=0.024535 optimizer_steps=7948
+epoch=6 batch=2500/2700 train_loss=0.024578 optimizer_steps=7998
+epoch=6 batch=2600/2700 train_loss=0.024821 optimizer_steps=8048
+epoch=6 batch=2700/2700 train_loss=0.024902 optimizer_steps=8098
+epoch=06 train_loss=0.024902 holdout_loss=0.189953 micro=0.806122 macro=0.680776 image=0.809897 train_sec=214.3 best_epoch=5
+epoch=7 batch=100/2700 train_loss=0.015191 optimizer_steps=8148
+epoch=7 batch=200/2700 train_loss=0.014902 optimizer_steps=8198
+epoch=7 batch=300/2700 train_loss=0.014471 optimizer_steps=8248
+epoch=7 batch=400/2700 train_loss=0.014573 optimizer_steps=8298
+epoch=7 batch=500/2700 train_loss=0.014914 optimizer_steps=8348
+epoch=7 batch=600/2700 train_loss=0.015196 optimizer_steps=8398
+epoch=7 batch=700/2700 train_loss=0.015499 optimizer_steps=8448
+epoch=7 batch=800/2700 train_loss=0.015609 optimizer_steps=8498
+epoch=7 batch=900/2700 train_loss=0.015801 optimizer_steps=8548
+epoch=7 batch=1000/2700 train_loss=0.015992 optimizer_steps=8598
+epoch=7 batch=1100/2700 train_loss=0.016159 optimizer_steps=8648
+epoch=7 batch=1200/2700 train_loss=0.016170 optimizer_steps=8698
+epoch=7 batch=1300/2700 train_loss=0.016264 optimizer_steps=8748
+epoch=7 batch=1400/2700 train_loss=0.016266 optimizer_steps=8798
+epoch=7 batch=1500/2700 train_loss=0.016427 optimizer_steps=8848
+epoch=7 batch=1600/2700 train_loss=0.016628 optimizer_steps=8898
+epoch=7 batch=1700/2700 train_loss=0.016822 optimizer_steps=8947
+epoch=7 batch=1800/2700 train_loss=0.016877 optimizer_steps=8997
+epoch=7 batch=1900/2700 train_loss=0.016806 optimizer_steps=9047
+epoch=7 batch=2000/2700 train_loss=0.016975 optimizer_steps=9097
+epoch=7 batch=2100/2700 train_loss=0.017002 optimizer_steps=9147
+epoch=7 batch=2200/2700 train_loss=0.017025 optimizer_steps=9197
+epoch=7 batch=2300/2700 train_loss=0.017125 optimizer_steps=9247
+epoch=7 batch=2400/2700 train_loss=0.017210 optimizer_steps=9297
+epoch=7 batch=2500/2700 train_loss=0.017331 optimizer_steps=9347
+epoch=7 batch=2600/2700 train_loss=0.017469 optimizer_steps=9397
+epoch=7 batch=2700/2700 train_loss=0.017522 optimizer_steps=9447
+epoch=07 train_loss=0.017522 holdout_loss=0.220763 micro=0.804885 macro=0.675791 image=0.806969 train_sec=216.0 best_epoch=5
+epoch=8 batch=100/2700 train_loss=0.010817 optimizer_steps=9497
+epoch=8 batch=200/2700 train_loss=0.011101 optimizer_steps=9547
+epoch=8 batch=300/2700 train_loss=0.010929 optimizer_steps=9597
+epoch=8 batch=400/2700 train_loss=0.010882 optimizer_steps=9647
+epoch=8 batch=500/2700 train_loss=0.011168 optimizer_steps=9697
+epoch=8 batch=600/2700 train_loss=0.011413 optimizer_steps=9747
+epoch=8 batch=700/2700 train_loss=0.011550 optimizer_steps=9797
+epoch=8 batch=800/2700 train_loss=0.011397 optimizer_steps=9847
+epoch=8 batch=900/2700 train_loss=0.011308 optimizer_steps=9897
+epoch=8 batch=1000/2700 train_loss=0.011585 optimizer_steps=9947
+epoch=8 batch=1100/2700 train_loss=0.011799 optimizer_steps=9997
+epoch=8 batch=1200/2700 train_loss=0.012123 optimizer_steps=10047
+epoch=8 batch=1300/2700 train_loss=0.012256 optimizer_steps=10097
+epoch=8 batch=1400/2700 train_loss=0.012286 optimizer_steps=10147
+epoch=8 batch=1500/2700 train_loss=0.012451 optimizer_steps=10197
+epoch=8 batch=1600/2700 train_loss=0.012659 optimizer_steps=10247
+epoch=8 batch=1700/2700 train_loss=0.012612 optimizer_steps=10297
+epoch=8 batch=1800/2700 train_loss=0.012612 optimizer_steps=10347
+epoch=8 batch=1900/2700 train_loss=0.012758 optimizer_steps=10397
+epoch=8 batch=2000/2700 train_loss=0.012860 optimizer_steps=10447
+epoch=8 batch=2100/2700 train_loss=0.012968 optimizer_steps=10497
+epoch=8 batch=2200/2700 train_loss=0.013041 optimizer_steps=10547
+epoch=8 batch=2300/2700 train_loss=0.013231 optimizer_steps=10597
+epoch=8 batch=2400/2700 train_loss=0.013312 optimizer_steps=10647
+epoch=8 batch=2500/2700 train_loss=0.013390 optimizer_steps=10697
+epoch=8 batch=2600/2700 train_loss=0.013314 optimizer_steps=10747
+epoch=8 batch=2700/2700 train_loss=0.013345 optimizer_steps=10797
+Terminated

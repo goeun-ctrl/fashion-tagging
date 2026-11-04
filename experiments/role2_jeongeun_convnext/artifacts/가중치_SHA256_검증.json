@@ -1,0 +1,16 @@
+{
+  "best.pt": {
+    "size": 334354181,
+    "sha256": "610db1a0251b4977100af4caf70ed794324aac3ec6991e8380adfdebd89a6139",
+    "source": "/home/frostpine/fashion_tagging/experiments/role2_jeongeun_convnext/runs/S2_jeongeun_cnxt_t_bce_384_pad/best.pt",
+    "local_sha256": "610db1a0251b4977100af4caf70ed794324aac3ec6991e8380adfdebd89a6139",
+    "verified": true
+  },
+  "last.pt": {
+    "size": 334355141,
+    "sha256": "f09778e55883f2e325c4260dd1a118b6848dfead31385f95fab0573d29f4c9dc",
+    "source": "/home/frostpine/fashion_tagging/experiments/role2_jeongeun_convnext/runs/S2_jeongeun_cnxt_t_bce_384_pad/last.pt",
+    "local_sha256": "f09778e55883f2e325c4260dd1a118b6848dfead31385f95fab0573d29f4c9dc",
+    "verified": true
+  }
+}

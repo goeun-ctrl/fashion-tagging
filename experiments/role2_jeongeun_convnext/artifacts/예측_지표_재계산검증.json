@@ -1,0 +1,20 @@
+{
+  "holdout": {
+    "n_images": 2425,
+    "macro_f1": 0.7073690541039253,
+    "micro_f1": 0.8054350308289564,
+    "image_f1": 0.8090350582076029,
+    "macro_positive_classes_only": 0.7073690541039253,
+    "zero_support_classes": [],
+    "support_f1_spearman_descriptive": 0.6336996336996337
+  },
+  "val": {
+    "n_images": 1158,
+    "macro_f1": 0.660753694198495,
+    "micro_f1": 0.8255376344086022,
+    "image_f1": 0.8277403296185679,
+    "macro_positive_classes_only": 0.660753694198495,
+    "zero_support_classes": [],
+    "support_f1_spearman_descriptive": 0.6711472859939697
+  }
+}

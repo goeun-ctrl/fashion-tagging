@@ -1,0 +1,157 @@
+{
+  "history_csv_json_all_15_match": true,
+  "console_log_verified_epochs": [
+    {
+      "epoch": 1,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 3.9084801006783465e-07
+    },
+    {
+      "epoch": 2,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 4.909667571384446e-07
+    },
+    {
+      "epoch": 3,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 3.743798802774423e-07
+    },
+    {
+      "epoch": 4,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 4.7442400818997754e-07
+    },
+    {
+      "epoch": 5,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 3.092408868421437e-07
+    },
+    {
+      "epoch": 6,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 4.489795918383166e-07
+    },
+    {
+      "epoch": 7,
+      "source_log": "continuation.log",
+      "max_absolute_rounding_difference": 4.496595544800641e-07
+    },
+    {
+      "epoch": 9,
+      "source_log": "gpu3.log",
+      "max_absolute_rounding_difference": 4.6524126651181774e-07
+    },
+    {
+      "epoch": 10,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 2.9699578235620194e-07
+    },
+    {
+      "epoch": 11,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 4.615667874019458e-07
+    },
+    {
+      "epoch": 12,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 3.1099768538211947e-07
+    },
+    {
+      "epoch": 13,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 3.306546916270747e-07
+    },
+    {
+      "epoch": 14,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 3.606822781727914e-07
+    },
+    {
+      "epoch": 15,
+      "source_log": "gpu0.log",
+      "max_absolute_rounding_difference": 3.1092053837111777e-07
+    }
+  ],
+  "console_epoch_lines_missing": [
+    8
+  ],
+  "smoke_epoch_lines_excluded": true,
+  "common_files_matching": [
+    {
+      "file": "aggregate_results.py",
+      "sha256": "6c5914bcbf75a5595d8441dfe50c10db5be7696ce16212160ac6729e4850a78d"
+    },
+    {
+      "file": "compare_preprocess.py",
+      "sha256": "4a8f392ad8f1c57b8d1d10dbea9bdd1d1e4a1eacb744b8bff392447f83a92d9a"
+    },
+    {
+      "file": "dataset.py",
+      "sha256": "98f3ab9d29dc5fea8813330dba44523150d5a075619e2be108d9487dfd5a4848"
+    },
+    {
+      "file": "labels.py",
+      "sha256": "86ecf84a91231f0d9b5f1f5eb7a50c4404dccb9b25ad7c968a63587151eb0887"
+    },
+    {
+      "file": "make_split.py",
+      "sha256": "abaca7389087e4641cd633b9042041b56c3e9b342fa5fa639808809f2e06b5bd"
+    },
+    {
+      "file": "metrics.py",
+      "sha256": "760a8fd1bfc6c1f5f12e3079a9ab261c7b4bf312535272536f26f81b2bde83c2"
+    },
+    {
+      "file": "preprocess.py",
+      "sha256": "3a73b8cc12b4805674412ecb6a3e90fb791038cc6330fc0d464669b7701e9240"
+    },
+    {
+      "file": "README_팀공유.md",
+      "sha256": "bcdc0c25a02ba14a50c24dd02b33299a677fc1d98249d90b53aab3a590279df7"
+    },
+    {
+      "file": "test_aggregate.py",
+      "sha256": "1f0edb1bda5308fb19e121b4bacf1a57954e28293636ae1430ad0c7a0cdcf496"
+    },
+    {
+      "file": "test_data.py",
+      "sha256": "3dea1ab094bfdd390567317dd66ec88f964a90a7679636fef61f4396b777e4f0"
+    },
+    {
+      "file": "test_metrics.py",
+      "sha256": "f9f3026127c1256ab9ccfac9ab7ed058567d214613af22185e4c30d75a4b8ff2"
+    },
+    {
+      "file": "test_visualize.py",
+      "sha256": "b09ef7adf9e75ba910b8008e7389a84b901bfdee5dc5fe6c6b8e0fa0e2e16cbf"
+    },
+    {
+      "file": "train_eval.py",
+      "sha256": "d3b6baa907485741eac5231b57c3cfc1490cf6e3b6adc6a6bf8c8358e6c49236"
+    },
+    {
+      "file": "visualize_errors.py",
+      "sha256": "69526ca211e7631ceec4bb08ba93e2328f176deb43921e9ef2c9bb72421affdb"
+    },
+    {
+      "file": "configs/baseline_convnext_tiny.yaml",
+      "sha256": "5de8e7b06f18d035be31ed92a0cfb190ce640022e7ce72bf90ff67b84d16c1a5"
+    },
+    {
+      "file": "configs/results_template.csv",
+      "sha256": "6ea1541f8e3711c174702dd0e9ef5b73656fa08b43ad31dbf4068ec5551f562d"
+    },
+    {
+      "file": "splits/holdout.txt",
+      "sha256": "be62c24fac22d7eb2650b40d2e75b31033177d0e9d8bb1fe177a431a700baa1a"
+    },
+    {
+      "file": "splits/split_summary.csv",
+      "sha256": "01b4a1ea38a0c0a9a1b2000dd77de4c822342a42846e58805c689f1215449901"
+    },
+    {
+      "file": "splits/train_inner.txt",
+      "sha256": "04bebf0668097b138fd3394c7496169b78e8a71005c54e7e322bb4652630ec1e"
+    }
+  ]
+}
