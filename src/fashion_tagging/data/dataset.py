@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from .preprocess import IMAGENET_MEAN, IMAGENET_STD, preprocess
+from .preprocess import IMAGENET_MEAN, IMAGENET_STD, adjust_color, preprocess
 
 try:
     import torch
@@ -32,7 +32,10 @@ def read_names(path):
 
 class FashionDataset(_Base):
     def __init__(self, root, names, targets, size=384, mode="pad", train=False,
-                 mean=IMAGENET_MEAN, std=IMAGENET_STD, zip_prefix=None, seed=0):
+                 mean=IMAGENET_MEAN, std=IMAGENET_STD, zip_prefix=None, seed=0, color=None):
+        """color: optional (saturation, brightness, jitter) applied to every training image, each factor
+        multiplied by U(1 - jitter, 1 + jitter) per load. Used to bring colourful external data closer to the
+        original train colours; None (default) leaves images unchanged."""
         self.root, self.names = str(root), list(names)
         self.targets = np.asarray(targets, dtype=np.float32)
         assert len(self.names) == len(self.targets)
@@ -44,6 +47,7 @@ class FashionDataset(_Base):
             raise ValueError("zip_prefix ('train' or 'val') is required when root is a ZIP")
         self._zf = None  # opened lazily so each DataLoader worker has its own handle
         self._rng = random.Random(seed)
+        self.color = color
 
     def __len__(self):
         return len(self.names)
@@ -68,6 +72,9 @@ class FashionDataset(_Base):
             # global `random` is re-seeded per DataLoader worker by PyTorch, so workers do not
             # repeat the same flip sequence, and torch.manual_seed keeps runs reproducible
             flip = self.train and random.random() < 0.5
+            if self.train and self.color:
+                s, v, j = self.color
+                img = adjust_color(img, s * random.uniform(1 - j, 1 + j), v * random.uniform(1 - j, 1 + j))
             x = preprocess(img, self.size, self.mode, self.mean, self.std, hflip=flip)
         y = self.targets[i]
         if torch is not None:

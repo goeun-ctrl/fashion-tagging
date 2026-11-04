@@ -38,7 +38,7 @@ from fashion_tagging.paths import RESULTS_TEMPLATE, SPLITS_DIR  # noqa: E402
 from fashion_tagging.training.losses import LOSSES, build_loss  # noqa: E402
 from fashion_tagging.training.optim import OPTIMIZERS, SCHEDULERS, build_optimizers, build_schedulers, describe  # noqa: E402
 from fashion_tagging.evaluation.metrics import binarize, compute_metrics, save_predictions, sigmoid  # noqa: E402
-from fashion_tagging.data.preprocess import IMAGENET_MEAN, IMAGENET_STD, timm_mean_std  # noqa: E402
+from fashion_tagging.data.preprocess import IMAGENET_MEAN, IMAGENET_STD, color_stats, timm_mean_std  # noqa: E402
 
 PARAM_LIMIT = 50_000_000
 
@@ -88,6 +88,9 @@ def parse_args(argv=None):
     ap.add_argument("--extra_weight", type=float, default=1.0,
                     help="sampling weight of one external image relative to one original image (1 = plain shuffle)")
     ap.add_argument("--extra_max", type=int, default=0, help="use at most N images from each extra folder")
+    ap.add_argument("--extra_color", default="off", choices=["off", "match"],
+                    help="match: scale saturation/brightness of each extra folder to the train_inner average")
+    ap.add_argument("--extra_color_jitter", type=float, default=0.2, help="random +-range around the match factors")
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--num_workers", type=int, default=4)
@@ -170,13 +173,24 @@ def main(argv=None):
     g = torch.Generator().manual_seed(a.seed)
     kw = dict(num_workers=a.num_workers, pin_memory=device.type == "cuda", persistent_workers=a.num_workers > 0)
     extra_sets, extra_desc = [], []
+    pick = random.Random(a.seed)
+    if a.extra_train and a.extra_color == "match":
+        ref = pick.sample(range(len(ds_train)), min(300, len(ds_train)))
+        ref_s, ref_v = color_stats(ds_train.load_image(ds_train.names[k]) for k in ref)
     for path in a.extra_train:   # training only; holdout and the official val stay original
         en, et = load_partial_labels(path, cats)
         if a.extra_max:
             en, et = en[:a.extra_max], et[:a.extra_max]
+        color, tag = None, ""
+        if a.extra_color == "match":
+            probe = FashionDataset(path, en, et)
+            ks = pick.sample(range(len(en)), min(300, len(en)))
+            ext_s, ext_v = color_stats(probe.load_image(en[k]) for k in ks)
+            color = (ref_s / max(ext_s, 1e-6), ref_v / max(ext_v, 1e-6), a.extra_color_jitter)
+            tag = f"(color s{color[0]:.2f} v{color[1]:.2f} j{a.extra_color_jitter:g})"
         extra_sets.append(FashionDataset(path, en, et, size=a.size, mode=a.preprocess_mode, train=True,
-                                         mean=mean, std=std))
-        extra_desc.append(f"{os.path.basename(os.path.normpath(path))}:{len(en)}")
+                                         mean=mean, std=std, color=color))
+        extra_desc.append(f"{os.path.basename(os.path.normpath(path))}:{len(en)}{tag}")
     if a.extra_weight != 1 and extra_desc:
         extra_desc.append(f"w={a.extra_weight:g}")
     ds_fit = ConcatDataset([ds_train, *extra_sets]) if extra_sets else ds_train

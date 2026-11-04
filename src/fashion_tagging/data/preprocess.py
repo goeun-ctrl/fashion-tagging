@@ -8,7 +8,7 @@ Images are always converted to RGB first (186 train images are grayscale).
 Resize uses bicubic, as in the meeting notes.
 """
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageEnhance, ImageOps
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
@@ -54,3 +54,23 @@ def timm_mean_std(model_name):
     import timm
     cfg = timm.models.get_pretrained_cfg(model_name)
     return tuple(cfg.mean), tuple(cfg.std)
+
+
+def color_stats(images):
+    """Mean HSV saturation and brightness (0-1) over PIL images, measured on a 96x96 copy."""
+    sat, val = [], []
+    for img in images:
+        hsv = np.asarray(to_rgb(img).resize((96, 96)).convert("HSV"), dtype=np.float32) / 255.0
+        sat.append(hsv[..., 1].mean())
+        val.append(hsv[..., 2].mean())
+    return float(np.mean(sat)), float(np.mean(val))
+
+
+def adjust_color(img, saturation=1.0, brightness=1.0):
+    """Scale colour saturation and brightness (1.0 = unchanged)."""
+    img = to_rgb(img)
+    if saturation != 1.0:
+        img = ImageEnhance.Color(img).enhance(saturation)
+    if brightness != 1.0:
+        img = ImageEnhance.Brightness(img).enhance(brightness)
+    return img
