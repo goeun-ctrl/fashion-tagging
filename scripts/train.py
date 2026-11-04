@@ -154,10 +154,38 @@ def predict(model, loader, device, use_amp):
     return torch.cat(outs).numpy(), fwd
 
 
+def upgrade_csv(csv_path, header):
+    """Rewrite csv_path under `header` when its header is an older template. Each row is read with whichever
+    header matches its field count (old rows: the file's header; rows appended after a template change: the
+    new header), so no row stays shifted. Columns missing from old rows are left empty."""
+    with open(csv_path, encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.reader(f))
+    if not rows or rows[0] == header:
+        return False
+    old = rows[0]
+    fixed = []
+    for i, r in enumerate(rows[1:], 2):
+        if not r:
+            continue
+        cols = header if len(r) == len(header) else old if len(r) == len(old) else None
+        if cols is None:
+            raise SystemExit(f"{csv_path}:{i} has {len(r)} fields; expected {len(old)} or {len(header)}")
+        fixed.append(dict(zip(cols, r)))
+    tmp = csv_path + ".tmp"
+    with open(tmp, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=header, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(fixed)
+    os.replace(tmp, csv_path)
+    return True
+
+
 def append_row(csv_path, row):
-    header = open(RESULTS_TEMPLATE, encoding="utf-8").readline().strip().split(",")
+    header = open(RESULTS_TEMPLATE, encoding="utf-8-sig").readline().strip().split(",")
     os.makedirs(os.path.dirname(os.path.abspath(csv_path)), exist_ok=True)
     new = not os.path.exists(csv_path)
+    if not new:
+        upgrade_csv(csv_path, header)
     with open(csv_path, "a", encoding="utf-8-sig" if new else "utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=header, extrasaction="ignore")
         if new:
