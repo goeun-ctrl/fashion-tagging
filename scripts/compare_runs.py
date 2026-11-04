@@ -200,6 +200,30 @@ def main():
                      f"{'-' if hit_min is None else f'{hit_min:.1f}'} |")
     L += ["", "학습 분은 epoch별 학습+holdout 평가 시간의 합이다(최종 val 예측 제외). 같은 GPU 종류에서 잰 값끼리만 비교한다.", ""]
 
+    # ---- overfitting ---------------------------------------------------------------------------
+    L += ["## 과적합 지표 (log.json)", "",
+          "| 실험 | 그룹 | best epoch | holdout 손실 최저 (epoch) | best에서 손실 | 마지막 손실 | 최저 뒤 상승 | "
+          "정점 폭 (best-0.005 이내 epoch 수) | 확률 극단 비율 @best | best에서 학습 손실 |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for g, lab in ((A, la), (B, lb)):
+        for r in g:
+            ep = (r["log"] or {}).get("log") or []
+            if not ep:
+                L.append(f"| {r['id']} | {lab} | 기록 없음 | | | | | | | |")
+                continue
+            be = (r["log"].get("best_epoch") or max(ep, key=lambda e: e["holdout_macro"])["epoch"])
+            bm = max(e["holdout_macro"] for e in ep)
+            at = next(e for e in ep if e["epoch"] == be)
+            width = sum(e["holdout_macro"] >= bm - 0.005 for e in ep)
+            if "holdout_bce" in at:
+                mn = min(ep, key=lambda e: e["holdout_bce"])
+                L.append(f"| {r['id']} | {lab} | {be} | {mn['holdout_bce']:.4f} ({mn['epoch']}) | {at['holdout_bce']:.4f} | "
+                         f"{ep[-1]['holdout_bce']:.4f} | {ep[-1]['holdout_bce'] - mn['holdout_bce']:+.4f} | {width} | "
+                         f"{at.get('holdout_confident', float('nan')):.3f} | {at['train_loss']:.4f} |")
+            else:
+                L.append(f"| {r['id']} | {lab} | {be} | - | - | - | - | {width} | - | {at['train_loss']:.4f} |")
+    L += ["", "읽는 법: 손실 최저가 best보다 훨씬 이르고 그 뒤 상승이 크면 과적합이 빠르다. 정점 폭이 좁으면 멈추는 epoch에 "
+          "결과가 민감하다. 확률 극단 비율이 높을수록 과신(임계값 조정이 거의 안 듣는 상태)이다.", ""]
+
     # ---- cost ----------------------------------------------------------------------------------
     if csv_rows:
         L += ["## 비용 (results CSV)", "", "| 실험 | 그룹 | " + " | ".join(lab for _, lab in COST) + " | optimizer_args |",

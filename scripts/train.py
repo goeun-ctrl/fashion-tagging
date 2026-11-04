@@ -111,6 +111,18 @@ def parse_args(argv=None):
     return ap.parse_args(argv)
 
 
+def bce_np(logits, y):
+    """Mean binary cross-entropy of raw logits (numerically stable), as the training loss would see it."""
+    z = np.asarray(logits, dtype=np.float64)
+    return float(np.mean(np.maximum(z, 0) - z * y + np.log1p(np.exp(-np.abs(z)))))
+
+
+def confident_share(logits):
+    """Share of probabilities below 0.05 or above 0.95 (how saturated / over-confident the outputs are)."""
+    p = sigmoid(logits)
+    return float(((p < 0.05) | (p > 0.95)).mean())
+
+
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -293,10 +305,13 @@ def main(argv=None):
             seen += len(x)
         logits, _ = predict(eval_model, hold_loader, device, use_amp)
         m = compute_metrics(t_ho, binarize(sigmoid(logits), a.threshold))
+        h_bce, h_conf = bce_np(logits, t_ho), confident_share(logits)
         log.append({"epoch": ep + 1, "train_loss": run_loss / seen, "holdout_micro": m["micro_f1"],
-                    "holdout_macro": m["macro_f1"], "holdout_image": m["image_f1"], "sec": time.time() - t_ep})
+                    "holdout_macro": m["macro_f1"], "holdout_image": m["image_f1"], "holdout_bce": h_bce,
+                    "holdout_confident": h_conf, "sec": time.time() - t_ep})
         print(f"  epoch {ep + 1:02d} loss {run_loss / seen:.4f} holdout micro {m['micro_f1']:.4f} "
-              f"macro {m['macro_f1']:.4f} image {m['image_f1']:.4f}  ({time.time() - t_ep:.0f}s)", flush=True)
+              f"macro {m['macro_f1']:.4f} image {m['image_f1']:.4f} bce {h_bce:.4f} conf {h_conf:.3f}  "
+              f"({time.time() - t_ep:.0f}s)", flush=True)
         if m["macro_f1"] > best:
             best, best_ep = m["macro_f1"], ep + 1
             torch.save(eval_model.state_dict(), os.path.join(run_dir, "best.pt"))
@@ -327,7 +342,8 @@ def main(argv=None):
         "epochs_run": len(log), "batch_size": a.batch_size, "effective_batch": a.batch_size * a.accum, "seed": a.seed,
         "input_size": a.size, "preprocess_mode": a.preprocess_mode, "threshold": a.threshold, "params_total": n_params,
         "holdout_micro_f1": f"{m_ho['micro_f1']:.4f}", "holdout_macro_f1": f"{m_ho['macro_f1']:.4f}",
-        "holdout_image_f1": f"{m_ho['image_f1']:.4f}", "val_micro_f1": f"{m_val['micro_f1']:.4f}",
+        "holdout_image_f1": f"{m_ho['image_f1']:.4f}", "holdout_bce": f"{bce_np(lg_ho, t_ho):.4f}",
+        "holdout_confident": f"{confident_share(lg_ho):.3f}", "val_micro_f1": f"{m_val['micro_f1']:.4f}",
         "val_macro_f1": f"{m_val['macro_f1']:.4f}", "val_image_f1": f"{m_val['image_f1']:.4f}",
         "val_mean_pred_labels": f"{m_val['mean_pred_labels']:.2f}", "val_empty_pred_rate": f"{m_val['empty_pred_rate']:.3f}",
         "train_minutes": f"{minutes:.1f}", "infer_ms_per_img": f"{1000 * fwd / len(ds_val):.1f}",

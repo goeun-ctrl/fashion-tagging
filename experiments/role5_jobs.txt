@@ -22,14 +22,7 @@
 [P2] --exp_id R5_cnxt_muon_x0.5_e10_s42 --optimizer muon --muon_lr_scale 0.5 --epochs 10 --seed 42 --num_workers 6
 [P2] --exp_id R5_cnxt_muon_x1_e10_s42 --optimizer muon --muon_lr_scale 1 --epochs 10 --seed 42 --num_workers 6
 [P2] --exp_id R5_cnxt_muon_x2_e10_s42 --optimizer muon --muon_lr_scale 2 --epochs 10 --seed 42 --num_workers 6
-
-# ---- P3. ConvNeXt-T 본 비교 AdamW vs Muon, seed 3개 -------------------------------------------------
-# P2에서 고른 --muon_lr_scale 로 바꾼 뒤 실행. AdamW s42는 P0(또는 팀 S1)을 쓴다.
-[P3] --exp_id R5_cnxt_muon_s42 --optimizer muon --muon_lr_scale 1 --seed 42
-[P3] --exp_id R5_cnxt_adamw_s43 --seed 43
-[P3] --exp_id R5_cnxt_muon_s43 --optimizer muon --muon_lr_scale 1 --seed 43
-[P3] --exp_id R5_cnxt_adamw_s44 --seed 44
-[P3] --exp_id R5_cnxt_muon_s44 --optimizer muon --muon_lr_scale 1 --seed 44
+[P2b] --exp_id R5_cnxt_muon_x4_e10_s42 --optimizer muon --muon_lr_scale 4 --epochs 10 --seed 42 --num_workers 6
 
 # ---- P4. EVA02-S 본 비교 AdamW vs Muon (통합안: Muon은 EVA02에서 우선) ---------------------------------
 # 378px(14의 배수), layer decay 0.75, drop path 0.1은 통합안 시작값. 3번(EVA02 담당) 설정과 같게 맞춘 뒤 실행.
@@ -41,10 +34,21 @@
 # ---- P5. SOAP (선택, 시간·GPU 여유가 있을 때만) ---------------------------------------------------------
 [P5] --exp_id R5_eva_soap_s42 --model eva02_small_patch14_336.mim_in22k_ft_in1k --set_img_size --size 378 --layer_decay 0.75 --drop_path 0.1 --optimizer soap --seed 42
 
-# ---- R. 과적합 대응 (ConvNeXt-T, AdamW 10 epoch = P2의 R5_cnxt_adamw_e10_s42와 한 가지씩만 다름) -----------
-# 근거: EMA(CLIP fine-tuning 연구), LP-FT(Kumar+ ICLR22), layer decay(BEiT), drop path(AugReg). 학습 길이는 P2 결과로 다시 정함.
-[R] --exp_id R5_cnxt_adamw_e10_ema_s42 --epochs 10 --ema 0.9995 --seed 42 --num_workers 6
-[R] --exp_id R5_cnxt_adamw_e10_lp1_s42 --epochs 10 --lp_epochs 1 --seed 42 --num_workers 6
-[R] --exp_id R5_cnxt_adamw_e10_ld08_s42 --epochs 10 --layer_decay 0.8 --seed 42 --num_workers 6
-[R] --exp_id R5_cnxt_adamw_e10_dp01_s42 --epochs 10 --drop_path 0.1 --seed 42 --num_workers 6
-# soup은 O3의 seed 3개가 나온 뒤: scripts/model_soup.py --runs R5_cnxt_adamw_s42 R5_cnxt_adamw_s43 R5_cnxt_adamw_s44
+# ---- O. 본 비교 1차: 30 epoch 일정(P0와 같음), seed 42, EMA 유무 ------------------------------------------------
+# P2 결과: 10 epoch 일정 < 30 epoch 일정. 과적합 지표(holdout 손실·확률 극단 비율)를 같이 기록한다.
+# Muon 배율은 P2/P2b(x2, x4) 결과로 정한다. 아래 2는 자리표시 — 바꾼 뒤 O_muon 줄을 실행.
+[O] --exp_id R5_cnxt_o_adamw_s42 --seed 42 --num_workers 6
+[O] --exp_id R5_cnxt_o_adamw_ema_s42 --ema 0.9995 --seed 42 --num_workers 6
+[O_muon] --exp_id R5_cnxt_o_muon_s42 --optimizer muon --muon_lr_scale 2 --seed 42 --num_workers 6
+[O_muon] --exp_id R5_cnxt_o_muon_ema_s42 --optimizer muon --muon_lr_scale 2 --ema 0.9995 --seed 42 --num_workers 6
+
+# ---- R2. 과적합 대응 × 두 optimizer (30 epoch 일정, O와 한 가지씩만 다름) ----------------------------------------
+# 근거: LP-FT(Kumar+ ICLR22), layer decay(BEiT), drop path(AugReg). Muon 배율은 O_muon과 같게 맞춘다.
+[R2] --exp_id R5_cnxt_r_adamw_lp1_s42 --lp_epochs 1 --seed 42 --num_workers 6
+[R2] --exp_id R5_cnxt_r_adamw_ld08_s42 --layer_decay 0.8 --seed 42 --num_workers 6
+[R2] --exp_id R5_cnxt_r_adamw_dp01_s42 --drop_path 0.1 --seed 42 --num_workers 6
+[R2_muon] --exp_id R5_cnxt_r_muon_lp1_s42 --optimizer muon --muon_lr_scale 2 --lp_epochs 1 --seed 42 --num_workers 6
+[R2_muon] --exp_id R5_cnxt_r_muon_ld08_s42 --optimizer muon --muon_lr_scale 2 --layer_decay 0.8 --seed 42 --num_workers 6
+[R2_muon] --exp_id R5_cnxt_r_muon_dp01_s42 --optimizer muon --muon_lr_scale 2 --drop_path 0.1 --seed 42 --num_workers 6
+
+# ---- 그다음: O·R2에서 의미 있어 보이는 조합만 seed 43, 44 추가 → model_soup.py로 soup도 확인
