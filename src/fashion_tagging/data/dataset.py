@@ -33,7 +33,8 @@ def read_names(path):
 class FashionDataset(_Base):
     def __init__(self, root, names, targets, size=384, mode="pad", train=False,
                  mean=IMAGENET_MEAN, std=IMAGENET_STD, zip_prefix=None, seed=0, color=None):
-        """color: optional (saturation, brightness, jitter) applied to every training image, each factor
+        """color: optional (saturation, brightness, jitter), or a list of such tuples (one per image), applied to
+        training images, each factor
         multiplied by U(1 - jitter, 1 + jitter) per load. Used to bring colourful external data closer to the
         original train colours; None (default) leaves images unchanged."""
         self.root, self.names = str(root), list(names)
@@ -72,8 +73,9 @@ class FashionDataset(_Base):
             # global `random` is re-seeded per DataLoader worker by PyTorch, so workers do not
             # repeat the same flip sequence, and torch.manual_seed keeps runs reproducible
             flip = self.train and random.random() < 0.5
-            if self.train and self.color:
-                s, v, j = self.color
+            c = self.color[i] if isinstance(self.color, list) else self.color
+            if self.train and c:
+                s, v, j = c
                 img = adjust_color(img, s * random.uniform(1 - j, 1 + j), v * random.uniform(1 - j, 1 + j))
             x = preprocess(img, self.size, self.mode, self.mean, self.std, hflip=flip)
         y = self.targets[i]

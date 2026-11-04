@@ -11,6 +11,7 @@ Steps (each drop is counted in report.md):
     near-duplicate of one of OUR images (64-bit dHash, Hamming distance <= --hash_dist), so no external image
         repeats a train / holdout / val / public-test picture
     near-duplicate of another external image (the first one, in file order, is kept)
+    listed in --exclude_list (CSV with a file_name column, e.g. CLIP non-fashion scenes from flag_domains.py)
 Output (--out), same layout as a split folder plus provenance:
     categories.txt, labels.csv (file_name + 27 columns, 1 / 0 / -1), images/ (hard links), sources.csv,
     report.md, review/<class>.jpg (random positives for a quick visual check), hash cache
@@ -108,6 +109,7 @@ def main():
     ap.add_argument("--min_side", type=int, default=128)
     ap.add_argument("--hash_dist", type=int, default=4, help="Hamming distance counted as a duplicate (0-64)")
     ap.add_argument("--workers", type=int, default=os.cpu_count() or 4)
+    ap.add_argument("--exclude_list", nargs="*", default=[], help="CSVs with file_name (+ optional reason) to drop")
     a = ap.parse_args()
 
     root, out = os.path.expanduser(a.root), os.path.expanduser(a.out)
@@ -140,7 +142,17 @@ def main():
     ext_h = [next(it) if e else None for e in present]
 
     drop = {}
+    excl = {}
+    for path in a.exclude_list:
+        for r in csv.DictReader(open(os.path.expanduser(path), encoding="utf-8")):
+            excl[r["file_name"]] = (r.get("reason") or os.path.basename(path)).split(" ")[0:2]
+    for i, r in enumerate(rows):
+        fn = f"{r['source']}_{r['image_id']}.jpg"
+        if fn in excl:
+            drop[i] = "excluded by list (" + " ".join(excl[fn]) + ")"
     for i, (p, r) in enumerate(zip(ext_paths, ext_h)):
+        if i in drop:
+            continue
         if r is None:
             drop[i] = "missing"
         elif r[1] <= 0:

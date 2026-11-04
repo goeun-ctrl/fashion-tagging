@@ -179,15 +179,26 @@ def main(argv=None):
         ref_s, ref_v = color_stats(ds_train.load_image(ds_train.names[k]) for k in ref)
     for path in a.extra_train:   # training only; holdout and the official val stay original
         en, et = load_partial_labels(path, cats)
-        if a.extra_max:
-            en, et = en[:a.extra_max], et[:a.extra_max]
+        if a.extra_max and a.extra_max < len(en):   # random (seeded) subset, so later groups in a merged folder stay
+            keep = sorted(pick.sample(range(len(en)), a.extra_max))
+            en, et = [en[k] for k in keep], et[keep]
         color, tag = None, ""
         if a.extra_color == "match":
+            # one factor pair per source group (sources.csv `group`, from merge_external.py), else one per folder
+            src_csv = os.path.join(path, "sources.csv")
+            grp = {}
+            if os.path.exists(src_csv):
+                grp = {r["file_name"]: r.get("group") or "" for r in csv.DictReader(open(src_csv, encoding="utf-8"))}
+            groups = [grp.get(n, "") for n in en]
             probe = FashionDataset(path, en, et)
-            ks = pick.sample(range(len(en)), min(300, len(en)))
-            ext_s, ext_v = color_stats(probe.load_image(en[k]) for k in ks)
-            color = (ref_s / max(ext_s, 1e-6), ref_v / max(ext_v, 1e-6), a.extra_color_jitter)
-            tag = f"(color s{color[0]:.2f} v{color[1]:.2f} j{a.extra_color_jitter:g})"
+            factors, parts = {}, []
+            for g in sorted(set(groups)):
+                idx = [k for k, x in enumerate(groups) if x == g]
+                ext_s, ext_v = color_stats(probe.load_image(en[k]) for k in pick.sample(idx, min(300, len(idx))))
+                factors[g] = (ref_s / max(ext_s, 1e-6), ref_v / max(ext_v, 1e-6), a.extra_color_jitter)
+                parts.append(f"{g + ' ' if g else ''}s{factors[g][0]:.2f} v{factors[g][1]:.2f}")
+            color = [factors[g] for g in groups]
+            tag = f"(color {', '.join(parts)} j{a.extra_color_jitter:g})"
         extra_sets.append(FashionDataset(path, en, et, size=a.size, mode=a.preprocess_mode, train=True,
                                          mean=mean, std=std, color=color))
         extra_desc.append(f"{os.path.basename(os.path.normpath(path))}:{len(en)}{tag}")
