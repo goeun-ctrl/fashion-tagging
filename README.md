@@ -149,7 +149,8 @@ python scripts/train.py --exp_id smoke --max_train 256 --max_eval 128 --epochs 2
 | 스케줄 | `--scheduler`, `--warmup_ratio` | `cosine`, 0.05 | `cosine` / `constant` |
 | 길이 | `--epochs`, `--patience` | 30, 5 | holdout Macro F1이 patience번 연속 안 오르면 종료 |
 | 배치 | `--batch_size`, `--accum` | 32, 1 | 실효 배치 = batch × accum |
-| 외부 데이터 | `--extra_train`, `--extra_weight`, `--extra_max` | 없음, 1, 0 | 라벨 1/0/-1 폴더를 학습에만 추가. 평가는 원본 그대로 (8장 참고) |
+| 외부 데이터 | `--extra_train`, `--extra_weight`, `--extra_max` | 없음, 1, 0 | 라벨 1/0/-1 폴더를 학습에만 추가. 평가는 원본 그대로 (7-1장) |
+| 외부 데이터 색 | `--extra_color`, `--extra_color_jitter` | `off`, 0.2 | `match`: 폴더별 채도·밝기를 train_inner 평균에 맞춤 (±jitter) |
 | 기타 | `--seed`, `--threshold` | 42, 0.5 | |
 
 **결과물**
@@ -208,7 +209,12 @@ python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/rare_
 - `prepare_external.py`는 깨진·작은 이미지, **우리 train/val/test와 겹치는 이미지**(지각 해시), 외부끼리 중복을 뺀다.
   `report.md`(제외 이유·클래스별 라벨 수)와 `review/<클래스>.jpg`(눈으로 확인용)를 만든다.
 - 외부 이미지는 학습에만 쓴다. holdout·공식 val은 원본 그대로여서 외부 데이터 없이 돌린 실험과 바로 비교된다.
-- 데이터는 git에 올리지 않는다(`data/external/`). leg warmer는 외부에서 찾지 못했다.
+- 수집 사진은 train보다 채도가 높다(웹 크롭 0.33, LVIS·Open Images 0.27, train 0.23). `--extra_color match`로 맞춘다.
+- leg warmer: `collect_openverse_wikimedia.py`(자유 라이선스, ND 제외) → `crop_legwarmers.py`(OWLv2로 무릎~발 크롭)
+  → `data/external/legwarmer_web_crop` (183장, leg warmer = 1, 나머지 -1).
+- `flag_domains.py`(CLIP)로 스포츠·군대·작업복 등 패션과 먼 장면을 표시할 수 있다(적용은 수동 확인 후).
+- **주의**: 원본 train_inner에 holdout 47장·val 19장과 사실상 같은 사진이 있다(`prepare_external`류 지각 해시+픽셀 비교).
+- 데이터는 git에 올리지 않는다(`data/external/`).
 
 ## 8. 꼭 지킬 것 (자세히: `docs/guide/README_팀공유.md`)
 
