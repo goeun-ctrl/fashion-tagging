@@ -133,7 +133,7 @@ S2의 epoch당 약 4분(학습 구간, batch 16, 공유 GPU)으로 추정. EVA02
 ## 5. 실행 방법
 
 ```
-cd /data/eunjin/ML/fassion_tagging        # 또는 각자 공통 코드 최신본(8a2de2c 이상) 위치
+cd /data/eunjin/DL/fassion_tagging        # 또는 각자 공통 코드 최신본(8a2de2c 이상) 위치
 python common/run_queue.py --jobs experiments/backbone_budget_jobs.txt --only B1 --dry_run \
     --train_dir data/train --val_dir data/val           # 실행할 명령 확인만
 
