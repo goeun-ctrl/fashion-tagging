@@ -11,10 +11,13 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 WORK = REPO.parents[1]
-COMMON = REPO / "common"
-sys.path.insert(0, str(COMMON))
-from dataset import FashionDataset, read_names
-from labels import load_split
+# Repository layout (main): shared code in src/fashion_tagging, fixed splits in data/splits, scripts/train.py.
+for _p in (REPO / "src", REPO / "scripts"):
+    if str(_p) not in sys.path:
+        sys.path.insert(0, str(_p))
+from fashion_tagging.data.dataset import FashionDataset, read_names  # noqa: E402
+from fashion_tagging.data.labels import load_split  # noqa: E402
+from fashion_tagging.paths import SPLITS_DIR as SPLITS  # noqa: E402  (data/splits)
 
 MANIFEST = {
     "train_inner": (43197, "04bebf0668097b138fd3394c7496169b78e8a71005c54e7e322bb4652630ec1e"),
@@ -37,9 +40,16 @@ class MissingLabeledImages(ValueError):
     """Keep the baseline's validation error, while distinguishing missing inputs."""
 
 
+def default_root(split):
+    """Original task folder for `split` (train/val): the private Windows layout
+    <WORK>/MAT4091_fashion_<split>/<split> if it exists, otherwise repo data/<split> (lab server layout)."""
+    legacy = WORK / f"MAT4091_fashion_{split}" / split
+    return legacy if legacy.exists() else REPO / "data" / split
+
+
 def source(split, root=None):
     if root is None:
-        root = WORK / f"MAT4091_fashion_{split}" / split
+        root = default_root(split)
     cats, names, labels = load_split(root, split)
     with np.load(root / "labels.npz", allow_pickle=False) as z:
         keys = z["filenames"].tolist()
@@ -83,14 +93,14 @@ def verified_data(out=HERE):
     groups, digests = {}, {}
     index = {k: i for i, k in enumerate(names)}
     for split, (count, digest) in MANIFEST.items():
-        p = COMMON / "splits" / (split + ".txt")
+        p = SPLITS / (split + ".txt")
         ids = read_names(p)
         digests[split] = hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         require(digests[split] == digest and len(ids) == len(set(ids)) == count, "team manifest changed: " + split)
         groups[split] = root, ids, targets[[index[k] for k in ids]]
     inner, hold = (set(groups[g][1]) for g in MANIFEST)
     require(not inner & hold and inner | hold == set(names), "split overlap or incomplete coverage")
-    with (COMMON / "splits/split_summary.csv").open(encoding="utf-8-sig", newline="") as f:
+    with (SPLITS / "split_summary.csv").open(encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     require([r["class"] for r in rows] == cats, "team summary class order differs")
     for split in groups:

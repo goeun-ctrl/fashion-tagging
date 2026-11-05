@@ -9,10 +9,10 @@ from zipfile import BadZipFile
 
 import numpy as np
 
-from . import COMMON, ROLE, require
+from . import ROLE, SPLITS, require
 from . import package as pkg
 from data_check import MANIFEST as FIXED, MissingLabeledImages, read_names, source
-from preprocess import timm_mean_std
+from fashion_tagging.data.preprocess import timm_mean_std
 
 CFG = json.loads((ROLE / "config.json").read_text(encoding="utf-8"))
 MEAN = (0.48145466, 0.4578275, 0.40821073)
@@ -56,14 +56,14 @@ def read_lock(path, mode):
 def team_splits():
     groups = {}
     for split, (count, digest) in FIXED.items():
-        path = COMMON / "splits" / (split + ".txt")
+        path = SPLITS / (split + ".txt")
         require(hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() == digest,
                 "team split hash mismatch: " + split)
         ids = read_names(path)
         require(len(set(ids)) == len(ids) == count, "team split size or uniqueness mismatch")
         groups[split] = ids
     require(not set(groups["train_inner"]) & set(groups["holdout"]), "team split overlap")
-    with (COMMON / "splits/split_summary.csv").open(encoding="utf-8-sig", newline="") as f:
+    with (SPLITS / "split_summary.csv").open(encoding="utf-8-sig", newline="") as f:
         cats = [r["class"] for r in csv.DictReader(f)]
     require(len(cats) == len(set(cats)) == 27, "invalid team class order")
     return cats, groups

@@ -1,5 +1,19 @@
 # Role 3 · EVA02-Small 백본 비교
 
+> **저장소 구조 맞춤 (2026-11-05, 5번)**: main의 폴더 정리에 맞춰 경로와 import만 바꿨다. 학습·평가 동작은 그대로다.
+>
+> | 예전 | 지금 |
+> |---|---|
+> | `common/`을 `sys.path`에 넣고 `from dataset/labels/preprocess/metrics/optim import ...` | `src/`를 `sys.path`에 넣고 `from fashion_tagging.data.* / evaluation.metrics / training.optim import ...` |
+> | `from train_eval import predict, set_seed` | `scripts/`를 `sys.path`에 넣고 `from train import predict, set_seed` (`scripts/train.py`) |
+> | `common/splits/*.txt`, `split_summary.csv` | `data/splits/` (`data_check.SPLITS` = `fashion_tagging.paths.SPLITS_DIR`). 파일 내용·해시는 같다 |
+> | 원본 데이터: 저장소 두 단계 위 `MAT4091_fashion_{train,val}/{train,val}` | 그 폴더가 있으면 그대로 쓰고, 없으면 저장소의 `data/train`, `data/val` (연구실 서버 배치)을 쓴다 (`data_check.default_root`) |
+>
+> 경로를 한 곳에서 바꾸려면 `data_check.py` 위쪽만 보면 된다. 재학습 코드(`retrain_common_data/`)는 `--train-root`·`--val-root`로 원본 위치를 직접 받는다.
+> **재학습 상태 (2026-11-05)**: 학습에 필요한 공통 데이터 패키지(`fashion-common-v1`: Manifest·Targets·증강 정책·30개 epoch Plan·승인 대조표, 2번 정은 담당)는 아직 어느 브랜치에도 없다. 그래서 `preflight`는 `BLOCKED`이고 GPU 학습은 시작하지 않았다. 형식은 `RETRAIN_HANDOFF.md`의 "공통 패키지 연결 규약".
+>
+> 확인: 합성 테스트 28개 통과(`python -m unittest experiments.role3_eva02.retrain_common_data.test_retrain`), `data/splits` 두 명단의 해시가 `data_check.MANIFEST`와 일치.
+
 `FashionDataset`, `load_split`, `preprocess`, `evaluate_probs`, timm 기본 분류기와 공통 AdamW·cosine 구현을 사용한다. 모든 실행은 수업 원본이 있는 비공개 Windows PC를 기준으로 한다. 아래 명령은 Git 저장소 루트에서 PowerShell로 실행한다.
 
 ## 최초 설치
@@ -33,7 +47,7 @@ $run='experiments\role3_eva02\run.py'
 & $py $run infer --image 'C:\경로\image.jpg'
 ```
 
-`train` 자체가 사전검증을 다시 수행한다. PC의 프로젝트 상위 폴더에 있는 `MAT4091_fashion_train/train`, `MAT4091_fashion_val/val`과 Git에 고정된 두 분할 목록만 읽는다. 무게 파일을 받은 뒤에는 학습·평가·추론을 오프라인으로 실행할 수 있다. 추론은 보관한 `private/baseline/best.pt`의 모델·클래스 순서·정규화를 복원한다. 예측이 없으면 빈 배열을 출력한다.
+`train` 자체가 사전검증을 다시 수행한다. PC의 프로젝트 상위 폴더에 있는 `MAT4091_fashion_train/train`, `MAT4091_fashion_val/val`(없으면 저장소의 `data/train`, `data/val`)과 Git에 고정된 두 분할 목록(`data/splits/`)만 읽는다. 무게 파일을 받은 뒤에는 학습·평가·추론을 오프라인으로 실행할 수 있다. 추론은 보관한 `private/baseline/best.pt`의 모델·클래스 순서·정규화를 복원한다. 예측이 없으면 빈 배열을 출력한다.
 
 ## 기록 위치
 

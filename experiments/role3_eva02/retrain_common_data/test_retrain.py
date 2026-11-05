@@ -18,7 +18,7 @@ from . import batches, cli, package as pkg, preflight as pf, trainer
 import data_check
 import eva
 from data_check import write_json
-from preprocess import preprocess
+from fashion_tagging.data.preprocess import preprocess
 
 
 def write_csv(path, rows):

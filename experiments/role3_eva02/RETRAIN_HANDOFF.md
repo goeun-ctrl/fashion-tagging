@@ -20,7 +20,7 @@ Train_inner에 최종 승인된 외부 이미지만 합친다. 준비 보고 기
 
 | 제공처 | 준비물 |
 |---|---|
-| Git | `common/splits/train_inner.txt`, `holdout.txt`, `split_summary.csv`, 공통 Dataset·전처리·평가 모듈, 기존 EVA 설정·코드, `retrain_common_data/`, 이 문서 |
+| Git | `data/splits/train_inner.txt`, `holdout.txt`, `split_summary.csv`, 공통 Dataset·전처리·평가 모듈(`src/fashion_tagging/`), 기존 EVA 설정·코드, `retrain_common_data/`, 이 문서 |
 | 과제 원본/서버 담당자 | 압축 해제한 원본 `train/`, `val/`. 각각 `categories.txt`, `labels.csv`, `labels.npz`, `images/`를 포함한다. 클래스 이름에 쉼표가 있으므로 한 줄 전체가 한 클래스다. |
 | 정은이/데이터 담당자 | 최종 계획서와 준비 결과서, 원본 공통 `augmentation.py`와 정책, 고정 분할·공식 Val 기준, 승인된 외부 이미지와 최종 27라벨, Manifest, Targets, 클래스별 집계, 해당 라벨판에서 생성한 30개 Plan. 두 모델에 배포할 신뢰된 버전·SHA-256 대조표도 함께 받는다. |
 | 서버 담당자 | 해시가 기존 `config.json`의 `weight_sha256`과 일치하는 공식 `model.safetensors`, CUDA PyTorch 환경, 두 모델이 합의한 Pillow 버전, 비공개 데이터와 결과를 보관할 디스크 공간 |

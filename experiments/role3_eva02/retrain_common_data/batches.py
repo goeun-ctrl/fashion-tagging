@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader, Dataset
 
 from . import require
 from .preflight import CFG, MEAN, STD
-from dataset import FashionDataset
-from preprocess import preprocess, to_rgb
+from fashion_tagging.data.dataset import FashionDataset
+from fashion_tagging.data.preprocess import preprocess, to_rgb
 
 ENHANCERS = (ImageEnhance.Brightness, ImageEnhance.Contrast, ImageEnhance.Color)
 BCE_SUM = torch.nn.BCEWithLogitsLoss(reduction="sum")

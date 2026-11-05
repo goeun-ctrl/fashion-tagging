@@ -20,9 +20,9 @@ from .preflight import CFG, MEAN, STD
 from .. import run as baseline
 from data_check import write_json
 from eva import architecture, from_pretrained
-from metrics import save_predictions
-from optim import build_schedulers
-from train_eval import set_seed
+from fashion_tagging.evaluation.metrics import save_predictions
+from fashion_tagging.training.optim import build_schedulers
+from train import set_seed  # scripts/train.py
 
 
 @contextmanager

@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from data_check import HERE, require, write_json
-from metrics import binarize, evaluate_probs, sigmoid
+from fashion_tagging.evaluation.metrics import binarize, evaluate_probs, sigmoid
 
 METRICS = ("micro_f1", "macro_f1", "image_f1")
 REF = json.loads((HERE / "convnext_reference.json").read_text(encoding="utf-8"))

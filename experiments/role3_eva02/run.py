@@ -17,11 +17,11 @@ from torch.utils.data import DataLoader
 
 from data_check import HERE, FashionDataset, require, verified_data, write_json
 from eva import CFG, architecture, describe, from_pretrained
-from labels import to_names
-from metrics import binarize, evaluate_probs, sigmoid
-from optim import build_optimizers, build_schedulers
-from preprocess import preprocess, timm_mean_std
-from train_eval import predict, set_seed
+from fashion_tagging.data.labels import to_names
+from fashion_tagging.data.preprocess import preprocess, timm_mean_std
+from fashion_tagging.evaluation.metrics import binarize, evaluate_probs, sigmoid
+from fashion_tagging.training.optim import build_optimizers, build_schedulers
+from train import predict, set_seed  # scripts/train.py
 from PIL import Image
 
 RUN = HERE / "private" / "baseline"
