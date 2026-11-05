@@ -1,0 +1,53 @@
+{
+  "native_336": {
+    "total": 21754395,
+    "trainable": 21754395,
+    "grid": [
+      24,
+      24
+    ],
+    "pos_embed": [
+      1,
+      577,
+      384
+    ],
+    "pool": "avg",
+    "prepool_norm": "Identity",
+    "postpool_norm": "LayerNorm",
+    "classifier": "Linear(in_features=384, out_features=27, bias=True)",
+    "num_prefix_tokens": 1,
+    "static_size": true
+  },
+  "selected": {
+    "total": 21813147,
+    "trainable": 21813147,
+    "grid": [
+      27,
+      27
+    ],
+    "pos_embed": [
+      1,
+      730,
+      384
+    ],
+    "pool": "avg",
+    "prepool_norm": "Identity",
+    "postpool_norm": "LayerNorm",
+    "classifier": "Linear(in_features=384, out_features=27, bias=True)",
+    "num_prefix_tokens": 1,
+    "static_size": true,
+    "synthetic_batch": 16,
+    "output_shape": [
+      16,
+      27
+    ],
+    "synthetic_bce": 0.6931464672088623,
+    "head_backbone_gradient_norms": [
+      0.4905966818332672,
+      0.00043552840361371636
+    ],
+    "amp_skipped_before_step": 0,
+    "strict_roundtrip": true,
+    "optimizer_and_scheduler_step": true
+  }
+}

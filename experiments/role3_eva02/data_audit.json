@@ -1,0 +1,18 @@
+{
+  "manifests_lf_sha256": {
+    "train_inner": "04bebf0668097b138fd3394c7496169b78e8a71005c54e7e322bb4652630ec1e",
+    "holdout": "be62c24fac22d7eb2650b40d2e75b31033177d0e9d8bb1fe177a431a700baa1a"
+  },
+  "counts": {
+    "train_inner": 43197,
+    "holdout": 2425,
+    "val": 1158
+  },
+  "cross_split_shared_byte_hash_groups": {},
+  "csv_npz_match": true,
+  "class_count": 27,
+  "shoe_prevalence": {
+    "train": 0.525053702161238,
+    "val": 0.694300518134715
+  }
+}

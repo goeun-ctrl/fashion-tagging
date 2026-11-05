@@ -1,0 +1,14 @@
+{
+  "source": "ConvNeXt_Tiny_팀공유_실험보고서.md (2026-11-03), 팀원 측정. 현재 머신에서 재추론하지 않음.",
+  "common_commit": "c5827dfa749e276d4e5431628a06730b26c4841f",
+  "holdout": {"micro_f1": 0.805435, "macro_f1": 0.707369, "image_f1": 0.809035},
+  "val": {"micro_f1": 0.825538, "macro_f1": 0.660754, "image_f1": 0.827740},
+  "val_counts_tp_fp_fn": {
+    "leg warmer": [0, 0, 7], "cardigan": [1, 8, 11], "jumpsuit": [6, 3, 15],
+    "vest": [7, 6, 14], "glove": [7, 3, 11], "sweater": [11, 8, 10], "scarf": [22, 9, 26]
+  },
+  "val_f1_rounded_only": {"sock": 0.6022, "watch": 0.6043},
+  "best_epoch": 10, "early_stop_epoch": 15, "params": 27840891,
+  "train_minutes": 58.97, "forward_ms_per_image": 2.666, "end_to_end_ms_per_image": 4.392,
+  "allocated_gb": 3.652415, "reserved_gb": 3.735028, "device": "RTX A5000"
+}
