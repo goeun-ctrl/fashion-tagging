@@ -1,0 +1,7 @@
+# Actual running environment; install CUDA-compatible torch/torchvision separately.
+timm==1.0.22
+numpy==2.2.6
+Pillow==11.3.0
+matplotlib==3.10.7
+# torch==2.8.0+cu126
+# torchvision==0.23.0+cu126

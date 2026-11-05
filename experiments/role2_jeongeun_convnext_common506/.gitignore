@@ -1,0 +1,7 @@
+private/
+__pycache__/
+*.py[cod]
+*.log
+*.pt
+*.pth
+*.npz

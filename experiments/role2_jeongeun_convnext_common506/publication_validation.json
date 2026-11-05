@@ -1,0 +1,9 @@
+{
+  "source_files_match_live_server": 7,
+  "pinned_common_hashes_match_running_config": 7,
+  "portable_cli_help": "PASS",
+  "reference_materialization": "PASS with text CRLF-to-LF normalization matching server",
+  "new_peer_gpu_training_executed": false,
+  "existing_training_modified": false,
+  "performance_artifacts_included": false
+}

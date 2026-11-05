@@ -1,0 +1,15 @@
+{
+  "server_source_directory": "/home/frostpine/fashion_tagging/experiments/role2_jeongeun_convnext/common506_retrain_20261105/code",
+  "server_local_all_equal": true,
+  "sha256": {
+    "augmentation.py": "1fc5b8eb2157627c9a8f46e4e15b5e5c0a4efe56e8a1d7e529f31ed59d558525",
+    "pipeline.py": "2a8f8454cbd42f19f8ccf4b052c584ef51f02508e5c9001a7294a7b2d03ab790",
+    "augmented_data.py": "8e4275106f08945b145547f591c40833c746c5d79626d2f7a7872b7c3b85d67a",
+    "config.json": "af5ed605b9c8ce9b8605b045730a1e9e7f72086507dbe9d484cbb37fa5b5501c",
+    "trainer.py": "5be63bd4f220fe67b03c110c78216fd0fbf84cf69833d3b000185443741f7877",
+    "training_utils.py": "42e41ade14d7a3a0d970fd773dc0f423b7c352c77ee0afd87b61a25ecc681180",
+    "preflight.py": "67afa5aa7729cb9f2a394ef25e7d94fd36cf73bffac3953fe393d56e0fd4a421"
+  },
+  "training_modified": false,
+  "performance_artifacts_included": false
+}
