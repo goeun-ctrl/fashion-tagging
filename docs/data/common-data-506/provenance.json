@@ -1,0 +1,19 @@
+{
+  "data_version": "fashion-common-506-partial-20261105-v1",
+  "source_prepared_hashes": "3c7e9b302fceed1b243cb3b2ca647027e89e74eff128d27811280bd150402ea1",
+  "source_image_audit_sha256": "d4e2327a427bb801d0435c188d5755af18c1b8e0de7c60798b993d6363622ad4",
+  "baseline_audit_sha256": "b03c5c60cc9fad994d038edfccd613daaa1c23fafdb3ebc0e8900d9f388f87e7",
+  "original_common_commit": "c5827dfa749e276d4e5431628a06730b26c4841f",
+  "eva_branch": "feature/eva02-common-data-retrain",
+  "eva_commit": "a84528284cc8f8d2ae6177caeee67fee05b92af4",
+  "original_count": 43197,
+  "external_count": 506,
+  "holdout_count": 2425,
+  "val_count": 1158,
+  "regenerated_plans_equal_previous_values": true,
+  "plans_regenerated": true,
+  "training_executed": false,
+  "original_images_included": false,
+  "normalization_is_model_specific": true,
+  "pillow_version": "11.3.0"
+}

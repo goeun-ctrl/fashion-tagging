@@ -1,0 +1,2 @@
+e06ec98a34510b2ed1893e40b10018d2145c7708d57499bbc15a09e59f2f6bb0  fashion-common-506-partial-20261105-v1.zip
+5cbb9dcb9bea00dee3c5eded6fab8a0a746dd45cd8f6e324e39f5581db0928f5  fashion-common-506-partial-20261105-v1.shared-lock.json

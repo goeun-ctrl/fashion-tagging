@@ -1,0 +1,9 @@
+{
+  "label_mode": "partial",
+  "approved_partial_mode": true,
+  "human_complete_annotation": false,
+  "external_unknown_entries": 12496,
+  "external_total_entries": 13662,
+  "unknown_fraction": 0.9146537842190016,
+  "annotation": "Preserve -1; do not turn unknowns into negatives. User explicitly approved B mode on 2026-11-05. This does not assert full human annotation or a legal clearance."
+}
