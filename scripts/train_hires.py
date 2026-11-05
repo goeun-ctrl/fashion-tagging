@@ -5,8 +5,9 @@ What differs from scripts/train.py (team baseline: 384 square pad, flip, BCE, co
   input      keep aspect ratio, no square padding. Train: short side random in [--short_min, --short_max],
              long side <= --max_long. Test: short side --test_short (Fashionformer test scale 1333x800).
              Bilinear resize, flip 0.5. No random crop (a crop would drop objects whose image label stays 1).
-  batching   images padded to the largest H, W in the batch (multiple of 32); GAP is masked to the real
-             image area so padding never enters the features.
+  batching   the random short side is quantised to 4 levels and each batch holds one orientation x level,
+             padded to that level's fixed canvas (8 shapes in all; a new shape costs cuDNN ~1.5 s/img once).
+             GAP is masked to the real image area so padding never enters the features. channels_last.
   loss       ASL (gamma_neg 4, gamma_pos 0, clip 0.05) by default, --loss bce for the baseline loss.
   optimiser  AdamW (wd 0.05), separate backbone / head lr, gradient clipping (max_norm 1.0).
   schedule   per optimizer update: linear warmup from --warmup_ratio over --warmup_iters, then step decay
@@ -65,6 +66,8 @@ def parse_args(argv=None):
     ap.add_argument("--short_max", type=int, default=800)
     ap.add_argument("--test_short", type=int, default=800)
     ap.add_argument("--max_long", type=int, default=1333)
+    ap.add_argument("--short_levels", type=int, nargs="*", default=None,
+                    help="train short-side levels (default: 4 levels from short_min to short_max, multiples of 32)")
     ap.add_argument("--flip", type=float, default=0.5)
     # optimisation
     ap.add_argument("--epochs", type=int, default=18)
@@ -119,41 +122,116 @@ def target_size(w, h, short, max_long):
     return max(1, round(w * scale)), max(1, round(h * scale))
 
 
+def ceil32(v):
+    return math.ceil(v / STRIDE) * STRIDE
+
+
+def long_cap(level, max_long):
+    """Long-side cap for a short-side level: Fashionformer's 1333 at full scale, 2x the short side below it
+    (aspect ratios above 2 are rare), so every level has one fixed canvas."""
+    return min(max_long, 2 * level)
+
+
+def canvas(level, portrait, max_long):
+    long_, short_ = ceil32(long_cap(level, max_long)), ceil32(level)
+    return (long_, short_) if portrait else (short_, long_)            # (H, W)
+
+
+def short_levels(a):
+    """Fixed short-side levels. Every new input shape costs cuDNN a slow first call (measured ~1.5 s/img on
+    an A5000 vs 0.03 s/img once seen), so the per-image random short side of Fashionformer is quantised to a
+    few levels and each batch is padded to that level's canvas: 2 orientations x len(levels) shapes in all."""
+    if a.short_levels:
+        return sorted(a.short_levels)
+    if a.short_min == a.short_max:
+        return [a.short_max]
+    return sorted({min(a.short_max, ceil32(v)) for v in np.linspace(a.short_min, a.short_max, 4)})
+
+
+def oriented_portrait(root, names):
+    """True where the image (after EXIF transpose) is at least as tall as wide. Header reads only."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(n):
+        with Image.open(os.path.join(str(root), "images", n)) as im:
+            w, h = im.size
+            if im.getexif().get(274, 1) in (5, 6, 7, 8):              # 90/270 degree EXIF orientations
+                w, h = h, w
+        return h >= w
+    with ThreadPoolExecutor(16) as ex:
+        return np.array(list(ex.map(one, names, chunksize=256)), dtype=bool)
+
+
+class BucketBatchSampler:
+    """Batches of (index, level) whose images share one canvas (orientation x level).
+    train: each epoch draws a level per image (seed, epoch), shuffles inside each bucket and then the batch
+    order. eval: one level, original order inside each orientation. Call set_epoch before iterating."""
+
+    def __init__(self, portrait, levels, batch_size, seed, train):
+        self.portrait, self.levels, self.bs, self.seed, self.train = portrait, list(levels), batch_size, seed, train
+        self.epoch = 0
+
+    def set_epoch(self, epoch):
+        self.epoch = epoch
+
+    def plan(self, epoch):
+        rng = np.random.default_rng([self.seed, epoch])
+        n = len(self.portrait)
+        lv = rng.choice(self.levels, n) if self.train else np.full(n, self.levels[-1])
+        batches = []
+        for o in (True, False):
+            for level in self.levels:
+                idx = np.flatnonzero((self.portrait == o) & (lv == level))
+                if self.train:
+                    idx = rng.permutation(idx)
+                batches += [[(int(i), int(level)) for i in idx[k:k + self.bs]] for k in range(0, len(idx), self.bs)]
+        if self.train:
+            batches = [batches[k] for k in rng.permutation(len(batches))]
+        return batches
+
+    def __iter__(self):
+        return iter(self.plan(self.epoch))
+
+    def __len__(self):
+        return len(self.plan(self.epoch))
+
+
 class HiResDataset(Dataset):
-    def __init__(self, root, names, targets, mean, std, train, short_range, max_long, flip):
+    def __init__(self, root, names, targets, mean, std, train, max_long, flip):
         self.root, self.names = os.path.join(str(root), "images"), list(names)
         self.targets = np.asarray(targets, dtype=np.float32)
         self.mean = np.asarray(mean, dtype=np.float32).reshape(3, 1, 1)
         self.std = np.asarray(std, dtype=np.float32).reshape(3, 1, 1)
-        self.train, self.short_range, self.max_long, self.flip = train, short_range, max_long, flip
+        self.train, self.max_long, self.flip = train, max_long, flip
 
     def __len__(self):
         return len(self.names)
 
-    def __getitem__(self, i):
+    def __getitem__(self, key):
+        i, level = key
         with Image.open(os.path.join(self.root, self.names[i])) as img:
             img.load()
             img = to_rgb(img)                                    # EXIF transpose + RGB (as the team baseline)
-        lo, hi = self.short_range
-        short = random.randint(lo, hi) if self.train else hi
-        img = img.resize(target_size(*img.size, short, self.max_long), Image.BILINEAR)
+        portrait = img.size[1] >= img.size[0]
+        img = img.resize(target_size(*img.size, level, long_cap(level, self.max_long)), Image.BILINEAR)
         if self.train and random.random() < self.flip:
             img = ImageOps.mirror(img)
         x = np.asarray(img, dtype=np.float32).transpose(2, 0, 1) / 255.0
         x = (x - self.mean) / self.std
-        return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(self.targets[i])
+        return (torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(self.targets[i]), i,
+                canvas(level, portrait, self.max_long))
 
 
 def pad_collate(batch):
-    """Pad to the batch's max H, W (rounded up to a multiple of 32). Returns images, targets and the real
-    (h, w) of each image for masked pooling."""
-    hs = [x.shape[1] for x, _ in batch]
-    ws = [x.shape[2] for x, _ in batch]
-    H, W = math.ceil(max(hs) / STRIDE) * STRIDE, math.ceil(max(ws) / STRIDE) * STRIDE
-    out = torch.zeros(len(batch), 3, H, W)
-    for k, (x, _) in enumerate(batch):
+    """Pad every image to the batch's canvas (fixed per orientation x level). Returns images, targets, the
+    real (h, w) of each image for masked pooling and the dataset indices."""
+    H = max(max(c[0] for *_, c in batch), *(x.shape[1] for x, *_ in batch))
+    W = max(max(c[1] for *_, c in batch), *(x.shape[2] for x, *_ in batch))
+    out = torch.zeros(len(batch), 3, ceil32(H), ceil32(W))
+    for k, (x, *_) in enumerate(batch):
         out[k, :, :x.shape[1], :x.shape[2]] = x
-    return out, torch.stack([t for _, t in batch]), torch.tensor(list(zip(hs, ws)))
+    return (out, torch.stack([t for _, t, *_ in batch]), torch.tensor([x.shape[1:] for x, *_ in batch]),
+            torch.tensor([i for _, _, i, _ in batch]))
 
 
 class MaskedPoolConvNeXt(nn.Module):
@@ -194,10 +272,12 @@ def lr_factor(step, total, warmup_iters, warmup_ratio, milestones, gamma):
 
 @torch.no_grad()
 def predict(model, loader, device, use_amp):
+    """Logits in dataset order (the bucket sampler groups images by orientation)."""
     model.eval()
-    outs, fwd = [], 0.0
-    for x, _, sizes in loader:
-        x, sizes = x.to(device, non_blocking=True), sizes.to(device)
+    outs, order, fwd = [], [], 0.0
+    for x, _, sizes, idx in loader:
+        order.append(idx)
+        x, sizes = x.to(device, non_blocking=True).contiguous(memory_format=torch.channels_last), sizes.to(device)
         if device.type == "cuda":
             torch.cuda.synchronize()
         t0 = time.perf_counter()
@@ -207,7 +287,11 @@ def predict(model, loader, device, use_amp):
             torch.cuda.synchronize()
         fwd += time.perf_counter() - t0
         outs.append(o.float().cpu())
-    return torch.cat(outs).numpy(), fwd
+    logits, order = torch.cat(outs).numpy(), torch.cat(order).numpy()
+    out = np.empty_like(logits)
+    out[order] = logits
+    assert len(order) == len(set(order.tolist())) == len(out)
+    return out, fwd
 
 
 def bce(logits, y):
@@ -237,19 +321,27 @@ def main(argv=None):
     t_in, t_ho = targets[[index[n] for n in inner]], targets[[index[n] for n in hold]]
     mean, std = timm_mean_std(a.model)
 
-    def ds(root, n, t, train):
-        rng = (a.short_min, a.short_max) if train else (a.test_short, a.test_short)
-        return HiResDataset(root, n, t, mean, std, train, rng, a.max_long, a.flip)
+    levels = short_levels(a)
+    t0 = time.perf_counter()
+    por_in, por_ho, por_va = (oriented_portrait(r, n) for r, n in
+                              ((a.train_dir, inner), (a.train_dir, hold), (a.val_dir, vnames)))
+    print(f"levels {levels}, test {a.test_short}; portrait share {por_in.mean():.2f} "
+          f"(header scan {time.perf_counter() - t0:.0f}s)", flush=True)
 
-    g = torch.Generator().manual_seed(a.seed)
-    kw = dict(num_workers=a.workers, pin_memory=device.type == "cuda", collate_fn=pad_collate,
-              worker_init_fn=seed_worker)
-    train_loader = DataLoader(ds(a.train_dir, inner, t_in, True), batch_size=a.batch_size, shuffle=True,
-                              drop_last=False, generator=g, persistent_workers=a.workers > 0, **kw)
-    hold_loader = DataLoader(ds(a.train_dir, hold, t_ho, False), batch_size=a.eval_batch_size, **kw)
-    val_loader = DataLoader(ds(a.val_dir, vnames, vtargets, False), batch_size=a.eval_batch_size, **kw)
+    def loader(root, n, t, por, train, bs):
+        sampler = BucketBatchSampler(por, levels if train else [a.test_short], bs, a.seed, train)
+        return DataLoader(HiResDataset(root, n, t, mean, std, train, a.max_long, a.flip), batch_sampler=sampler,
+                          num_workers=a.workers, pin_memory=device.type == "cuda", collate_fn=pad_collate,
+                          worker_init_fn=seed_worker, persistent_workers=train and a.workers > 0)
 
+    train_loader = loader(a.train_dir, inner, t_in, por_in, True, a.batch_size)
+    hold_loader = loader(a.train_dir, hold, t_ho, por_ho, False, a.eval_batch_size)
+    val_loader = loader(a.val_dir, vnames, vtargets, por_va, False, a.eval_batch_size)
+
+    # channels_last: ConvNeXt's 7x7 depthwise conv backward is ~20x slower in NCHW at these sizes (A5000, AMP:
+    # 2.18 s vs 0.093 s per 4-image step at ~800x1216). Same math, memory layout only.
     model = MaskedPoolConvNeXt(a.model, len(cats), not a.no_pretrained, a.drop_path).to(device)
+    model = model.to(memory_format=torch.channels_last)
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
     head_ids = {id(p) for p in model.head_parameters()}
@@ -257,8 +349,9 @@ def main(argv=None):
         {"params": [p for p in model.parameters() if id(p) not in head_ids], "lr": a.lr_backbone, "name": "backbone"},
         {"params": model.head_parameters(), "lr": a.lr_head, "name": "head"},
     ], weight_decay=a.weight_decay)
-    steps_per_epoch = math.ceil(len(train_loader) / a.accum)
-    total = a.epochs * steps_per_epoch
+    sampler = train_loader.batch_sampler
+    per_epoch = [math.ceil(len(sampler.plan(e)) / a.accum) for e in range(1, a.epochs + 1)]
+    steps_per_epoch, total = round(sum(per_epoch) / len(per_epoch)), sum(per_epoch)
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, lambda s: lr_factor(s, total, a.warmup_iters, a.warmup_ratio, a.milestones, a.gamma))
     loss_fn = build_loss(a.loss, a.asl_gamma_neg, a.asl_gamma_pos, a.asl_clip)
@@ -282,8 +375,11 @@ def main(argv=None):
         model.train()
         opt.zero_grad(set_to_none=True)
         run_loss, seen, t0 = 0.0, 0, time.perf_counter()
-        for bi, (x, y, sizes) in enumerate(train_loader):
-            x, y, sizes = x.to(device, non_blocking=True), y.to(device, non_blocking=True), sizes.to(device)
+        sampler.set_epoch(epoch)
+        n_batches = len(sampler)
+        for bi, (x, y, sizes, _) in enumerate(train_loader):
+            x = x.to(device, non_blocking=True).contiguous(memory_format=torch.channels_last)
+            y, sizes = y.to(device, non_blocking=True), sizes.to(device)
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x, sizes)
             loss = loss_fn(logits.float(), y)
@@ -291,7 +387,7 @@ def main(argv=None):
             scaler.scale(loss / a.accum).backward()
             run_loss += loss.item() * len(x)
             seen += len(x)
-            if (bi + 1) % a.accum == 0 or bi + 1 == len(train_loader):
+            if (bi + 1) % a.accum == 0 or bi + 1 == n_batches:
                 scaler.unscale_(opt)
                 if a.clip:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), a.clip)
