@@ -57,9 +57,10 @@ class Options(unittest.TestCase):
 
     def test_drop_path(self):
         m = reg.architecture(SIZE, 0.1)
-        rates = [b.drop_path1.drop_prob for b in m.blocks]
+        rates = [getattr(b.drop_path1, "drop_prob", 0.0) for b in m.blocks]   # rate 0 -> Identity
         self.assertAlmostEqual(rates[0], 0.0)
         self.assertAlmostEqual(rates[-1], 0.1)
+        self.assertTrue(all(a < b for a, b in zip(rates, rates[1:])))
         self.assertEqual(eva.architecture(SIZE).blocks[-1].drop_path1.__class__.__name__, "Identity")
 
     def test_wd_exclude(self):
