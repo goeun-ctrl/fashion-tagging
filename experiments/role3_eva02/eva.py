@@ -19,12 +19,13 @@ def architecture(size):
     return timm.create_model(CFG["model"], pretrained=False, num_classes=27, img_size=size)
 
 
-def from_pretrained(size):
+def from_pretrained(size, weights=None):
     # Use timm's actual filter (including any key renames) then require every
     # backbone tensor. The official file is pinned independently of its filename.
-    with WEIGHTS.open("rb") as f:
+    weights = WEIGHTS if weights is None else Path(weights)
+    with weights.open("rb") as f:
         require(hashlib.file_digest(f, "sha256").hexdigest() == CFG["weight_sha256"], "wrong pretrained artifact")
-    raw = load_file(str(WEIGHTS))
+    raw = load_file(str(weights))
     model = architecture(size)
     adapted = checkpoint_filter_fn(dict(raw), model)
     head_keys = {"head.weight", "head.bias"}

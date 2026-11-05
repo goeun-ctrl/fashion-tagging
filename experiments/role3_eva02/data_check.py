@@ -33,8 +33,13 @@ def require(test, reason):
         raise ValueError(reason)
 
 
-def source(split):
-    root = WORK / f"MAT4091_fashion_{split}" / split
+class MissingLabeledImages(ValueError):
+    """Keep the baseline's validation error, while distinguishing missing inputs."""
+
+
+def source(split, root=None):
+    if root is None:
+        root = WORK / f"MAT4091_fashion_{split}" / split
     cats, names, labels = load_split(root, split)
     with np.load(root / "labels.npz", allow_pickle=False) as z:
         keys = z["filenames"].tolist()
@@ -42,7 +47,11 @@ def source(split):
         require(len(keys) == len(index) == len(set(names)) == len(names), "duplicate/missing label keys")
         require(cats == z["categories"].tolist() and set(names) == set(keys), "CSV/NPZ mapping differs")
         require(np.array_equal(labels, z["targets"][[index[k] for k in names]]), "CSV/NPZ targets differ")
-    require(set(names) == {p.name for p in (root / "images").iterdir() if p.is_file()}, "image/label mismatch")
+    image_files = {p.name for p in (root / "images").iterdir() if p.is_file()}
+    missing = set(names) - image_files
+    if missing:
+        raise MissingLabeledImages(f"{split}: missing {len(missing)} labeled image files")
+    require(set(names) == image_files, "image/label mismatch")
     return root, cats, names, labels
 
 
