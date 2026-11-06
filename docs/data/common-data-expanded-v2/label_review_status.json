@@ -1,0 +1,7 @@
+{
+  "label_mode": "partial",
+  "human_complete_annotation": false,
+  "unknown_entries": 85455,
+  "unknown_fraction": 0.915268941584731,
+  "loss": "Masked BCE over known entries; preserve -1"
+}

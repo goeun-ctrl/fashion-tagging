@@ -1,0 +1,12 @@
+test_black_padding_after_jitter_and_rgb (test_augmentation.Contracts.test_black_padding_after_jitter_and_rgb) ... ok
+test_eval_has_no_random_transform (test_augmentation.Contracts.test_eval_has_no_random_transform) ... ok
+test_multiple_labels_use_maximum_not_sum (test_augmentation.Contracts.test_multiple_labels_use_maximum_not_sum) ... ok
+test_partial_label_accumulation_matches_full (test_augmentation.Contracts.test_partial_label_accumulation_matches_full) ... ok
+test_plans_replay_and_epoch_changes (test_augmentation.Contracts.test_plans_replay_and_epoch_changes) ... ok
+test_post_merge_counts_determine_sampling (test_augmentation.Contracts.test_post_merge_counts_determine_sampling) ... ok
+test_unknown_labels_have_zero_gradient (test_augmentation.Contracts.test_unknown_labels_have_zero_gradient) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.697s
+
+OK

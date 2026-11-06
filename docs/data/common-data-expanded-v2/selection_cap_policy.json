@@ -1,0 +1,36 @@
+{
+  "version": "external-expansion-cap-policy-20261106-v1",
+  "status": "selection_policy_fixed_by_user_delegation; dataset_not_yet_built",
+  "target_external_unique_images": 4000,
+  "includes_previous_506": true,
+  "count_basis": "confirmed positive external images per class, not augmented draws; multi-label image counted under every positive capped class",
+  "external_positive_caps": {
+    "umbrella": 1700,
+    "glove": 1700,
+    "vest": 600
+  },
+  "rare_priority_classes": [
+    "leg warmer",
+    "cape",
+    "jumpsuit"
+  ],
+  "rare_policy": "Include all available quality-passed, deduplicated images. Previously rejected images are not automatically reinstated.",
+  "priority_order": [
+    "leg warmer",
+    "cape",
+    "jumpsuit",
+    "vest",
+    "umbrella/glove balanced filling"
+  ],
+  "multilabel_cap_handling": "Evaluate all confirmed positive capped labels before adopting each unique image. Stop accepting a candidate if it exceeds any cap.",
+  "quality_priority_over_count": true,
+  "if_short": "Report actual count and rejection reasons; do not exceed caps or manufacture unique images to reach 4000. Ask team only if caps need revision.",
+  "common_augmentation": "Keep approved common Flip/ColorJitter and sampling RULES. Recompute class counts, per-image weights, 30 epoch plans, exposure statistics and SHA-256 against the final targets.",
+  "label_mode": "partial; preserve -1 and use agreed Masked BCE for both models",
+  "same_dataset_for_models": [
+    "ConvNeXt-Tiny",
+    "EVA02-Small"
+  ],
+  "new_training_started": false,
+  "rationale": "Practical allocation around 4000 based on available pool, not proportional to original supports and not a statistically optimized cap. Umbrella/glove at most 42.5% each if final size is 4000. Vest cap 600 allows substantial use of its 684 recorded positives. Rare class recorded positives sum to at most 262 before quality checks. Capacity sum 4262 is not unique-image count."
+}

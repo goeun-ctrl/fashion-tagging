@@ -1,0 +1,28 @@
+class,original_train_inner,phase1_external_positive,phase2_external_positive,phase2_known_negative,phase2_unknown,phase2_total_positive
+"shirt, blouse",5694,4,36,15,3407,5730
+"top, t-shirt, sweatshirt",15356,12,85,0,3373,15441
+sweater,1362,4,44,17,3397,1406
+cardigan,987,0,1,16,3441,988
+jacket,7239,58,368,24,3066,7607
+vest,635,112,333,15,3110,968
+pants,11617,67,441,8,3009,12058
+shorts,2529,3,56,22,3380,2585
+skirt,4702,5,76,1,3381,4778
+coat,2842,38,201,2,3255,3043
+dress,17732,25,245,42,3171,17977
+jumpsuit,854,2,2,0,3456,856
+cape,136,16,16,0,3442,152
+glasses,4443,37,184,41,3233,4627
+hat,2260,53,336,0,3122,2596
+"headband, head covering, hair accessory",2719,15,60,0,3398,2779
+tie,1313,42,145,0,3313,1458
+glove,674,274,1376,1,2081,2050
+watch,3069,12,87,19,3352,3156
+belt,6177,9,67,15,3376,6244
+leg warmer,53,54,54,0,3404,107
+"tights, stockings",1977,1,7,16,3435,1984
+sock,1290,7,35,23,3400,1325
+shoe,22515,150,1093,0,2365,23608
+"bag, wallet",6407,33,416,0,3042,6823
+scarf,1212,23,148,10,3300,1360
+umbrella,114,63,1700,12,1746,1814

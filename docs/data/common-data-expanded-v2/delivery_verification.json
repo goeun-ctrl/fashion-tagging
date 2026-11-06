@@ -1,0 +1,26 @@
+{
+  "archive": "fashion-common-expanded-partial-20261106-v2.zip",
+  "bytes": 791003370,
+  "sha256": "33d2a54bcffc0e586846f969efae6e6a76bbfbd552e8cfcd129002eeb7b5bad9",
+  "external_unique_images": 3458,
+  "original_train_inner": 43197,
+  "total_manifest_rows": 46655,
+  "zip_crc_all_passed": true,
+  "zip_member_sha256_all_passed": true,
+  "files": 3519,
+  "portable_validation": {
+    "package": "PASS",
+    "files_sha256": 3518,
+    "external_images": 3458,
+    "targets": [
+      46655,
+      27
+    ],
+    "regenerated_epoch_plans_equal": 30,
+    "server_full_preflight": "NOT_PERFORMED",
+    "training": "NOT_PERFORMED"
+  },
+  "previous_v1_zip_sha256_unchanged": true,
+  "training_or_inference_run": false,
+  "github_upload": false
+}

@@ -1,0 +1,53 @@
+{
+  "data_version": "fashion-common-expanded-partial-20261106-v2",
+  "targets_sha256": "fa3fe8a63bdb9834f0bfaa79fd548578870c0ccff239af1e1c53a5e67cc19f70",
+  "replay": "pillow-enhance-v1",
+  "pillow_version": "11.3.0",
+  "flip_p": 0.5,
+  "hue": 0,
+  "ranges": [
+    [
+      0.9,
+      1.1
+    ],
+    [
+      0.9,
+      1.1
+    ],
+    [
+      0.95,
+      1.05
+    ]
+  ],
+  "jitter_p": [
+    0.35,
+    0.2,
+    0.0
+  ],
+  "focus": [
+    "cape",
+    "cardigan",
+    "glove",
+    "jumpsuit",
+    "leg warmer",
+    "scarf",
+    "sock",
+    "sweater",
+    "umbrella",
+    "vest",
+    "watch"
+  ],
+  "general": [
+    "coat",
+    "headband, head covering, hair accessory",
+    "skirt"
+  ],
+  "medium_weight": [
+    "glove",
+    "headband, head covering, hair accessory",
+    "scarf",
+    "sock",
+    "sweater",
+    "watch"
+  ]
+}

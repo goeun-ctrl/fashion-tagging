@@ -1,0 +1,10 @@
+{
+  "reader": "PASS",
+  "package_lock_sha256": "e0675cde5e43fbdd2e0e06ca5b4f901a27afedec1ac0dc6e93aed031ed36efc4",
+  "rows": 46655,
+  "external": 3458,
+  "epochs_checked": 30,
+  "external_384_tensors_checked": 64,
+  "model_forward_or_training": false,
+  "note": "New separate v2 adapter; the existing 506 trainer intentionally pins the v1 lock and cannot accept this package without selecting the v2 adapter."
+}

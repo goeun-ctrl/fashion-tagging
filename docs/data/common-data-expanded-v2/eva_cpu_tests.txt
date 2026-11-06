@@ -1,0 +1,33 @@
+test_baseline_default_split_path_result_and_missing_image_error (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_baseline_default_split_path_result_and_missing_image_error) ... ok
+test_baseline_default_weight_lookup_and_digest_gate (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_baseline_default_weight_lookup_and_digest_gate) ... ok
+test_baseline_path_and_checkpoint_protection (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_baseline_path_and_checkpoint_protection) ... ok
+test_complete_release_rejects_unreviewed_external_target (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_complete_release_rejects_unreviewed_external_target) ... ok
+test_epoch_order_and_replacement (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_epoch_order_and_replacement) ... ok
+test_exactly_one_flip_and_ordered_jitter (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_exactly_one_flip_and_ordered_jitter) ... ok
+test_hash_blocks_training_dispatch (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_hash_blocks_training_dispatch) ... ok
+test_holdout_and_val_are_deterministic (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_holdout_and_val_are_deterministic) ... ok
+test_interrupted_best_publication_recovers_from_last (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_interrupted_best_publication_recovers_from_last) ... ok
+test_missing_original_image_is_blocked (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_missing_original_image_is_blocked) ... ok
+test_missing_plan_is_blocked (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_missing_plan_is_blocked) ... ok
+test_non_native_npz_targets_reach_torch_with_unknowns_intact (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_non_native_npz_targets_reach_torch_with_unknowns_intact) ... ok
+test_old_plan_invalid_after_approved_label_edit (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_old_plan_invalid_after_approved_label_edit) ... ok
+test_partial_release_requires_explicit_mode (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_partial_release_requires_explicit_mode) ... ok
+test_peer_configs_cannot_agree_on_an_invalid_mode (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_peer_configs_cannot_agree_on_an_invalid_mode) ... ok
+test_peer_signature_detects_difference (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_peer_signature_detects_difference) ... ok
+test_rejects_duplicate_external_bytes_even_under_new_id (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_rejects_duplicate_external_bytes_even_under_new_id) ... ok
+test_server_flow_with_synthetic_draws_and_stubbed_gpu (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_server_flow_with_synthetic_draws_and_stubbed_gpu) ... ok
+test_synthetic_release_all_checks_and_class_order (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_synthetic_release_all_checks_and_class_order) ... ok
+test_unfinished_evaluation_does_not_publish_results (experiments.role3_eva02.retrain_common_data.test_retrain.ReleaseTests.test_unfinished_evaluation_does_not_publish_results) ... ok
+test_complete_rejects_unknown (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_complete_rejects_unknown) ... ok
+test_cpu_adamw_update_from_accumulated_synthetic_logits (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_cpu_adamw_update_from_accumulated_synthetic_logits) ... ok
+test_entirely_unknown_window_skips_step (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_entirely_unknown_window_skips_step) ... ok
+test_exif_rgb_padding_and_378 (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_exif_rgb_padding_and_378) ... ok
+test_masked_value_and_unknown_gradient (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_masked_value_and_unknown_gradient) ... ok
+test_max_weight_and_jitter_probability (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_max_weight_and_jitter_probability) ... ok
+test_scheduler_only_advances_after_optimizer_step (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_scheduler_only_advances_after_optimizer_step) ... ok
+test_window_gradient_equals_one_bce_for_both_modes (experiments.role3_eva02.retrain_common_data.test_retrain.TensorTests.test_window_gradient_equals_one_bce_for_both_modes) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 1.578s
+
+OK

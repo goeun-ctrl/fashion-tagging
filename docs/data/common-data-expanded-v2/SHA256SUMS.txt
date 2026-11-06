@@ -1,0 +1,2 @@
+33d2a54bcffc0e586846f969efae6e6a76bbfbd552e8cfcd129002eeb7b5bad9  fashion-common-expanded-partial-20261106-v2.zip
+e0675cde5e43fbdd2e0e06ca5b4f901a27afedec1ac0dc6e93aed031ed36efc4  fashion-common-expanded-partial-20261106-v2.shared-lock.json
