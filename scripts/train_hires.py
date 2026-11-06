@@ -88,6 +88,11 @@ def parse_args(argv=None):
     ap.add_argument("--asl_gamma_pos", type=float, default=0.0)
     ap.add_argument("--asl_clip", type=float, default=0.05)
     ap.add_argument("--ema", type=float, default=0.9995, help="0 = off")
+    # distillation from Fashionformer image scores (experiments/fashionformer_eval/ff_infer.py on data/train)
+    ap.add_argument("--distill_npz", default=None, help="teacher image-level probabilities for train images")
+    ap.add_argument("--distill_alpha", type=float, default=0.5, help="loss = (1-a) * hard loss + a * soft BCE")
+    ap.add_argument("--distill_shift", type=float, default=0.3,
+                    help="teacher operating threshold; scores are shifted in logit space so it maps to 0.5")
     ap.add_argument("--drop_path", type=float, default=0.1)
     ap.add_argument("--patience", type=int, default=0, help="early stopping on holdout macro F1 (0 = off)")
     ap.add_argument("--threshold", type=float, default=0.5)
@@ -197,12 +202,15 @@ class BucketBatchSampler:
 
 
 class HiResDataset(Dataset):
-    def __init__(self, root, names, targets, mean, std, train, max_long, flip):
+    def __init__(self, root, names, targets, mean, std, train, max_long, flip, mirror=False, soft=None):
+        """mirror: always flip (eval-time flip TTA; flipped before padding so the GAP mask stays valid).
+        soft: optional [N, C] teacher probabilities (NaN rows = no teacher score) returned as a 5th item."""
         self.root, self.names = os.path.join(str(root), "images"), list(names)
         self.targets = np.asarray(targets, dtype=np.float32)
         self.mean = np.asarray(mean, dtype=np.float32).reshape(3, 1, 1)
         self.std = np.asarray(std, dtype=np.float32).reshape(3, 1, 1)
-        self.train, self.max_long, self.flip = train, max_long, flip
+        self.train, self.max_long, self.flip, self.mirror = train, max_long, flip, mirror
+        self.soft = None if soft is None else np.asarray(soft, dtype=np.float32)
 
     def __len__(self):
         return len(self.names)
@@ -214,24 +222,30 @@ class HiResDataset(Dataset):
             img = to_rgb(img)                                    # EXIF transpose + RGB (as the team baseline)
         portrait = img.size[1] >= img.size[0]
         img = img.resize(target_size(*img.size, level, long_cap(level, self.max_long)), Image.BILINEAR)
-        if self.train and random.random() < self.flip:
+        if self.mirror or (self.train and random.random() < self.flip):
             img = ImageOps.mirror(img)
         x = np.asarray(img, dtype=np.float32).transpose(2, 0, 1) / 255.0
         x = (x - self.mean) / self.std
-        return (torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(self.targets[i]), i,
+        item = (torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(self.targets[i]), i,
                 canvas(level, portrait, self.max_long))
+        if self.soft is not None:
+            item += (torch.from_numpy(self.soft[i]),)
+        return item
 
 
 def pad_collate(batch):
     """Pad every image to the batch's canvas (fixed per orientation x level). Returns images, targets, the
     real (h, w) of each image for masked pooling and the dataset indices."""
-    H = max(max(c[0] for *_, c in batch), *(x.shape[1] for x, *_ in batch))
-    W = max(max(c[1] for *_, c in batch), *(x.shape[2] for x, *_ in batch))
+    H = max(max(b[3][0] for b in batch), *(b[0].shape[1] for b in batch))
+    W = max(max(b[3][1] for b in batch), *(b[0].shape[2] for b in batch))
     out = torch.zeros(len(batch), 3, ceil32(H), ceil32(W))
-    for k, (x, *_) in enumerate(batch):
-        out[k, :, :x.shape[1], :x.shape[2]] = x
-    return (out, torch.stack([t for _, t, *_ in batch]), torch.tensor([x.shape[1:] for x, *_ in batch]),
-            torch.tensor([i for _, _, i, _ in batch]))
+    for k, b in enumerate(batch):
+        out[k, :, :b[0].shape[1], :b[0].shape[2]] = b[0]
+    res = (out, torch.stack([b[1] for b in batch]), torch.tensor([b[0].shape[1:] for b in batch]),
+           torch.tensor([b[2] for b in batch]))
+    if len(batch[0]) > 4:                                                   # teacher soft targets
+        res += (torch.stack([b[4] for b in batch]),)
+    return res
 
 
 class MaskedPoolConvNeXt(nn.Module):
@@ -299,6 +313,32 @@ def bce(logits, y):
                                                     torch.as_tensor(y, dtype=torch.float32)).item())
 
 
+def soft_bce(logits, soft):
+    """BCE against teacher probabilities; rows without a teacher score (NaN) are left out."""
+    have = ~torch.isnan(soft[:, 0])
+    if not bool(have.any()):
+        return logits.sum() * 0.0
+    return F.binary_cross_entropy_with_logits(logits[have].float(), soft[have])
+
+
+def load_teacher(a, names):
+    """[len(names), C] teacher probabilities in `names` order, NaN rows where the teacher has no score.
+    Scores are shifted in logit space so the teacher's operating threshold (--distill_shift) maps to 0.5."""
+    z = np.load(a.distill_npz, allow_pickle=False)
+    idx = {n: i for i, n in enumerate(z["filenames"].tolist())}
+    s = np.clip(z["scores"].astype(np.float64), 1e-4, 1 - 1e-4)
+    if a.distill_shift:
+        lg = np.log(s / (1 - s)) - math.log(a.distill_shift / (1 - a.distill_shift))
+        s = 1 / (1 + np.exp(-lg))
+    out = np.full((len(names), s.shape[1]), np.nan, np.float32)
+    hit = [k for k, n in enumerate(names) if n in idx]
+    out[hit] = s[[idx[names[k]] for k in hit]]
+    print(f"teacher scores for {len(hit)}/{len(names)} train images (alpha {a.distill_alpha}, "
+          f"shift {a.distill_shift})", flush=True)
+    assert hit, "no teacher scores match the train names"
+    return out
+
+
 def main(argv=None):
     a = parse_args(argv)
     set_seed(a.seed)
@@ -319,6 +359,7 @@ def main(argv=None):
     if a.limit_eval:
         hold, vnames, vtargets = hold[:a.limit_eval], vnames[:a.limit_eval], vtargets[:a.limit_eval]
     t_in, t_ho = targets[[index[n] for n in inner]], targets[[index[n] for n in hold]]
+    soft = load_teacher(a, inner) if a.distill_npz else None
     mean, std = timm_mean_std(a.model)
 
     levels = short_levels(a)
@@ -330,7 +371,8 @@ def main(argv=None):
 
     def loader(root, n, t, por, train, bs):
         sampler = BucketBatchSampler(por, levels if train else [a.test_short], bs, a.seed, train)
-        return DataLoader(HiResDataset(root, n, t, mean, std, train, a.max_long, a.flip), batch_sampler=sampler,
+        ds = HiResDataset(root, n, t, mean, std, train, a.max_long, a.flip, soft=soft if train else None)
+        return DataLoader(ds, batch_sampler=sampler,
                           num_workers=a.workers, pin_memory=device.type == "cuda", collate_fn=pad_collate,
                           worker_init_fn=seed_worker, persistent_workers=train and a.workers > 0)
 
@@ -377,12 +419,15 @@ def main(argv=None):
         run_loss, seen, t0 = 0.0, 0, time.perf_counter()
         sampler.set_epoch(epoch)
         n_batches = len(sampler)
-        for bi, (x, y, sizes, _) in enumerate(train_loader):
+        for bi, batch in enumerate(train_loader):
+            x, y, sizes = batch[0], batch[1], batch[2]
             x = x.to(device, non_blocking=True).contiguous(memory_format=torch.channels_last)
             y, sizes = y.to(device, non_blocking=True), sizes.to(device)
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x, sizes)
             loss = loss_fn(logits.float(), y)
+            if soft is not None:
+                loss = (1 - a.distill_alpha) * loss + a.distill_alpha * soft_bce(logits, batch[4].to(device))
             assert torch.isfinite(loss), "non-finite training loss"
             scaler.scale(loss / a.accum).backward()
             run_loss += loss.item() * len(x)
