@@ -61,6 +61,8 @@ def parse_args(argv=None):
     ap.add_argument("--out_dir", default=os.path.join(ROOT, "runs"))
     ap.add_argument("--model", default="convnext_tiny.fb_in22k_ft_in1k_384")
     ap.add_argument("--no_pretrained", action="store_true", help="smoke tests only")
+    ap.add_argument("--init_ckpt", default=None,
+                    help="start from a train_hires checkpoint (e.g. the r5-cnxt-hr-s42 best.pt) instead of ImageNet")
     # input (Fashionformer: test 1333x800 keep ratio; train jitter; we drop the crop)
     ap.add_argument("--short_min", type=int, default=400)
     ap.add_argument("--short_max", type=int, default=800)
@@ -383,6 +385,11 @@ def main(argv=None):
     # channels_last: ConvNeXt's 7x7 depthwise conv backward is ~20x slower in NCHW at these sizes (A5000, AMP:
     # 2.18 s vs 0.093 s per 4-image step at ~800x1216). Same math, memory layout only.
     model = MaskedPoolConvNeXt(a.model, len(cats), not a.no_pretrained, a.drop_path).to(device)
+    if a.init_ckpt:
+        st = torch.load(a.init_ckpt, map_location="cpu")
+        assert list(st["categories"]) == list(cats), "init_ckpt categories differ"
+        model.load_state_dict(st["model"])
+        print(f"init from {a.init_ckpt} (epoch {st.get('epoch')})", flush=True)
     model = model.to(memory_format=torch.channels_last)
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
