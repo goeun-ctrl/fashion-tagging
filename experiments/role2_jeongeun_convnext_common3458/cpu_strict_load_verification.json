@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checkpoint_model_key": "model",
+  "best_epoch": 14,
+  "completed_epoch": 14,
+  "head_weight_shape": [
+    27,
+    768
+  ],
+  "parameters": 27840891,
+  "strict": true,
+  "missing_keys": [],
+  "unexpected_keys": [],
+  "device": "cpu",
+  "inference_performed": false,
+  "torch": "2.8.0+cpu",
+  "timm": "1.0.22"
+}

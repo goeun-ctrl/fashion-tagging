@@ -1,0 +1,9 @@
+{
+  "pid": 1555379,
+  "physical_gpu": 0,
+  "free_mib_before_smoke": 24098,
+  "started_unix": 1793965036.0461986,
+  "base": "/home/frostpine/fashion_tagging/experiments/role2_jeongeun_convnext/common3458_retrain_20261106",
+  "experiment": "S2_jeongeun_cnxt_t_common3458_b_384_s42",
+  "detached": true
+}

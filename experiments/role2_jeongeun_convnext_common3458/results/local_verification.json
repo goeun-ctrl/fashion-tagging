@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "metrics_and_all_class_csv_recalculated": true,
+  "evaluation_ids_targets_categories_equal_across_three_runs": true,
+  "best_epoch_verified_from_history": true,
+  "epochs": 19,
+  "best_epoch": 14,
+  "actual_original_draws": 753485,
+  "actual_external_draws": 67258,
+  "inference_rerun": false
+}

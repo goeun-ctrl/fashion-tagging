@@ -1,0 +1,7 @@
+{
+  "state": "completed",
+  "run_kind": "external_augmented_v2",
+  "best_epoch": 14,
+  "epochs_run": 19,
+  "official_val_evaluated": true
+}

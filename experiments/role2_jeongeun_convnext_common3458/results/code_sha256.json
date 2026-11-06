@@ -1,0 +1,11 @@
+{
+  "original_augmentation.py": "1fc5b8eb2157627c9a8f46e4e15b5e5c0a4efe56e8a1d7e529f31ed59d558525",
+  "augmentation.py": "1fc5b8eb2157627c9a8f46e4e15b5e5c0a4efe56e8a1d7e529f31ed59d558525",
+  "verify_results.py": "384481fbdc26d1a9e4b33bff9cb8d5a1c6f30d2af3b1b27f753aee370f577bf5",
+  "pipeline.py": "f0479000e53925ea4b8a97e0274d601f4f193c0a3ecee144523221bf4ddea051",
+  "augmented_data.py": "c9bc01c6d28fc6fed9a3c16a558bf7bfb6c8e664a71a4bb55f6851b300cb08b8",
+  "config.json": "9c25726f30e133ee8db3905f4547e6bec0fcf8dd3b1702129b18e506941653cb",
+  "trainer.py": "1eeefe3acbf03d084a85347fc6d036bf9557578de16c0f7d544d7b22dc4f134f",
+  "training_utils.py": "42e41ade14d7a3a0d970fd773dc0f423b7c352c77ee0afd87b61a25ecc681180",
+  "preflight.py": "9c8c242c8b3401ab481321dee297afc4e9499a40b902eda77d49f6f1da4b2603"
+}

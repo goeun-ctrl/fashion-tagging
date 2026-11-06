@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "threshold": 0.5,
+  "all_three_runs_same_ids_targets_categories": true,
+  "inference_rerun": false,
+  "metrics_recalculated_from_npz": true
+}

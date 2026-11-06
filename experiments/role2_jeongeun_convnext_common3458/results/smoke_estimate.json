@@ -1,0 +1,12 @@
+{
+  "batch": 16,
+  "accum": 2,
+  "effective_batch": 32,
+  "physical_gpu": 0,
+  "smoke_peak_allocated_bytes": 3576583680,
+  "smoke_peak_GB": 3.57658368,
+  "smoke_peak_GiB": 3.3309531211853027,
+  "free_mib_after_smoke": 24098,
+  "estimated_train_seconds_per_epoch": 2759.7562063214136,
+  "estimate_caveat": "128-image shared-GPU smoke estimate only; excludes full holdout and checkpoint I/O, and contention can change"
+}

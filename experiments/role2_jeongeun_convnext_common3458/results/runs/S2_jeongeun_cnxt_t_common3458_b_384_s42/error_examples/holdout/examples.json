@@ -1,0 +1,149 @@
+{
+  "selection": "lowest image-wise F1, then most FP+FN; reporting only",
+  "examples": [
+    {
+      "index": 1015,
+      "file_name": "12a77371e66cf04d40d3529d2333ef9e.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 7,
+      "true_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"glasses\", \"tie\", \"shoe\", \"scarf\"]",
+      "predicted_labels": "[\"dress\", \"bag, wallet\"]",
+      "false_positive_labels": "[\"dress\", \"bag, wallet\"]",
+      "false_negative_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"glasses\", \"tie\", \"shoe\", \"scarf\"]"
+    },
+    {
+      "index": 1721,
+      "file_name": "e00460796724c066809d1b010cf8abd1.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 5,
+      "fn": 3,
+      "true_labels": "[\"dress\", \"bag, wallet\", \"scarf\"]",
+      "predicted_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"glasses\", \"tie\"]",
+      "false_positive_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"glasses\", \"tie\"]",
+      "false_negative_labels": "[\"dress\", \"bag, wallet\", \"scarf\"]"
+    },
+    {
+      "index": 906,
+      "file_name": "68655c8016332859bd6947d191c631f6.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 5,
+      "true_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"tie\", \"shoe\"]",
+      "predicted_labels": "[\"dress\"]",
+      "false_positive_labels": "[\"dress\"]",
+      "false_negative_labels": "[\"shirt, blouse\", \"jacket\", \"pants\", \"tie\", \"shoe\"]"
+    },
+    {
+      "index": 148,
+      "file_name": "2765e8af999b261a7503327ac272da7d.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 3,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"coat\"]",
+      "predicted_labels": "[\"dress\", \"bag, wallet\"]",
+      "false_positive_labels": "[\"dress\", \"bag, wallet\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"coat\"]"
+    },
+    {
+      "index": 1183,
+      "file_name": "6c27bcbd739efde4e27d086e8a28e4cc.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 3,
+      "fn": 2,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"tights, stockings\"]",
+      "predicted_labels": "[\"sweater\", \"pants\", \"coat\"]",
+      "false_positive_labels": "[\"sweater\", \"pants\", \"coat\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"tights, stockings\"]"
+    },
+    {
+      "index": 1859,
+      "file_name": "20d811bd3c8d7c94dc525e02407776ef.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 3,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"jacket\", \"pants\"]",
+      "predicted_labels": "[\"dress\"]",
+      "false_positive_labels": "[\"dress\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"jacket\", \"pants\"]"
+    },
+    {
+      "index": 2115,
+      "file_name": "28744e416e20c190109942cbda14347a.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 3,
+      "true_labels": "[\"pants\", \"coat\", \"headband, head covering, hair accessory\"]",
+      "predicted_labels": "[\"dress\"]",
+      "false_positive_labels": "[\"dress\"]",
+      "false_negative_labels": "[\"pants\", \"coat\", \"headband, head covering, hair accessory\"]"
+    },
+    {
+      "index": 757,
+      "file_name": "2f4409984a9343fce2968999336664e3.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 3,
+      "fn": 1,
+      "true_labels": "[\"dress\"]",
+      "predicted_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"shoe\"]",
+      "false_positive_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"shoe\"]",
+      "false_negative_labels": "[\"dress\"]"
+    },
+    {
+      "index": 2406,
+      "file_name": "35387b8e9fb3d2f55561a99509117d97.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 2,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\"]",
+      "predicted_labels": "[\"dress\", \"headband, head covering, hair accessory\"]",
+      "false_positive_labels": "[\"dress\", \"headband, head covering, hair accessory\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\"]"
+    },
+    {
+      "index": 2112,
+      "file_name": "409152ffc2131e0f425f3c23db69c432.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 3,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"shoe\"]",
+      "predicted_labels": "[\"dress\"]",
+      "false_positive_labels": "[\"dress\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"skirt\", \"shoe\"]"
+    },
+    {
+      "index": 1161,
+      "file_name": "50601c03db309c0b9b749711722cb2b7.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 3,
+      "true_labels": "[\"shirt, blouse\", \"jacket\", \"tie\"]",
+      "predicted_labels": "[\"belt\"]",
+      "false_positive_labels": "[\"belt\"]",
+      "false_negative_labels": "[\"shirt, blouse\", \"jacket\", \"tie\"]"
+    },
+    {
+      "index": 2289,
+      "file_name": "606d0cda25cab9505636690867afb4a3.jpg",
+      "image_f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 2,
+      "true_labels": "[\"top, t-shirt, sweatshirt\", \"shorts\"]",
+      "predicted_labels": "[\"jumpsuit\", \"belt\"]",
+      "false_positive_labels": "[\"jumpsuit\", \"belt\"]",
+      "false_negative_labels": "[\"top, t-shirt, sweatshirt\", \"shorts\"]"
+    }
+  ]
+}

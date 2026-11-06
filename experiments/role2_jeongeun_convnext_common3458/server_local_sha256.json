@@ -1,0 +1,7 @@
+{
+  "source": "/home/frostpine/fashion_tagging/experiments/role2_jeongeun_convnext/common3458_retrain_20261106/runs/S2_jeongeun_cnxt_t_common3458_b_384_s42/best.pt",
+  "local": "C:\\Users\\UserK\\Documents\\ChatGPT\\\ub525\ub7ec\ub2dd\\convnext_v2_retrain_20261106\\weights\\best.pt",
+  "bytes": 334360261,
+  "sha256": "3187431ad69eac3ce177e44e8b04bbe99c5d170743788e530c7ffb9ac94193c6",
+  "match": true
+}

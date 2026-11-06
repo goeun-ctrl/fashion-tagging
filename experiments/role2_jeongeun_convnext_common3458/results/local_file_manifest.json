@@ -1,0 +1,218 @@
+{
+  "code_sha256.json": {
+    "bytes": 802,
+    "sha256": "b03470771c170b84cd98d390d4795cf203417f8f471dca827860072721306b77"
+  },
+  "launch_receipt.json": {
+    "bytes": 301,
+    "sha256": "53ed63331083d96d5186e0d4ca3f8f67bdd98f9ed44c895517241046168fb1c3"
+  },
+  "local_verification.json": {
+    "bytes": 326,
+    "sha256": "4c6ef4fc6ffbd615714727bb7acc4ff421c6843c21f2374c6673893b498317c1"
+  },
+  "pipeline_status.json": {
+    "bytes": 7843,
+    "sha256": "3bf52404615997fcd787ba87970b17e7a52f2e009f3461f19b452581c5201e25"
+  },
+  "preflight.json": {
+    "bytes": 4807,
+    "sha256": "c9909c0683e4cb11d276570c79c900fac86ca805e3a933f212b830402ed30f22"
+  },
+  "result_verification.log": {
+    "bytes": 58,
+    "sha256": "ba2c18e7aa5e6134b93ba3fddd84530b4490bdfce6b78e2538770b8e0d0a73e9"
+  },
+  "smoke_estimate.json": {
+    "bytes": 418,
+    "sha256": "e42fa7ebfe7f037a3bc561eda047b7cccf99b1a5a6f9bf4d500c86860382af18"
+  },
+  "training.log": {
+    "bytes": 36773,
+    "sha256": "7e72cb649099ba8a9e4a125881c9eb0f6c5270e51937b35b04b9e97d24f0dc14"
+  },
+  "V2_3458장_최종실험보고서.md": {
+    "bytes": 7638,
+    "sha256": "e1f73a14614ec20a39f6d86a008518b834d4bc828424233d027cc7ee3800f43b"
+  },
+  "세실험_27개클래스_상세비교.csv": {
+    "bytes": 14943,
+    "sha256": "3f2abc602cba220f7d07224535a79371db1dac236b69594ca98719d6752f75a7"
+  },
+  "세실험_시간_메모리.csv": {
+    "bytes": 628,
+    "sha256": "3de1970de29446af51eef5baf6d10a8e3bb1c85b2a1b575723e6ab2b74ddef7e"
+  },
+  "세실험_전체F1.csv": {
+    "bytes": 495,
+    "sha256": "ad2d69c567d114836ec880460859cdc9d4bec6eea7d353b8243b93cd9b5ab3b7"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\comparison_27_classes.csv": {
+    "bytes": 15969,
+    "sha256": "d4550a165e42352db90ad7c8338739e57d303e7bb4804383a0fee515c8ed0a83"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\comparison_three_runs.csv": {
+    "bytes": 495,
+    "sha256": "ad2d69c567d114836ec880460859cdc9d4bec6eea7d353b8243b93cd9b5ab3b7"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\errors_holdout.csv": {
+    "bytes": 335419,
+    "sha256": "82c56a468d417aadf580f455bf2f2f859e49c18a56fa2ca6efd6aef460c403b9"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\errors_val.csv": {
+    "bytes": 133173,
+    "sha256": "4a081ce61e3d519d65d0fa8c029728fb455285b401ef1788547010d74c210119"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\history.csv": {
+    "bytes": 4923,
+    "sha256": "daad6dde28360dee39bc3c786cbecd4aea17b549737a5a92746727f20e08697d"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\history.json": {
+    "bytes": 13919,
+    "sha256": "1c951fbcd7c41b6b4a99423735f2f02d5b786385fced36f7a85414700bba3ae7"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\learning_curves.png": {
+    "bytes": 88390,
+    "sha256": "3ba1c48078db59fd800711d94a55f29b5cbff817d032d185d07ab2c95b7d8ad9"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\library_versions.json": {
+    "bytes": 150,
+    "sha256": "82c29f0c43ab014c1d50dc4c1fa47531101e8902a466dc6d0235acf1928589be"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\metrics_holdout.json": {
+    "bytes": 3539,
+    "sha256": "f4e6be75569c8791681c992d571d7886739e230bee8852765b1d4668805cefe0"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\metrics_val.json": {
+    "bytes": 3366,
+    "sha256": "709f5fcd4880ea2a61d447808ff4d9aa2e4d95d41b5ad5e072a898a78e4a7280"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\model_structure.txt": {
+    "bytes": 12465,
+    "sha256": "507c76ae8bcb669abc63acfdfe98266e59b05751f74c0d0ace1a31cb842b90cb"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\per_class_holdout.csv": {
+    "bytes": 2156,
+    "sha256": "9acaa9fe72989a1ba89e57767ef5d295515eb4ac3ea676638f6b36ff25b2a38f"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\per_class_val.csv": {
+    "bytes": 1979,
+    "sha256": "4efe035fb75d93cfe85e7bbdb2168f89bbc4f7ea4e1de5bf937ed56c10674485"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\prediction_verification.json": {
+    "bytes": 163,
+    "sha256": "0bfba2cd187a6f6c478d222a1617a2f5c644d86a282940a694cbcc689c8dedbf"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\preds_holdout.npz": {
+    "bytes": 208412,
+    "sha256": "3b7a9d7b7daa75e69e978e515cffda1cc25fc6218f61eaac034dbd3db5306c04"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\preds_val.npz": {
+    "bytes": 99772,
+    "sha256": "009ae6569b767272f67d31ceb7a33b45f604e14f85d7c9811fd7c070db92fbfd"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\resolved_config.json": {
+    "bytes": 11903,
+    "sha256": "8efbc6de3813aac6e8d1372ab148c9ca80b4d569864d21bee46aa07f43397e50"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\results.csv": {
+    "bytes": 1257,
+    "sha256": "59d1c8b4523c12a0502928231889c720cb2d0f19e5d1ce587b5eccab923bb8b9"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\RESULTS_KO.md": {
+    "bytes": 1625,
+    "sha256": "423b8b0e849c8ce85f6ab509d02cd28d9b8b59b9ace422247c50881bf232817b"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\status.json": {
+    "bytes": 140,
+    "sha256": "62ffe9118c1258c9e4b9177d202d62f3d35facd2070d59fb9c7acd9c277d9cfd"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\summary.json": {
+    "bytes": 8990,
+    "sha256": "aaa47df1bb5994dd657e162b13183ae452be836b88f4d810c619604d09a00b86"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_01.npz": {
+    "bytes": 24259,
+    "sha256": "793a698e8aea72492c479676d0ea822c2da98efd7d8965767c532a242df438b6"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_02.npz": {
+    "bytes": 24262,
+    "sha256": "68267a98b4c8fe85968a558ae6d07cbc29e2007c6f1965f5b7f041d39f82683d"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_03.npz": {
+    "bytes": 24233,
+    "sha256": "d87350ba095a82c0fa43d6612b27c3608f075513b822907a14ec6fe414c7c6d9"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_04.npz": {
+    "bytes": 24264,
+    "sha256": "39036b8474dd30ee93c9060e6d8fd144ef686ee0de7b20e81914ba1db1dc46d1"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_05.npz": {
+    "bytes": 24265,
+    "sha256": "c747b07cdec51357d79fb6180e1cb7cf6581beea84f48d654999b96da01cd9e8"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_06.npz": {
+    "bytes": 24128,
+    "sha256": "3c0dc0b651b0f6912d8c1c88181b8b4ec6dbaca7988a3185d6f260c0776440f3"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_07.npz": {
+    "bytes": 24283,
+    "sha256": "e25d7fb94737c2ebfb99a96cefee977ab8b187fa69f521263cbfeef59d70c51c"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_08.npz": {
+    "bytes": 24187,
+    "sha256": "62b63e33cb2ae11445424f23ca82bb42b19298365c48826f1db4489ef3f80390"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_09.npz": {
+    "bytes": 24192,
+    "sha256": "51bb5fea033847c94f948a63c98bcb55e723d84e427c3cd5aa8476129853ef6d"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_10.npz": {
+    "bytes": 24147,
+    "sha256": "6e3b6ebf3f54b798f6500f6ed5495d77cf6c6e1d72631a20edcc84da7b7af6b2"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_11.npz": {
+    "bytes": 24181,
+    "sha256": "bfceea8eaef2bdc3f1ea902aa2cbe0aa95138faed1f147d65d80899ec55c8d0e"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_12.npz": {
+    "bytes": 24215,
+    "sha256": "81304fb1d5af84c05bf0e4519b3ec691543ebd3ab492b17ddb5fa4cd10b77d1f"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_13.npz": {
+    "bytes": 24244,
+    "sha256": "bd217b6c92efd1bc0eb7d4416a7dcd59007dbf5803343f540f533e9c8a8df48f"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_14.npz": {
+    "bytes": 24295,
+    "sha256": "4b69c5c15be481663c4ea39574139589127367abacc22a095e3d97d95b2e8921"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_15.npz": {
+    "bytes": 24253,
+    "sha256": "d7e4e92cb974653c2dfea8cd7cdc8d656a1cfef54d5104670dc256d0140de3ba"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_16.npz": {
+    "bytes": 24171,
+    "sha256": "acba419730f13e77dac9ad673a93440aaf05bdc30130f59edef253116c112ea6"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_17.npz": {
+    "bytes": 24138,
+    "sha256": "a845795281457bb981b6bab1f39a35dc8e16200891b6bbccbfd4e445a62eb8bf"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_18.npz": {
+    "bytes": 24226,
+    "sha256": "2e8d673f12f3407e933f49cccff6636e8a7c8fe9e2a76002d3921eb6e4c19b40"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\actual_epoch_exposure\\epoch_19.npz": {
+    "bytes": 24283,
+    "sha256": "8fdbcc7354e3b3c1dd5be5392f5d90f1da16e7e015e19bacfa99efc4685faeec"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\error_examples\\holdout\\examples.json": {
+    "bytes": 5376,
+    "sha256": "cfa315d38e7a9e1c4b5625cc17160ce6fd3e23fbc999492c8fbc96c3a0e0a08f"
+  },
+  "runs\\S2_jeongeun_cnxt_t_common3458_b_384_s42\\error_examples\\val\\examples.json": {
+    "bytes": 5000,
+    "sha256": "cd8351c86e3c97e133fbe776a70fec2366e56eef13aacf302fe83d2dbf340e44"
+  }
+}

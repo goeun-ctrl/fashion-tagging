@@ -1,0 +1,59 @@
+{
+  "exp_id": "S2_jeongeun_cnxt_t_common3458_b_384_s42",
+  "owner": "이정은",
+  "source_commit": "c5827dfa749e276d4e5431628a06730b26c4841f",
+  "source_repository": "https://github.com/goeun-ctrl/fashion-tagging",
+  "work_branch": "local-only-retrain",
+  "model": "convnext_tiny.fb_in22k_ft_in1k_384",
+  "pretrained": true,
+  "head": "gap_linear_27",
+  "num_classes": 27,
+  "parameter_limit": 50000000,
+  "input_size": 384,
+  "input_color": "RGB",
+  "preprocess_mode": "pad",
+  "resize_interp": "bicubic",
+  "pad_color": [
+    0,
+    0,
+    0
+  ],
+  "mean_std": "from_timm",
+  "augmentation": {
+    "hflip_p": 0.5,
+    "color_jitter": {
+      "brightness": 0.1,
+      "contrast": 0.1,
+      "saturation": 0.05,
+      "hue": 0,
+      "high_p": 0.35,
+      "general_p": 0.2
+    }
+  },
+  "loss": "bce",
+  "optimizer": "adamw",
+  "lr_backbone": 0.0001,
+  "lr_head": 0.001,
+  "weight_decay": 0.05,
+  "epochs": 30,
+  "scheduler": "cosine",
+  "warmup_ratio": 0.05,
+  "batch_size": 16,
+  "accum": 2,
+  "effective_batch": 32,
+  "seed": 42,
+  "threshold": 0.5,
+  "early_stopping": {
+    "patience": 5,
+    "metric": "macro_f1",
+    "on": "holdout"
+  },
+  "num_workers": 4,
+  "amp": true,
+  "deterministic": true,
+  "notes": "V2 common conditions. Fresh official pretrained initialization. No baseline/506 resume. Private separate outputs; no Git push. Server preflight and GPU smoke required before training.",
+  "label_mode": "partial",
+  "data_version": "fashion-common-expanded-partial-20261106-v2",
+  "loss_implementation": "masked BCE; sum known BCE / known count over full accumulation window; zero-known window skip",
+  "head_actual_structure": "GAP -> LayerNorm -> Linear(768,27)"
+}
