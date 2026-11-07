@@ -28,7 +28,7 @@ def table(records, columns):
     return '\n'.join(lines)
 
 
-def render():
+def render(write_graph=True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -41,7 +41,11 @@ def render():
                                  ('Training objective (different losses)', 'Holdout BCE (both models)', 'Holdout Macro F1 @0.5')):
             ax.plot([int(r['epoch']) for r in history], [float(r[key]) for r in history], label=loss.upper())
             ax.set(xlabel='Epoch', title=title); ax.grid(alpha=.3); ax.legend()
-    fig.tight_layout(); fig.savefig(RESULT / 'curves.svg'); plt.close(fig)
+    fig.tight_layout()
+    if write_graph:
+        matplotlib.rcParams['svg.hashsalt'] = 'role4-c1'
+        fig.savefig(RESULT / 'curves.svg', metadata={'Date': None})
+    plt.close(fig)
     text = '''# C1 고해상도 ConvNeXt: BCE·ASL 최종 비교
 
 2026-11-07 20:43(KST) 공식 val 평가·비교 완료. **사전 holdout 기준에 따라 BCE 잠정 선택**, 단일 seed에서 Macro F1의 확정적 우열은 확인하지 못했다.
@@ -132,7 +136,7 @@ python scripts/share_role4_c1.py --check
 
 if __name__ == '__main__':
     import sys
-    expected=render()
+    expected=render(write_graph='--check' not in sys.argv)
     path=BASE/'README.md'
     if '--check' in sys.argv:
         assert path.read_text()==expected, 'README differs from source results'
