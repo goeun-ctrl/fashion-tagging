@@ -1,0 +1,39 @@
+{
+  "grid": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runs": {
+    "bce": {
+      "threshold": 0.15,
+      "tta_threshold": 0.25,
+      "checkpoint_sha256": "4c0527355f1849b933acf57856ef2ea5cca98320f9836e4bbe1fa3514b736454",
+      "config_sha256": "01c51931c92e2ad9f8165b20e772c75c5a8435f513f17816bec2e60e1cb9a3ff"
+    },
+    "asl": {
+      "threshold": 0.65,
+      "tta_threshold": 0.55,
+      "checkpoint_sha256": "c9967d909ac08e67172e59bad675320a061c472361a57ba2bdea3095b47deeaa",
+      "config_sha256": "e1b571e7487009d2c431844139d8a92713f41d9b2446c9887984f58a7cf2da2a"
+    }
+  },
+  "selected_loss": "bce",
+  "criterion": "holdout baseline macro F1, threshold .5, no TTA; single seed provisional"
+}
