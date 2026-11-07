@@ -43,8 +43,9 @@ def eval_dataset(group):
     return FashionDataset(root, names, targets, CFG["input_size"], "pad", False, MEAN, STD)
 
 
-def loader(ds, workers):
-    return DataLoader(ds, shuffle=False, batch_size=CFG["microbatch"], num_workers=workers, pin_memory=True)
+def loader(ds, workers, *, generator=None):
+    return DataLoader(ds, shuffle=False, batch_size=CFG["microbatch"], num_workers=workers, pin_memory=True,
+                      generator=generator)
 
 
 def loss_sum(logits, targets, mode):

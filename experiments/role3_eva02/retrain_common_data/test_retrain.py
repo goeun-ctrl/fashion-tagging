@@ -335,19 +335,25 @@ class ReleaseTests(unittest.TestCase):
             args = SimpleNamespace(command="train", resume=False)
             with self.assertRaisesRegex(ValueError, "zero optimizer steps"):
                 trainer.execute(args, self.f.inputs, audit, data)
-            self.assertEqual(evaluated, [[self.f.h]])
+            self.assertEqual(evaluated, [[self.f.h], [self.f.a]])
             self.assertFalse((root / "metrics_val.json").exists())
             args.resume = True
             trainer.execute(args, self.f.inputs, audit, data)
             pretrained.assert_called_once_with(378, self.f.inputs.weights)
         model.assert_not_called()
         self.assertEqual(seen_plans, [[1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [0, 1, 0, 1, 0]])
-        self.assertEqual(evaluated, [[self.f.h], [self.f.h], [self.f.h], [self.f.v]])
+        self.assertEqual(evaluated, [[self.f.h], [self.f.a], [self.f.h], [self.f.a], [self.f.h], [self.f.v]])
         model.load_state_dict.assert_called_with({"marker": 1}, strict=True)
         cfg = json.loads((root / "resolved_config.json").read_bytes())
         self.assertEqual(trainer.read_checkpoint(root, "best.pt", cfg)["epoch"], 1)
         self.assertEqual(trainer.read_checkpoint(root, "last.pt", cfg)["epoch"], 2)
         self.assertEqual(len(pkg.csv_rows((root / "training_history.csv").read_bytes())), 2)
+        history = pkg.csv_rows((root / "training_history.csv").read_bytes())
+        self.assertEqual(history[-1]["best_epoch"], "1")
+        self.assertEqual(history[-1]["stop_reason"], "max_epochs")
+        self.assertEqual(history[-1]["epochs_without_improvement"], "1")
+        self.assertIn("diagnostic_train_macro", history[-1])
+        self.assertEqual(json.loads((root / "diagnostic_subset.json").read_bytes())["image_ids"], [self.f.a])
         self.assertEqual(len(pkg.csv_rows((root / "actual_class_exposure.csv").read_bytes())), 2 * 27)
         self.assertEqual(json.loads((root / "data_audit.json").read_bytes())["status"], "PASS")
         self.assertEqual(json.loads((root / "environment.json").read_bytes())["gpu"], "synthetic")
@@ -369,6 +375,73 @@ class ReleaseTests(unittest.TestCase):
         best = trainer.read_checkpoint(self.base, "best.pt", cfg)
         torch.testing.assert_close(best["model"]["synthetic"], state["model"]["synthetic"])
         self.assertTrue((self.base / "actual_class_exposure.csv").is_file())
+
+    def test_patience_five_stops_and_final_evaluation_loads_best_only(self):
+        # Extend synthetic metadata to 30 plans; no real images or model calls.
+        for epoch in range(3, 31):
+            with np.load(self.f.package / pkg.plan_name(1), allow_pickle=False) as z:
+                values = {k: z[k] for k in z.files}
+            values["epoch"] = epoch
+            path = self.f.package / pkg.plan_name(epoch)
+            np.savez(path, **values)
+            self.f.lock["sha256"][pkg.plan_name(epoch)] = pkg.sha(path)
+        self.f.lock["epochs"] = 30
+        self.f.sync()
+        with patch.object(pkg, "EPOCHS", 30):
+            audit, data = self.audit()
+        self.assertEqual(audit["status"], "PASS", audit)
+        root = data["private_output"]
+        model = Mock(training=False)
+        model.cuda.return_value = model
+        opt = Mock(param_groups=[{"lr": 5e-5}, {"lr": 1e-3}])
+        sched, scaler = Mock(), Mock()
+        for obj in (opt, sched, scaler):
+            obj.state_dict.return_value = {}
+        epochs, seen = [], []
+        scores = [0.4, 0.5, 0.49, 0.48, 0.47, 0.46, 0.45]
+
+        def fake_epoch(*args):
+            epochs.append(len(epochs) + 1)
+            model.state_dict.return_value = {"marker": epochs[-1]}
+            return {"train_bce": 0.1, "optimizer_steps": 1}, [1] * 27, [5] * 27
+
+        def fake_measure(model, dl, cfg):
+            names = dl.dataset.names
+            seen.append((len(epochs), names))
+            final = model.load_state_dict.called
+            macro = 0.5 if final else scores[-1 + len(epochs)] if names == [self.f.h] else 0.7
+            metrics = {"micro_f1": macro, "macro_f1": macro, "image_f1": macro,
+                       "per_class": {"f1": np.full(27, macro)}}
+            return np.zeros((len(names), 27), np.float32), None, metrics, 0.2, {}
+
+        with contextlib.ExitStack() as stack, contextlib.redirect_stdout(io.StringIO()):
+            stub = stack.enter_context
+            stub(patch.dict(trainer.CFG, max_epochs=30, patience=5, workers=0))
+            stub(patch.object(trainer, "set_seed"))
+            stub(patch.object(trainer, "from_pretrained", return_value=model))
+            stub(patch.object(trainer, "architecture", return_value=model))
+            stub(patch.object(trainer.baseline, "optimizer", return_value=opt))
+            stub(patch.object(trainer, "build_schedulers", return_value=[sched]))
+            stub(patch.object(torch.amp, "GradScaler", return_value=scaler))
+            stub(patch.object(torch.cuda, "is_available", return_value=True))
+            stub(patch.object(torch.cuda, "get_device_name", return_value="synthetic"))
+            stub(patch.object(torch.backends.cudnn, "version", return_value=None))
+            stub(patch.object(torch.cuda, "get_rng_state", return_value=torch.zeros(1)))
+            stub(patch.object(trainer, "train_epoch", side_effect=fake_epoch))
+            stub(patch.object(trainer.baseline, "measure", side_effect=fake_measure))
+            trainer.execute(SimpleNamespace(command="train", resume=False), self.f.inputs, audit, data)
+        self.assertEqual(epochs, list(range(1, 8)))
+        cfg = json.loads((root / "resolved_config.json").read_bytes())
+        self.assertEqual(trainer.read_checkpoint(root, "last.pt", cfg)["epoch"], 7)
+        self.assertEqual(trainer.read_checkpoint(root, "best.pt", cfg)["epoch"], 2)
+        model.load_state_dict.assert_called_once_with({"marker": 2}, strict=True)
+        model.assert_not_called()
+        self.assertEqual([e for e, names in seen if names == [self.f.v]], [7])
+        history = pkg.csv_rows((root / "training_history.csv").read_bytes())
+        self.assertEqual(history[-1]["early_stopping_triggered"], "True")
+        self.assertEqual(history[-1]["stop_reason"], "patience")
+        self.assertEqual(history[-1]["best_epoch"], "2")
+        self.assertEqual(history[-1]["epochs_without_improvement"], "5")
 
     def test_partial_release_requires_explicit_mode(self):
         other = self.base / "partial"

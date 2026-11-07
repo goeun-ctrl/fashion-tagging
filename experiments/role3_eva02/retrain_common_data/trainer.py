@@ -16,6 +16,8 @@ from PIL import Image
 from . import ROLE, require
 from .batches import PlannedDataset, eval_dataset, loader, train_epoch
 from .package import load_plan
+from .monitoring import (DIAGNOSTIC_SEED, DIAGNOSTIC_SIZE, WARNING_TRANSITIONS,
+                         complete, diagnostic_subset, monitor_epoch)
 from .preflight import CFG, MEAN, STD
 from .. import run as baseline
 from data_check import write_json
@@ -50,7 +52,11 @@ def resolved(root, shared):
             "accumulation": CFG["effective_batch"] // CFG["microbatch"], "mean": list(MEAN), "std": list(STD),
             "optimizer": "AdamW", "amp": "cuda-fp16", "planned_steps": steps,
             "scheduler": "cosine", "warmup_steps": max(1, int(steps * CFG["warmup_ratio"])),
-            "selection": "strictly higher holdout macro F1", "initialization": "official backbone + fresh head"}
+            "selection": "strictly higher holdout macro F1", "initialization": "official backbone + fresh head",
+            "monitoring": {"version": 1, "diagnostic_source": "train_inner", "size": DIAGNOSTIC_SIZE,
+                           "seed": DIAGNOSTIC_SEED, "augmentation": False,
+                           "warning_consecutive_transitions": WARNING_TRANSITIONS,
+                           "warnings_control_stopping": False}}
 
 
 def write_table(path, rows):
@@ -94,8 +100,20 @@ def restore_progress(root, cfg, *, require_complete=False):
     return last
 
 
-def complete(epoch, best_epoch, cfg):
-    return epoch == cfg["max_epochs"] or epoch - best_epoch >= cfg["patience"]
+def measure_diagnostic(model, batches, cfg):
+    # Diagnostic evaluation must not advance training/worker random streams.
+    python_rng, numpy_rng, torch_rng = random.getstate(), np.random.get_state(), torch.get_rng_state()
+    cuda_rng = torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else None
+    was_training = model.training
+    try:
+        return baseline.measure(model, batches, cfg)
+    finally:
+        random.setstate(python_rng)
+        np.random.set_state(numpy_rng)
+        torch.set_rng_state(torch_rng)
+        if cuda_rng is not None:
+            torch.cuda.set_rng_state_all(cuda_rng)
+        model.train(was_training)
 
 
 def train(root, inputs, data, cfg, resume):
@@ -123,6 +141,15 @@ def train(root, inputs, data, cfg, resume):
     probabilities = data["weights_counts_augmentation"][0]
     shared = cfg["shared"]
     holdout = loader(eval_dataset(data["original_splits_labels"]["holdout"]), cfg["workers"])
+    subset, diagnostic_meta = diagnostic_subset(data["original_splits_labels"])
+    diagnostic_path = root / "diagnostic_subset.json"
+    if resume:
+        require(json.loads(diagnostic_path.read_text(encoding="utf-8")) == diagnostic_meta,
+                "diagnostic subset differs on resume")
+    else:
+        write_json(diagnostic_path, diagnostic_meta)
+    diagnostic = loader(eval_dataset(subset), cfg["workers"],
+                        generator=torch.Generator().manual_seed(DIAGNOSTIC_SEED))
     for epoch in range(len(history) + 1, cfg["max_epochs"] + 1):
         if complete(epoch - 1, best_epoch, cfg):
             break
@@ -133,14 +160,17 @@ def train(root, inputs, data, cfg, resume):
         require(row["optimizer_steps"] > 0, f"epoch {epoch}: zero optimizer steps; check known labels and AMP skips")
         _, _, scores, bce, _ = baseline.measure(model, holdout, cfg)
         macro = scores["macro_f1"]
-        history.append({"epoch": epoch, **row, "holdout_bce": bce, "holdout_micro": scores["micro_f1"],
-                        "holdout_macro": macro, "holdout_image": scores["image_f1"],
-                        "backbone_lr_end": opt.param_groups[0]["lr"], "head_lr_end": opt.param_groups[1]["lr"]})
+        _, _, diagnostic_scores, diagnostic_bce, _ = measure_diagnostic(model, diagnostic, cfg)
+        row, best, best_epoch = monitor_epoch(history, {
+            "epoch": epoch, **row, "holdout_bce": bce, "holdout_micro": scores["micro_f1"],
+            "holdout_macro": macro, "holdout_image": scores["image_f1"],
+            "diagnostic_train_bce": diagnostic_bce, "diagnostic_train_macro": diagnostic_scores["macro_f1"],
+            "backbone_lr_end": opt.param_groups[0]["lr"], "head_lr_end": opt.param_groups[1]["lr"]},
+            best, best_epoch, cfg)
+        history.append(row)
         exposure.extend({"epoch": epoch, "class": c, "draws": len(draws), "positive": p,
                          "known": k, "unknown": len(draws) - k}
                         for c, p, k in zip(shared["categories"], positives, known, strict=True))
-        if macro > best:
-            best, best_epoch = macro, epoch
         state = {"epoch": epoch, "best_epoch": best_epoch, "best_score": best, "config": cfg,
                  "model": model.state_dict(), "optimizer": opt.state_dict(), "scheduler": sched.state_dict(),
                  "scaler": scaler.state_dict(), "history": history, "exposure": exposure,
@@ -150,7 +180,14 @@ def train(root, inputs, data, cfg, resume):
         if epoch == best_epoch:
             copy_best(root)
         publish_progress(root, history, exposure)
-        print(f"epoch {epoch}: holdout macro {macro:.6f}, best epoch {best_epoch}", flush=True)
+        print(f"epoch {epoch}: holdout macro {macro:.6f}, diagnostic train macro "
+              f"{row['diagnostic_train_macro']:.6f}, best epoch {best_epoch}, "
+              f"no improvement {row['epochs_without_improvement']}/{cfg['patience']}", flush=True)
+        if row["overfitting_warnings"]:
+            print("diagnostic warning (does not control stopping): " + row["overfitting_warnings"], flush=True)
+        if row["training_complete"]:
+            print("training finished: " + row["stop_reason"], flush=True)
+            break
 
 
 def evaluate(root, data, cfg, splits):

@@ -1,0 +1,21 @@
+{
+  "micro_f1": 0.7999528885224663,
+  "macro_f1": 0.6993663773630973,
+  "image_f1": 0.8013460261859291,
+  "mean_pred_labels": 3.2738144329896905,
+  "empty_pred_rate": 0.002061855670103093,
+  "n_images": 2425,
+  "bce": 0.26313722133636475,
+  "forward_ms_per_image": 3.8288187628165464,
+  "end_to_end_ms_per_image": 6.8236861443243075,
+  "inference_seconds": 16.547438899986446,
+  "forward_seconds": 9.284885499830125,
+  "best_epoch": 14,
+  "threshold": 0.5,
+  "label_mode": "partial",
+  "delta_vs_eva_baseline": {
+    "micro_f1": -0.004387409295841471,
+    "macro_f1": -0.009096451727510502,
+    "image_f1": -0.003397832744709617
+  }
+}
