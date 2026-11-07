@@ -114,7 +114,7 @@ BCE와 ASL의 train loss는 목적함수가 달라 절대 크기를 직접 비�
 
 ## 재현과 결과 위치
 
-[재현 절차와 명령](methodology.md#정확한-실행-명령-이번에는-실행하지-않음)을 저장소 루트에서 실행한다. 해당 문서는 학습 전 작성한 설계·출처 기록이며 당시의 미완료 설명은 이 최종 README와 완료 기록으로 갱신한다. `settings.json`의 train_dir/val_dir/splits_dir는 각 머신의 원본 데이터 경로로 두 Loss에 동일하게 변경한다. CPU 초기화 → 양쪽 18epoch → holdout 평가/선택 lock → 공식 val 평가/비교 순서를 지킨다. 기존 실행 폴더는 덮어쓰지 않으므로 새 checkout 또는 비어 있는 출력 경로를 사용한다. `role4_c1_run.py`/`parallel_role4_c1.py`는 당시 GPU UUID를 고정한 실행 기록이므로 다른 머신에서는 수동 재현 명령을 사용한다.
+[재현 절차와 명령](methodology.md)을 저장소 루트에서 실행한다. 해당 문서에는 이번 비교의 초기화·학습·평가 명령만 담았다. `settings.json`의 train_dir/val_dir/splits_dir는 각 머신의 원본 데이터 경로로 두 Loss에 동일하게 변경한다. CPU 초기화 → 양쪽 18epoch → holdout 평가/선택 lock → 공식 val 평가/비교 순서를 지킨다. 기존 실행 폴더는 덮어쓰지 않으므로 새 checkout 또는 비어 있는 출력 경로를 사용한다. `role4_c1_run.py`/`parallel_role4_c1.py`는 당시 GPU UUID를 고정한 실행 기록이므로 다른 머신에서는 수동 재현 명령을 사용한다.
 
 ```bash
 python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu126
