@@ -1,0 +1,7 @@
+{
+  "strict_336_rejected_378": "Input height (378) doesn't match model (336).",
+  "dynamic_336_accepts_378": [
+    1,
+    27
+  ]
+}

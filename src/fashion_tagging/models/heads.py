@@ -65,16 +65,17 @@ class QueryHead(nn.Module):
         nn.init.trunc_normal_(self.query, std=0.02)
         nn.init.trunc_normal_(self.fc_w, std=0.02)
 
-    def decode(self, kv):
-        """kv: projected tokens [B, L, dim] -> logits [B, C]."""
+    def decode(self, kv, pad_mask=None):
+        """kv: projected tokens [B, L, dim] -> logits [B, C]. pad_mask: optional bool [B, L], True = padding
+        (ignored by the attention; used by scripts/train_hires.py, whose batches are padded canvases)."""
         q = self.query.unsqueeze(0).expand(kv.size(0), -1, -1)
-        a, _ = self.attn(q, kv, kv, need_weights=False)
+        a, _ = self.attn(q, kv, kv, key_padding_mask=pad_mask, need_weights=False)
         x = self.norm1(q + a)
         x = self.norm2(x + self.ffn(x))
         return (x * self.fc_w).sum(-1) + self.fc_b
 
-    def forward(self, tokens):
-        return self.decode(self.proj(self.in_norm(tokens)))
+    def forward(self, tokens, pad_mask=None):
+        return self.decode(self.proj(self.in_norm(tokens)), pad_mask)
 
 
 class MultiScaleQueryHead(QueryHead):
@@ -89,11 +90,13 @@ class MultiScaleQueryHead(QueryHead):
         self.level_embed = nn.Parameter(torch.empty(len(in_dims), dim))
         nn.init.trunc_normal_(self.level_embed, std=0.02)
 
-    def forward(self, levels):
+    def forward(self, levels, pad_masks=None):
+        """levels: token lists [B, L_i, C_i], finest first. pad_masks: optional matching bool [B, L_i]."""
         norms = list(self.extra_norms) + [self.in_norm]
         projs = list(self.extra_projs) + [self.proj]
         kv = [p(n(t)) + self.level_embed[i] for i, (n, p, t) in enumerate(zip(norms, projs, levels))]
-        return self.decode(torch.cat(kv, dim=1))
+        mask = None if pad_masks is None else torch.cat(pad_masks, dim=1)
+        return self.decode(torch.cat(kv, dim=1), mask)
 
 
 class FashionTagger(nn.Module):

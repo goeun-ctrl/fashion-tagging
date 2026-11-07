@@ -1,0 +1,39 @@
+{
+  "model": "eva02_small_patch14_336.mim_in22k_ft_in1k",
+  "weight_sha256": "518a27f41de1d81eda6a6102fcca2bb0c4697720ef13911ad77e2cc374df99b4",
+  "input_size": 378,
+  "seed": 42,
+  "microbatch": 16,
+  "effective_batch": 32,
+  "lr_backbone": 5e-05,
+  "lr_head": 0.001,
+  "weight_decay": 0.05,
+  "max_epochs": 30,
+  "patience": 5,
+  "warmup_ratio": 0.05,
+  "threshold": 0.5,
+  "workers": 4,
+  "accumulation": 2,
+  "mean": [
+    0.48145466,
+    0.4578275,
+    0.40821073
+  ],
+  "std": [
+    0.26862954,
+    0.26130258,
+    0.27577711
+  ],
+  "amp": "float16",
+  "adjustments": [],
+  "weight_source": "timm/eva02_small_patch14_336.mim_in22k_ft_in1k",
+  "weight_license": "MIT",
+  "loss": "BCEWithLogitsLoss",
+  "optimizer": "AdamW",
+  "decay_scope": "all parameters including norm and bias",
+  "scheduler": "cosine",
+  "selection": "strictly higher holdout macro F1; earliest tie",
+  "preprocess": "common padded bicubic RGB, EXIF, train-only horizontal flip p=0.5",
+  "planned_steps": 40500,
+  "warmup_steps": 2025
+}

@@ -20,7 +20,7 @@ import torch
 from torch.utils.data import DataLoader
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from train_hires import (BucketBatchSampler, binarize, HiResDataset, MaskedPoolConvNeXt, compute_metrics, load_split,  # noqa: E402
+from train_hires import (BucketBatchSampler, binarize, HiResDataset, build_hires_model, gate_split, gated, compute_metrics, load_split,  # noqa: E402
                          oriented_portrait, pad_collate, predict, read_names, save_predictions, sigmoid,
                          timm_mean_std)
 
@@ -42,6 +42,7 @@ def main():
     ap.add_argument("--scales", nargs="+", default=["800:1333"])
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--class_threshold", nargs="*", default=[])
+    ap.add_argument("--gate_threshold", type=float, default=0.5, help="only for checkpoints trained with --gate")
     ap.add_argument("--batch_size", type=int, default=8)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--limit_eval", type=int, default=0)
@@ -53,7 +54,8 @@ def main():
     cfg = dict(st["config"])
     cfg.update({k: getattr(a, k) for k in ("train_dir", "val_dir", "splits_dir") if getattr(a, k)})
     device = torch.device("cuda")
-    model = MaskedPoolConvNeXt(cfg["model"], len(st["categories"]), False, cfg["drop_path"]).to(device)
+    n_cls = len(st["categories"])
+    model = build_hires_model(cfg, n_cls + (1 if cfg.get("gate") else 0), False).to(device)
     model.load_state_dict(st["model"])
     model = model.to(memory_format=torch.channels_last).eval()
     mean, std = timm_mean_std(cfg["model"])
@@ -84,13 +86,16 @@ def main():
                                 num_workers=a.workers, pin_memory=True, collate_fn=pad_collate)
                 lg[mirror], fwd = predict(model, dl, device, True)
             for tag, l in (("", lg[False]), ("_flip", (lg[False] + lg[True]) / 2)):
+                l, g = gate_split(l, n_cls)
                 save_predictions(os.path.join(out_dir, f"preds_{split}_s{short}{tag}.npz"), n, y, l, cats)
+                if g is not None:
+                    np.savez(os.path.join(out_dir, f"gate_{split}_s{short}{tag}.npz"), filenames=np.array(n), gate_logits=g)
                 p = sigmoid(l)
                 row = {"split": split, "short": short, "max_long": max_long, "flip_tta": bool(tag),
                        "ms_per_image_one_pass": 1000 * fwd / len(n)}
                 for name, t in (("t0.5", np.full(len(cats), 0.5)), ("t_global", np.full(len(cats), a.threshold)),
                                 ("t_class", thr)):
-                    m = compute_metrics(y, binarize(p, t))
+                    m = compute_metrics(y, gated(binarize(p, t), g, a.gate_threshold))
                     row[name] = {k: round(float(m[k]), 4) for k in ("micro_f1", "macro_f1", "image_f1")}
                 summary["results"].append(row)
                 print(json.dumps(row), flush=True)

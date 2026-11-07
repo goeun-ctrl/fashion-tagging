@@ -85,6 +85,9 @@ fashion-tagging/
 ├── experiments/                  실험 계획과 실행 목록
 │   ├── README.md                 5번(Optimizer·Head) 실험 사용법
 │   ├── role5_jobs.txt            5번 실험 목록 (P0–P5)
+│   ├── role5_results_convnext.md 5번 ConvNeXt 옵티마이저·과적합 1차 결과
+│   ├── role3_eva02/              3번 EVA02-Small: 기준선(run.py)과 외부 데이터 재학습(retrain_common_data/)
+│   │                             src/fashion_tagging·data/splits를 그대로 씀 (README.md, RETRAIN_HANDOFF.md)
 │   ├── backbone_equal_budget.md  백본 비교 제안: 같은 튜닝 예산 (2·3번)
 │   └── backbone_budget_jobs.txt  위 제안의 실행 목록 (B1, B2)
 └── docs/
@@ -202,7 +205,11 @@ python tests/test_metrics.py       # 데이터 없이 돈다
 python tests/test_data.py          # 아래 셋은 저장소 최상위에 MAT4091_fashion_train.zip, MAT4091_fashion_val.zip 필요
 python tests/test_aggregate.py
 python tests/test_visualize.py
+python tests/test_optim_schedule.py tests/test_results_csv.py   # torch + timm 필요
+python -m unittest experiments.role3_eva02.retrain_common_data.test_retrain   # 3번 EVA 재학습 합성 테스트 28개
 ```
+macOS에서 3번 테스트 일부가 `unsafe private output directory`로 실패하면, 임시 폴더가 심볼릭 링크라서 그래요
+(`/var` → `/private/var`). `TMPDIR`를 실제 경로로 주고 실행하면 돼요(예: `TMPDIR=$PWD/.tmp`).
 
 ---
 
