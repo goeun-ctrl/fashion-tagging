@@ -1,0 +1,15 @@
+{
+ "exp_id": "R4_C1_asl_s42",
+ "best_epoch": 17,
+ "epochs_run": 18,
+ "params_total": 27840891,
+ "train_minutes": 333.3,
+ "amp_skipped": 7,
+ "holdout": {
+  "micro_f1": 0.8471984602224123,
+  "macro_f1": 0.7835245745227511,
+  "image_f1": 0.8483513000817587,
+  "bce": 0.1596253663301468
+ },
+ "holdout_forward_ms_per_image": 10.036208655723591
+}

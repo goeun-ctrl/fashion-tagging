@@ -1,0 +1,226 @@
+{
+  "gpu_uuid": "GPU-bed51d32-f978-d07a-c020-01d7a36e63ea",
+  "pid": 1666655,
+  "initial_sha256": "a83561ececb61894b28716994f5db54b9103f594c6330875dd5fae80959da653",
+  "started": "2026-11-07T05:03:25.944236+00:00",
+  "environment": {
+    "python": "3.12.3",
+    "command": [
+      "scripts/role4_c1_run.py"
+    ],
+    "cuda_build": "12.6",
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": false,
+    "deterministic_algorithms": false,
+    "libraries": {
+      "torch": "2.8.0+cu126",
+      "torchvision": "0.23.0+cu126",
+      "timm": "1.0.22",
+      "numpy": "2.2.6",
+      "Pillow": "11.3.0"
+    },
+    "commit": "7eb438903abf909a7684984fcc1e6176b5fdcfeb",
+    "git_status": "?? experiments/role4_c1/\n?? experiments/role4_convnext_confirmed.json\n?? experiments/role4_loss.md\n?? scripts/reference/\n?? scripts/role4_c1.py\n?? scripts/role4_c1_compare.py\n?? scripts/role4_c1_evaluate.py\n?? scripts/role4_c1_gpu_smoke.py\n?? scripts/role4_c1_reference.py\n?? scripts/role4_c1_run.py\n?? scripts/role4_c1_train.py\n?? scripts/role4_loss.py\n?? tests/test_role4_c1_cpu.py\n",
+    "source_sha256": {
+      "scripts/role4_c1.py": "47581e581c7659e77ed8aacd96e4ccdad9e8c6c36f9c5bf234349cf0fe7e1505",
+      "scripts/role4_c1_compare.py": "a590af48a9296754f1a781e1b5d9d4c81845db1cf2bc4d236021362f0613d029",
+      "scripts/role4_c1_evaluate.py": "4069b3365e218782b31c25f84ff7e78a3c8ddb7c3676cab81dcbec67c5f00a91",
+      "scripts/role4_c1_gpu_smoke.py": "36e68090b204140541d7b706e5d65e7580e953d31c8f1ce136b7b8a6e77ca98a",
+      "scripts/role4_c1_reference.py": "9288b78103988ad52a95d60f0d181df1a59103ce4fe66348ab9a21202ad6e23b",
+      "scripts/role4_c1_run.py": "d14502f04f1dfb83a37cdabaad25db259d28240fcc2674f2fffd23b0516b0053",
+      "scripts/role4_c1_train.py": "17fcf40068fd689d0d07d38f863af3a2dca7cfb0c08756fa952f41f0044bafd7",
+      "experiments/role4_c1/settings.json": "4adddf0621212cd146732af8624896fcdac92a79af8f8a09e00f6467b5b7629b",
+      "src/fashion_tagging/training/losses.py": "8932163a4cd410b2056b7c6412d0c432bcda713c4d9a312b7eb254532c3e0578",
+      "src/fashion_tagging/data/labels.py": "cb763492102a3256d58d2d4c2481b73da5394f76821192b3726d3f99b067864e",
+      "src/fashion_tagging/data/preprocess.py": "5bc2db25e81adef660d2962c7fd44a2f780b08bb14e66a0ff910a5c742119661",
+      "src/fashion_tagging/evaluation/metrics.py": "760a8fd1bfc6c1f5f12e3079a9ab261c7b4bf312535272536f26f81b2bde83c2"
+    }
+  },
+  "stages": [
+    {
+      "stage": "gpu_smoke",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_gpu_smoke.py"
+      ],
+      "started": "2026-11-07T05:03:26.130832+00:00",
+      "status": "passed",
+      "returncode": 0,
+      "finished": "2026-11-07T05:04:50.096333+00:00"
+    },
+    {
+      "stage": "train_bce",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1.py",
+        "train",
+        "--loss",
+        "bce",
+        "--device",
+        "cuda:0"
+      ],
+      "started": "2026-11-07T05:04:50.326808+00:00",
+      "status": "passed",
+      "finished": "2026-11-07T10:38:16.769432+00:00",
+      "completion_check": "adopted process ended; all18 epochs and final artifacts verified"
+    },
+    {
+      "stage": "train_asl",
+      "started": "2026-11-07T06:01:34.828113+00:00",
+      "status": "passed",
+      "gpu_uuid": "GPU-b7682b36-2ce0-802b-8bb1-e7668087ecde",
+      "pid": 1666684,
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "-u",
+        "scripts/role4_c1.py",
+        "train",
+        "--loss",
+        "asl",
+        "--device",
+        "cuda:0"
+      ],
+      "finished": "2026-11-07T11:35:36.858302+00:00"
+    },
+    {
+      "stage": "holdout_bce",
+      "started": "2026-11-07T11:35:36.986756+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_evaluate.py",
+        "--run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_bce_s42",
+        "--split",
+        "holdout",
+        "--out",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_holdout_bce"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:38:05.780542+00:00",
+      "returncode": 0
+    },
+    {
+      "stage": "holdout_asl",
+      "started": "2026-11-07T11:38:05.915816+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_evaluate.py",
+        "--run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_asl_s42",
+        "--split",
+        "holdout",
+        "--out",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_holdout_asl"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:40:37.498175+00:00",
+      "returncode": 0
+    },
+    {
+      "stage": "compare_holdout",
+      "started": "2026-11-07T11:40:37.626790+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_compare.py",
+        "--bce_run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_bce_s42",
+        "--asl_run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_asl_s42",
+        "--bce_preds",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_holdout_bce",
+        "--asl_preds",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_holdout_asl",
+        "--out",
+        "/home/frostpine/fashion-tagging/report/role4_c1_holdout_s42"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:40:50.512734+00:00",
+      "returncode": 0
+    },
+    {
+      "stage": "val_bce",
+      "started": "2026-11-07T11:40:50.639737+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_evaluate.py",
+        "--run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_bce_s42",
+        "--split",
+        "val",
+        "--out",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_val_bce",
+        "--lock",
+        "/home/frostpine/fashion-tagging/report/role4_c1_holdout_s42/selection.json"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:42:12.179928+00:00",
+      "returncode": 0
+    },
+    {
+      "stage": "val_asl",
+      "started": "2026-11-07T11:42:12.315816+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_evaluate.py",
+        "--run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_asl_s42",
+        "--split",
+        "val",
+        "--out",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_val_asl",
+        "--lock",
+        "/home/frostpine/fashion-tagging/report/role4_c1_holdout_s42/selection.json"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:43:33.641205+00:00",
+      "returncode": 0
+    },
+    {
+      "stage": "compare_val",
+      "started": "2026-11-07T11:43:33.770469+00:00",
+      "command": [
+        "/home/frostpine/fashion_tagging/.venv/bin/python",
+        "scripts/role4_c1_compare.py",
+        "--bce_run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_bce_s42",
+        "--asl_run",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/R4_C1_asl_s42",
+        "--bce_preds",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_val_bce",
+        "--asl_preds",
+        "/home/frostpine/fashion-tagging/runs/role4_c1/eval_val_asl",
+        "--out",
+        "/home/frostpine/fashion-tagging/report/role4_c1_val_s42",
+        "--lock",
+        "/home/frostpine/fashion-tagging/report/role4_c1_holdout_s42/selection.json"
+      ],
+      "status": "passed",
+      "finished": "2026-11-07T11:43:42.123117+00:00",
+      "returncode": 0
+    }
+  ],
+  "status": "complete",
+  "current_stage": "compare_val",
+  "mode": "parallel",
+  "gpu_assignments": {
+    "bce": {
+      "index": 3,
+      "uuid": "GPU-bed51d32-f978-d07a-c020-01d7a36e63ea"
+    },
+    "asl": {
+      "index": 0,
+      "uuid": "GPU-b7682b36-2ce0-802b-8bb1-e7668087ecde"
+    }
+  },
+  "controller_sha256": "89c3ec22b76e4f1dc1dd877a1738ada2a6e0db1c44b797b50096cd1898d14f9e",
+  "adopted_bce": {
+    "pid": 1662623,
+    "ppid": 1,
+    "start_ticks": "1113513125",
+    "command": "/home/frostpine/fashion_tagging/.venv/bin/python -u scripts/role4_c1.py train --loss bce --device cuda:0 "
+  },
+  "asl_pid": 1666684,
+  "both_training_completed": true,
+  "finished": "2026-11-07T11:43:42.255650+00:00",
+  "initial_preserved": true
+}
