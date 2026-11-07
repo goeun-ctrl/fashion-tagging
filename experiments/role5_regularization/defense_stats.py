@@ -6,9 +6,12 @@ Classes listed in --special keep threshold 0.5 (same rule as the reported result
 
   macro A B        per-class F1 of B - A, bootstrap CI of the macro / micro / image difference, the part of the
                    macro change carried by classes with val support <= --tiny, and macro without those classes
+  pick A ...       holdout-only threshold choice: global threshold 0.05..0.95 (step 0.05, --special classes
+                   stay 0.5) with the best holdout macro F1 (ties -> micro); prints the val numbers at that threshold
   seeds A1 A2 B1 B2  head gap (mean of B - mean of A) next to seed gaps (A2 - A1, B2 - B1), all with CIs
 
     python experiments/role5_regularization/defense_stats.py macro R5_cnxt_hr_s42:0.60 R5_cnxt_hr_kd_msmax_s42:0.60
+    python experiments/role5_regularization/defense_stats.py pick R5_new_s42 R5_other_s42
     python experiments/role5_regularization/defense_stats.py seeds R5_final_msmax_s42:0.60 R5_final_msmax_s43:0.60 \
         R5_final_csra_s42:0.50 R5_final_csra_s43:0.50
 """
@@ -100,16 +103,34 @@ def seeds(a, runs, split):
     return out
 
 
+def pick(a):
+    for d in a.runs:
+        name = d.split(":")[0]
+        res = []
+        for t in np.round(np.arange(0.05, 0.951, 0.05), 2):
+            _, _, y, p, _ = load(a.runs_root, f"{name}:{t}", "holdout", a.special)
+            m, _ = f1s(y, p)
+            res.append((m[1], m[0], t))
+        _, _, t = max(res)
+        _, _, yv, pv, _ = load(a.runs_root, f"{name}:{t}", "val", a.special)
+        mh = [r for r in res if r[2] == t][0]
+        mv, _ = f1s(yv, pv)
+        print(f"{name}: threshold {t} (holdout macro {mh[0]:.4f} micro {mh[1]:.4f}) -> val micro / macro / image "
+              + " / ".join(f"{v:.4f}" for v in mv))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["macro", "seeds"])
-    ap.add_argument("runs", nargs="+", help="<run dir>:<threshold>")
+    ap.add_argument("mode", choices=["macro", "seeds", "pick"])
+    ap.add_argument("runs", nargs="+", help="<run dir>:<threshold> (pick: <run dir>)")
     ap.add_argument("--runs_root", default="/data/eunjin/DL/runs_hr")
     ap.add_argument("--splits", nargs="+", default=["val", "holdout"])
     ap.add_argument("--special", nargs="*", default=["sweater", "leg warmer", "umbrella"])
     ap.add_argument("--tiny", type=int, default=7, help="support at or below this counts as a tiny class")
     ap.add_argument("--out", default=None, help="json file for the numbers")
     a = ap.parse_args()
+    if a.mode == "pick":
+        return pick(a)
     assert len(a.runs) == (2 if a.mode == "macro" else 4)
     res = {}
     for split in a.splits:

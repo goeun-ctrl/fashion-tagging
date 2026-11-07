@@ -105,7 +105,17 @@ assert m.size == img.size and idx[0] == 1
 ev = th.HiResDataset(tmp, [f"{k}.jpg" for k in range(4)], tg, mean, std, False, 1333, 0.0, zoom_p=1.0, mosaic_p=1.0,
                      mosaic_n=4, old_p=1.0)
 assert torch.equal(ev[(2, 416)][1], torch.from_numpy(tg[2])), "eval mode: no mosaic"
-print("4) OOD augmentations ok")
+# 6- and 9-tile grids: size kept, k tiles, base image first and never repeated as its own tile, union of labels
+for k in (6, 9):
+    big = th.HiResDataset(tmp, [f"{j}.jpg" for j in range(4)], tg, mean, std, True, 1333, 0.0, mosaic_p=1.0,
+                          mosaic_n=4, mosaic_sizes=(k,))
+    for base in (0, 1):                                      # portrait and landscape bases
+        im0 = big.load(base)
+        m, idx = big.mosaic(im0, base)
+        assert m.size == im0.size and len(idx) == k and idx[0] == base and base not in idx[1:]
+        x, yy, _, _ = big[(base, 416)]
+        assert yy[base * 5] == 1 and yy.sum() >= 2 and x.shape[1:] == big[(base, 416)][0].shape[1:]
+print("4) OOD augmentations ok (mosaic 2/4/6/9)")
 
 # 5) garment masks follow the augmentations and reach the CSRA mask loss
 mdir = os.path.join(tmp, "masks")
@@ -142,4 +152,17 @@ assert torch.isfinite(l) and torch.isfinite(l_none) and not torch.allclose(l, l_
 l.backward()
 assert model.scorers[0].weight.grad is not None
 print("5) masks ok")
+
+# 6) labelled extras (--ext_list / --ext_labels): pseudo-label rule of scripts/pseudo_label.py
+import importlib.util  # noqa: E402
+spec = importlib.util.spec_from_file_location("pseudo_label", os.path.join(ROOT, "scripts", "pseudo_label.py"))
+pl = importlib.util.module_from_spec(spec); spec.loader.exec_module(pl)
+d = tempfile.mkdtemp()
+probs = np.array([[0.9, 0.5, 0.01] + [0.0] * 24, [0.8, 0.04, 0.2] + [0.0] * 24], np.float32)
+np.savez(os.path.join(d, "pl_probs_0.npz"), filenames=np.array(["/a.jpg", "/b.jpg"]), probs=probs,
+         n_crops=np.array([2, 0]), categories=np.array([f"c{j}" for j in range(27)]))
+pl.label(type("A", (), {"out": os.path.join(d, "pl"), "pos_thr": 0.8, "neg_thr": 0.05})())
+t = np.load(os.path.join(d, "pl.npz"))["targets"]
+assert t[0, :3].tolist() == [1, -1, 0] and t[1, :3].tolist() == [1, 0, -1], t[:, :3]
+print("6) pseudo labels ok")
 print("all ok")

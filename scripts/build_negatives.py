@@ -17,6 +17,7 @@ never in the submitted model.
     python scripts/build_negatives.py filter          # GPU; writes detector scores
     python scripts/build_negatives.py split  --n_holdout 1000
     python scripts/build_negatives.py cocopos --n 5000   # person positives (gate v2), writes pos_train/holdout.txt
+    python scripts/build_negatives.py cococrowd --n 20000  # multi-person scenes for pseudo-labels (crowd_*.txt + boxes)
 
 Outputs in --root: neg_train.txt, neg_holdout.txt (absolute paths), negatives.csv (source, path, max person
 score, max object score, kept, split).
@@ -89,6 +90,46 @@ def cocopos(a):
         with open(os.path.join(a.root, name), "w") as f:
             f.write("\n".join(part) + "\n")
     print(f"COCO person {len(paths)}, Places person (det >= {a.pos_thr}) {len(places_pos)} -> train {len(train)}, holdout {len(hold)}")
+
+
+def cococrowd(a):
+    """Multi-person COCO scenes (the test set is half crowds; Fashionpedia is almost all single people).
+    Kept: >= --min_people non-crowd person boxes and a largest person at least --min_height px tall. Images in
+    pos_holdout.txt (gate holdout) are never used. Writes crowd_train.txt / crowd_holdout.txt and crowd_boxes.json
+    (COCO ground-truth person boxes x0 y0 x1 y1, for the person crops of scripts/pseudo_label.py)."""
+    ann = json.load(open(os.path.join(a.root, "annotations", "instances_train2017.json")))
+    pid = [c["id"] for c in ann["categories"] if c["name"] == "person"][0]
+    boxes = {}
+    for x in ann["annotations"]:
+        if x["category_id"] == pid and not x.get("iscrowd"):
+            bx, by, bw, bh = x["bbox"]
+            boxes.setdefault(x["image_id"], []).append([bx, by, bx + bw, by + bh])
+    hold = {os.path.basename(l.strip()) for l in open(os.path.join(a.root, "pos_holdout.txt")) if l.strip()}
+    imgs = [im for im in ann["images"] if len(boxes.get(im["id"], [])) >= a.min_people and im["file_name"] not in hold
+            and max(b[3] - b[1] for b in boxes[im["id"]]) >= a.min_height and min(im["width"], im["height"]) >= 300]
+    print(f"COCO train2017: {len(imgs)} images with >= {a.min_people} people, tallest >= {a.min_height} px "
+          f"(gate holdout excluded)")
+    random.Random(4).shuffle(imgs)
+    imgs = imgs[:a.n]
+    out, old = os.path.join(a.root, "coco_crowd"), os.path.join(a.root, "coco_person")
+    os.makedirs(out, exist_ok=True)
+
+    def get(im):
+        if os.path.exists(os.path.join(old, im["file_name"])):          # already downloaded for gate v2
+            return os.path.join(old, im["file_name"])
+        dst = os.path.join(out, im["file_name"])
+        if not os.path.exists(dst):
+            urllib.request.urlretrieve(im["coco_url"], dst + ".part")
+            os.replace(dst + ".part", dst)
+        return dst
+    with ThreadPoolExecutor(16) as ex:
+        paths = list(ex.map(get, imgs))
+    json.dump({p: boxes[im["id"]] for p, im in zip(paths, imgs)}, open(os.path.join(a.root, "crowd_boxes.json"), "w"))
+    h = a.n_holdout
+    for name, part in (("crowd_holdout.txt", paths[:h]), ("crowd_train.txt", paths[h:])):
+        with open(os.path.join(a.root, name), "w") as f:
+            f.write("\n".join(part) + "\n")
+    print(f"{len(paths)} images ({sum(p.startswith(out) for p in paths)} new) -> train {len(paths) - h}, holdout {h}")
 
 
 def places(a):
@@ -165,7 +206,7 @@ def split(a):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("step", choices=["coco", "places", "filter", "split", "cocopos"])
+    ap.add_argument("step", choices=["coco", "places", "filter", "split", "cocopos", "cococrowd"])
     ap.add_argument("--root", default="/data/eunjin/DL/neg_data")
     ap.add_argument("--n", type=int, default=6000)
     ap.add_argument("--batch", type=int, default=8)
@@ -173,9 +214,11 @@ def main():
     ap.add_argument("--object_thr", type=float, default=0.5)
     ap.add_argument("--n_holdout", type=int, default=1000)
     ap.add_argument("--min_area", type=float, default=0, help="cocopos: smallest person box area kept (0 = any)")
+    ap.add_argument("--min_people", type=int, default=2, help="cococrowd: fewest person boxes")
+    ap.add_argument("--min_height", type=float, default=80, help="cococrowd: tallest person at least this (px)")
     ap.add_argument("--pos_thr", type=float, default=0.7, help="cocopos: Places images with person score >= this")
     a = ap.parse_args()
-    {"coco": coco, "places": places, "filter": filter_, "split": split, "cocopos": cocopos}[a.step](a)
+    {"coco": coco, "places": places, "filter": filter_, "split": split, "cocopos": cocopos, "cococrowd": cococrowd}[a.step](a)
 
 
 if __name__ == "__main__":

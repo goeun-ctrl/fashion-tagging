@@ -85,6 +85,12 @@ def parse_args(argv=None):
                     help="person images from outside Fashionpedia (COCO / Places): gate 1, class labels unknown (-1)")
     ap.add_argument("--pos_holdout_list", default=None, help="held-out person images (wrongly-emptied rate)")
     ap.add_argument("--pos_ratio", type=float, default=0.1, help="share of --pos_list images in each epoch")
+    ap.add_argument("--ext_list", default=None,
+                    help="extra labelled images outside Fashionpedia (absolute paths), e.g. pseudo-labelled COCO crowds")
+    ap.add_argument("--ext_labels", default=None,
+                    help="npz with filenames + targets [N, 27] in {1, 0, -1 = unknown, masked} for --ext_list "
+                         "(scripts/pseudo_label.py); with --gate they count as gate 1")
+    ap.add_argument("--ext_ratio", type=float, default=0.2, help="share of --ext_list images in each epoch")
     ap.add_argument("--gray_p", type=float, default=0.0, help="random grayscale probability on training images")
     # OOD augmentations (test_public: crowds, distant people, old B/W photos). All keep image-level labels exact:
     # nothing is cropped away, mosaic labels are the union of its tiles.
@@ -92,7 +98,9 @@ def parse_args(argv=None):
                     help="zoom-out: shrink the image to [--zoom_min, 0.85] of its size on a mean-colour canvas")
     ap.add_argument("--zoom_min", type=float, default=0.35)
     ap.add_argument("--mosaic_p", type=float, default=0.0,
-                    help="mosaic of 2 or 4 Fashionpedia images (labels = union): many people / many labels")
+                    help="mosaic of several Fashionpedia images (labels = union): many people / many labels")
+    ap.add_argument("--mosaic_sizes", type=int, nargs="+", default=[2, 4], choices=[2, 4, 6, 9],
+                    help="tile counts drawn uniformly per mosaic (9 = 3x3, about the test set's 9 labels per image)")
     ap.add_argument("--mask_dir", default=None,
                     help="per-class garment masks (scripts/build_masks.py, train_inner only): supervise the CSRA "
                          "score maps cell by cell so every class learns WHERE its garment is (needs --pool csra)")
@@ -260,7 +268,8 @@ class BucketBatchSampler:
 
 class HiResDataset(Dataset):
     def __init__(self, root, names, targets, mean, std, train, max_long, flip, mirror=False, soft=None, gray_p=0.0,
-                 zoom_p=0.0, zoom_min=0.35, mosaic_p=0.0, mosaic_n=0, old_p=0.0, mask_dir=None, mask_kind=None):
+                 zoom_p=0.0, zoom_min=0.35, mosaic_p=0.0, mosaic_n=0, old_p=0.0, mask_dir=None, mask_kind=None,
+                 mosaic_sizes=(2, 4)):
         """mosaic_n: indices < mosaic_n (the labelled Fashionpedia images) can form or join a mosaic.
         mask_dir / mask_kind (train): per index 1 = mask file <mask_dir>/<name>.npz, 0 = no garment anywhere
         (negatives: an all-zero mask is exact), -1 = unknown (person positives: no mask loss). The masks follow
@@ -274,7 +283,7 @@ class HiResDataset(Dataset):
         self.train, self.max_long, self.flip, self.mirror = train, max_long, flip, mirror
         self.soft = None if soft is None else np.asarray(soft, dtype=np.float32)
         self.gray_p, self.zoom_p, self.zoom_min, self.old_p = gray_p, zoom_p, zoom_min, old_p
-        self.mosaic_p, self.mosaic_n = mosaic_p, mosaic_n
+        self.mosaic_p, self.mosaic_n, self.mosaic_sizes = mosaic_p, mosaic_n, tuple(mosaic_sizes)
         self.mask_dir, self.mask_kind = mask_dir, mask_kind
         self.fill = tuple(int(round(255 * m)) for m in np.asarray(mean).reshape(-1)[:3])
 
@@ -328,14 +337,17 @@ class HiResDataset(Dataset):
             return to_rgb(img)                                   # EXIF transpose + RGB (as the team baseline)
 
     def mosaic(self, img, i, mask=None):
-        """2 tiles side by side along the long side, or a 2x2 grid, on the base image's own size (so the batch
-        canvas / orientation stays the same). Each tile keeps its aspect ratio, letterboxed with the mean colour."""
+        """k tiles on the base image's own size (so the batch canvas / orientation stays the same): 2 side by side
+        along the long side, 4 = 2x2, 6 = 3x2 along the long side, 9 = 3x3 (k from self.mosaic_sizes). Each tile
+        keeps its aspect ratio, letterboxed with the mean colour."""
         w, h = img.size
-        k = random.choice((2, 4))
+        k = random.choice(self.mosaic_sizes)
         others = [j + (j >= i) for j in (random.randrange(self.mosaic_n - 1) for _ in range(k - 1))]   # never i
-        cells = ([(0, 0, w, h // 2), (0, h // 2, w, h - h // 2)] if h >= w else [(0, 0, w // 2, h), (w // 2, 0, w - w // 2, h)]) \
-            if k == 2 else [(0, 0, w // 2, h // 2), (w // 2, 0, w - w // 2, h // 2), (0, h // 2, w // 2, h - h // 2),
-                            (w // 2, h // 2, w - w // 2, h - h // 2)]
+        rows, cols = {2: (2, 1), 4: (2, 2), 6: (3, 2), 9: (3, 3)}[k]
+        if w > h:
+            rows, cols = cols, rows
+        xs, ys = [w * c // cols for c in range(cols + 1)], [h * r // rows for r in range(rows + 1)]
+        cells = [(xs[c], ys[r], xs[c + 1] - xs[c], ys[r + 1] - ys[r]) for r in range(rows) for c in range(cols)]
         out = Image.new("RGB", (w, h), self.fill)
         om = self.blank_mask((w, h)) if mask is not None else None
         for (x0, y0, cw, ch), j in zip(cells, [i] + others):
@@ -715,23 +727,36 @@ def main(argv=None):
     poss = read_names(a.pos_list) if a.pos_list else []
     pos_ho = read_names(a.pos_holdout_list) if a.pos_holdout_list else []
     assert not poss or a.gate, "--pos_list only trains the gate; add --gate"
+    exts = read_names(a.ext_list) if a.ext_list else []
+    if exts:
+        z = np.load(a.ext_labels, allow_pickle=False)
+        row = {str(f): k for k, f in enumerate(z["filenames"])}
+        miss = [e for e in exts if e not in row]
+        assert not miss, f"{len(miss)} --ext_list images have no row in --ext_labels, e.g. {miss[:3]}"
+        t_ext = z["targets"][[row[e] for e in exts]].astype(np.float32)
+        assert t_ext.shape[1] == len(cats) and set(np.unique(t_ext)) <= {-1.0, 0.0, 1.0}, "targets must be [N, 27] in {1, 0, -1}"
     if a.limit_train:
         negs, poss = negs[:max(1, a.limit_train // 4)] if negs else negs, poss[:max(1, a.limit_train // 4)] if poss else poss
+        exts = exts[:max(1, a.limit_train // 4)] if exts else exts
+        t_ext = t_ext[:len(exts)] if exts else None
     if a.limit_eval:
         neg_ho, pos_ho = neg_ho[:a.limit_eval], pos_ho[:a.limit_eval]
-    assert all(os.path.isabs(n) for n in negs + neg_ho + poss + pos_ho), "extra image lists must hold absolute paths"
-    # order: Fashionpedia inner | negatives | person positives (absolute paths: os.path.join(root, abs) == abs)
-    train_names = list(inner) + list(negs) + list(poss)
+    assert all(os.path.isabs(n) for n in negs + neg_ho + poss + pos_ho + exts), "extra image lists must hold absolute paths"
+    # order: Fashionpedia inner | negatives | person positives | labelled extras (absolute paths: join(root, abs) == abs)
+    train_names = list(inner) + list(negs) + list(poss) + list(exts)
     t_train = np.concatenate([t_in.astype(np.float32), np.zeros((len(negs), n_cls), np.float32),
-                              np.full((len(poss), n_cls), -1.0, np.float32)])            # -1 = unknown, masked
+                              np.full((len(poss), n_cls), -1.0, np.float32)]            # -1 = unknown, masked
+                             + ([t_ext] if exts else []))
+    assert t_train.shape == (len(train_names), n_cls)
     n_out = n_cls + (1 if a.gate else 0)
     if a.gate:                                                # gate target as an extra column
-        gate_t = np.r_[np.ones(n_pos), np.zeros(len(negs)), np.ones(len(poss))].astype(np.float32)
+        gate_t = np.r_[np.ones(n_pos), np.zeros(len(negs)), np.ones(len(poss)), np.ones(len(exts))].astype(np.float32)
         t_train = np.concatenate([t_train, gate_t[:, None]], 1)
-    share = 1 - a.neg_ratio - (a.pos_ratio if poss else 0)
+    share = 1 - (a.neg_ratio if negs else 0) - (a.pos_ratio if poss else 0) - (a.ext_ratio if exts else 0)
     neg_per_epoch = round(a.neg_ratio / share * n_pos) if negs else 0
     pos_per_epoch = round(a.pos_ratio / share * n_pos) if poss else 0
-    mask_kind = np.r_[np.ones(n_pos), np.zeros(len(negs)), -np.ones(len(poss))].astype(np.int8)
+    ext_per_epoch = round(a.ext_ratio / share * n_pos) if exts else 0
+    mask_kind = np.r_[np.ones(n_pos), np.zeros(len(negs)), -np.ones(len(poss)), -np.ones(len(exts))].astype(np.int8)
     if a.mask_dir:
         assert a.head == "linear_ms" and a.pool == "csra", "--mask_dir supervises the CSRA score maps"
         assert not set(hold) & set(inner), "holdout must never get masks"
@@ -739,7 +764,9 @@ def main(argv=None):
         assert not miss, f"{len(miss)} train_inner images have no mask file, e.g. {miss[:3]}"
     pools = [(n_pos, n_pos + len(negs), neg_per_epoch)] if negs else []
     if poss:
-        pools.append((n_pos + len(negs), len(train_names), pos_per_epoch))
+        pools.append((n_pos + len(negs), n_pos + len(negs) + len(poss), pos_per_epoch))
+    if exts:
+        pools.append((len(train_names) - len(exts), len(train_names), ext_per_epoch))
     soft = load_teacher(a, train_names) if a.distill_npz else None
     mean, std = timm_mean_std(a.model)
 
@@ -749,10 +776,10 @@ def main(argv=None):
                               ((a.train_dir, train_names), (a.train_dir, hold), (a.val_dir, vnames)))
     por_ng = oriented_portrait("/", neg_ho) if neg_ho else None
     por_ps = oriented_portrait("/", pos_ho) if pos_ho else None
-    if negs or poss:
+    if negs or poss or exts:
         print(f"negatives: {len(negs)} train ({neg_per_epoch}/epoch, ratio {a.neg_ratio}), {len(neg_ho)} held out; "
               f"person positives: {len(poss)} train ({pos_per_epoch}/epoch), {len(pos_ho)} held out; "
-              f"gate={a.gate} gray_p={a.gray_p}", flush=True)
+              f"labelled extras: {len(exts)} ({ext_per_epoch}/epoch); gate={a.gate} gray_p={a.gray_p}", flush=True)
     print(f"levels {levels}, test {a.test_short}; portrait share {por_in.mean():.2f} "
           f"(header scan {time.perf_counter() - t0:.0f}s)", flush=True)
 
@@ -762,6 +789,7 @@ def main(argv=None):
         ds = HiResDataset(root, n, t, mean, std, train, a.max_long, a.flip, soft=soft if train else None,
                           gray_p=a.gray_p if train else 0.0, zoom_p=a.zoom_p, zoom_min=a.zoom_min,
                           mosaic_p=a.mosaic_p, mosaic_n=n_pos if train else 0, old_p=a.old_p,
+                          mosaic_sizes=a.mosaic_sizes,
                           mask_dir=a.mask_dir if train else None, mask_kind=mask_kind if train else None)
         return DataLoader(ds, batch_sampler=sampler,
                           num_workers=a.workers, pin_memory=device.type == "cuda", collate_fn=pad_collate,
@@ -815,7 +843,7 @@ def main(argv=None):
     cfg.update(params_total=n_params, steps_per_epoch=steps_per_epoch, total_updates=total,
                torch=str(torch.__version__), timm=str(timm.__version__), device=str(device),
                train=len(inner), holdout=len(hold), val=len(vnames), negatives=len(negs),
-               neg_per_epoch=neg_per_epoch, neg_holdout=len(neg_ho), person_pos=len(poss),
+               neg_per_epoch=neg_per_epoch, neg_holdout=len(neg_ho), person_pos=len(poss), ext=len(exts), ext_per_epoch=ext_per_epoch,
                pos_per_epoch=pos_per_epoch, pos_holdout=len(pos_ho))
     json.dump(cfg, open(os.path.join(out, "config.json"), "w"), indent=1)
     print(f"[{a.exp_id}] params={n_params:,} train={len(inner)} holdout={len(hold)} updates={total} "
