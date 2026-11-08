@@ -1,0 +1,5 @@
+teacher scores for 64/64 train images (alpha 0.5, shift 0.3)
+levels [416, 544, 672, 800], test 800; portrait share 0.56 (header scan 0s)
+[R4_bce_kd_smoke_s42] params=27,853,563 train=64 holdout=16 updates=3 short=[400,800] test_short=800 loss=bce ema=0.9995 head=linear_ms
+epoch 1: loss 0.7098 holdout macro 0.0936 micro 0.2328 bce 0.6792 best 1 (1.1 min)
+{"exp_id": "R4_bce_kd_smoke_s42", "best_epoch": 1, "epochs_run": 1, "params_total": 27853563, "train_minutes": 1.1, "amp_skipped": 0, "holdout": {"micro_f1": 0.23275862068965517, "macro_f1": 0.09364002886653325, "image_f1": 0.22856570512820512, "bce": 0.6792455315589905}, "holdout_forward_ms_per_image": 9.869564790278673}

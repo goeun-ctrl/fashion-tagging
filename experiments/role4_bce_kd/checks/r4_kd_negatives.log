@@ -1,0 +1,36 @@
+1) sampler ok
+2) load_grown ok
+2b) unknown rows masked ok
+3) gating ok
+4) OOD augmentations ok (mosaic 2/4/6/9)
+5) masks ok
+2 images, 1.00 crops each: positives 1.00 / image, negatives 0.926, unknown 0.037 of all entries
+  c0                           pos      2  unknown      0
+  c1                           pos      0  unknown      1
+  c2                           pos      0  unknown      1
+  c3                           pos      0  unknown      0
+  c4                           pos      0  unknown      0
+  c5                           pos      0  unknown      0
+  c6                           pos      0  unknown      0
+  c7                           pos      0  unknown      0
+  c8                           pos      0  unknown      0
+  c9                           pos      0  unknown      0
+  c10                          pos      0  unknown      0
+  c11                          pos      0  unknown      0
+  c12                          pos      0  unknown      0
+  c13                          pos      0  unknown      0
+  c14                          pos      0  unknown      0
+  c15                          pos      0  unknown      0
+  c16                          pos      0  unknown      0
+  c17                          pos      0  unknown      0
+  c18                          pos      0  unknown      0
+  c19                          pos      0  unknown      0
+  c20                          pos      0  unknown      0
+  c21                          pos      0  unknown      0
+  c22                          pos      0  unknown      0
+  c23                          pos      0  unknown      0
+  c24                          pos      0  unknown      0
+  c25                          pos      0  unknown      0
+  c26                          pos      0  unknown      0
+6) pseudo labels ok
+all ok

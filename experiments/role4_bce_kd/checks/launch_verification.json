@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "smoke_full_initialization_equal": true,
+  "actual_initial_model_sha256": "5cbfb96fbcfd9e56a63ce170a884c41693c2c898d1a446191e9b0b465a058530",
+  "actual_config_validated": true
+}

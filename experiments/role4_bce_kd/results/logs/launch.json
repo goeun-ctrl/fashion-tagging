@@ -1,0 +1,12 @@
+{
+  "pid": null,
+  "command": [
+    "/path/to/local-data/.venv/bin/python",
+    "-u",
+    "/path/to/repository/experiments/role4_bce_kd/pipeline.py"
+  ],
+  "CUDA_VISIBLE_DEVICES": "YOUR_AVAILABLE_GPU",
+  "detached_session": true,
+  "log": "runs/role4_bce_kd/controller.log",
+  "teacher_sha256": "c402e5c7a958ad918eda0ebcf8b81297e2f947238dcce33ebbba6bc1d3c5d8ea"
+}

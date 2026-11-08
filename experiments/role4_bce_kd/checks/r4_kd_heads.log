@@ -1,0 +1,9 @@
+1) valid_mask ok
+2) params linear 27,840,891  query_ms 30,061,563 (+2,220,672; head 2,241,435)
+4) old config -> linear ok
+3) linear   max|alone - zero pad| 4.17e-07  max|alone - noise pad| 1.19e-06
+3) query_ms max|alone - zero pad| 2.98e-07  max|alone - noise pad| 2.09e-07
+3) query_ms head: junk in padded tokens, mask on 0.00e+00 / mask off 1.83e-01
+5) masked_pool ok; linear_ms params 27,853,563 (+12,672 over linear)
+6) csra ok; params 27,853,563 (+12,672 over linear)
+all ok
