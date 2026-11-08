@@ -1,0 +1,12 @@
+{
+  "source": "timm pretrained=True; no init_ckpt; seed42 before build_hires_model",
+  "weights": [
+    {
+      "path": "/path/to/local-user/.cache/huggingface/hub/models--timm--convnext_tiny.fb_in22k_ft_in1k_384/snapshots/32c741ba106f9e062174ef829354a16719c3dcac/model.safetensors",
+      "resolved": "/path/to/local-user/.cache/huggingface/hub/blobs/05/054a853e79297ff1a3d50ca3514692a3c81c339be880a658f4c0965aa3d72b72",
+      "sha256": "a5cbe10cfa2e90ec787a082253033ac0a61de0264b68210815a988e53a1a5d7c"
+    }
+  ],
+  "smoke_initial_model_sha256": "53210dd91e91ab974395659ad06e47e83eb2c4a0ada1f045b2e47ee4f28700fd",
+  "team_runtime_match_verified": false
+}

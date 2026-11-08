@@ -1,0 +1,125 @@
+{
+  "commit": "913448df05ed436ae6f9357bf2c6faab461d7bc9",
+  "files": [
+    {
+      "path": "src/fashion_tagging/__init__.py",
+      "git_blob": "87b26b523701464d94e54bdd83031b52cc6409db",
+      "sha256": "f917c8f470a00a4c8eb2bbca71fb6ed2b3a01e6cedfb33b17876f5633a07a68f"
+    },
+    {
+      "path": "src/fashion_tagging/data/__init__.py",
+      "git_blob": "ac6be7867144d25693a2d156a682ee3f884e1473",
+      "sha256": "b285d779886fd5b1ddea863944f7bde496755f0348172f5a829a569f40039f4a"
+    },
+    {
+      "path": "src/fashion_tagging/data/dataset.py",
+      "git_blob": "71bbed36d7c1bccd7cf20e32fbafc15c3151f6e0",
+      "sha256": "e2fa8388a1c288573fad0c04bffc1fc41b3ed9ff91f0e4a2197e35688ef2f4b4"
+    },
+    {
+      "path": "src/fashion_tagging/data/labels.py",
+      "git_blob": "b5a4174ecfd781467239dca0837df507cf25de36",
+      "sha256": "cb763492102a3256d58d2d4c2481b73da5394f76821192b3726d3f99b067864e"
+    },
+    {
+      "path": "src/fashion_tagging/data/preprocess.py",
+      "git_blob": "e1ff2574420557e727d09fba98394d0ff3e1c375",
+      "sha256": "5bc2db25e81adef660d2962c7fd44a2f780b08bb14e66a0ff910a5c742119661"
+    },
+    {
+      "path": "src/fashion_tagging/evaluation/__init__.py",
+      "git_blob": "ec40bc9ba2cb15faf4bd4e9c736e59941af2f3b3",
+      "sha256": "9d093dd150109fb64b7ed309c43b78c8baddfbc882b4af69af946d234a28a7c3"
+    },
+    {
+      "path": "src/fashion_tagging/evaluation/bootstrap.py",
+      "git_blob": "4703fbbb165130885fd12105d604862b37cdb262",
+      "sha256": "92f835722e323b1dabbd703103ac3b4c901673ae308db908f3b0acc4bf43b42b"
+    },
+    {
+      "path": "src/fashion_tagging/evaluation/metrics.py",
+      "git_blob": "8e8d88eba9385564e463a2f8666dd27868cc497b",
+      "sha256": "760a8fd1bfc6c1f5f12e3079a9ab261c7b4bf312535272536f26f81b2bde83c2"
+    },
+    {
+      "path": "src/fashion_tagging/models/__init__.py",
+      "git_blob": "02725384fdc4493350454b5d1bdefea98b0b6306",
+      "sha256": "9102f1bee6f191fba097e714bfc41c5bfe1c7b32f5ffdbd26ca2c40fb4ea761d"
+    },
+    {
+      "path": "src/fashion_tagging/models/heads.py",
+      "git_blob": "e40d1c6f7cb8e8940b84d1379d7c99ae13a1c505",
+      "sha256": "43a2872e367ac038ea2c07e2a29e3e1dda369491b0880765f3542c5076cd30fb"
+    },
+    {
+      "path": "src/fashion_tagging/paths.py",
+      "git_blob": "77a4235ab9d24995aa49c4c79b070f4dc8f53384",
+      "sha256": "7dc19842566e87bbf23102affee37e7a4b4c6f17cf873944cf49dd8de1362262"
+    },
+    {
+      "path": "src/fashion_tagging/training/__init__.py",
+      "git_blob": "5c7d8c1c0db669d37a4917797823ea01c8b775e6",
+      "sha256": "9c1086c298ef7597b23d94befa5f6fa07ee2d6ce9e7c4a31ca90b69e03dcd03c"
+    },
+    {
+      "path": "src/fashion_tagging/training/losses.py",
+      "git_blob": "f403f55383caf4c20bfe0278c5584c5c968e5547",
+      "sha256": "8932163a4cd410b2056b7c6412d0c432bcda713c4d9a312b7eb254532c3e0578"
+    },
+    {
+      "path": "src/fashion_tagging/training/optim.py",
+      "git_blob": "c113434ade38f46c1e1ce75c716b6be9c2227f89",
+      "sha256": "9b99010f12656e51d7d8c69396ba2127c11ede36d8c80ece075eff8f6fb594bc"
+    },
+    {
+      "path": "scripts/train_hires.py",
+      "git_blob": "f07fc1924832ebf9e09663d843b35d979461329c",
+      "sha256": "e3fbb192b9fcc2b49a4eb0d646ea95bb2e0e77fcf0ccfb5ea766e9470578f48e"
+    },
+    {
+      "path": "scripts/infer_hires.py",
+      "git_blob": "dc056328e73b23d15e1219a0d874d877e36d1c88",
+      "sha256": "61b394ad5c221cbea851ab893aa37bd169e363992a9f46600e5561f282f2c3b4"
+    },
+    {
+      "path": "scripts/eval_ood.py",
+      "git_blob": "63fe92d117124f8d64590c01457cfa6624aa5149",
+      "sha256": "daaf52f904340bb0b9b055efac6927ea5d544716c1218b3b175a7a1c46e8751d"
+    },
+    {
+      "path": "scripts/pseudo_label.py",
+      "git_blob": "756026f63c6abd0100a2867cccc149723472dee8",
+      "sha256": "f6ce685d671b14b8c6ac61632aa75ffdeb5d77a87aa7b356e40f629fc17b3a37"
+    },
+    {
+      "path": "scripts/build_negatives.py",
+      "git_blob": "5e933c5a5e2d7a085577b66e6c361e54deed9458",
+      "sha256": "ee8cac253d07005a867307ba1ec752e9d8de10e00d6b1486139bfa0b427d1dc9"
+    },
+    {
+      "path": "experiments/role5_regularization/defense_stats.py",
+      "git_blob": "abf1f9e8bd974e886501ffb11ee5d407ef6ceb29",
+      "sha256": "efb9d474e5ccbd2a27f055b8df02dbd61505d0820376a8d440d3590cf42f99b4"
+    },
+    {
+      "path": "experiments/role5_regularization/error_sheet.py",
+      "git_blob": "b22a0840279963275ab70e6d447e1a4e74bc3979",
+      "sha256": "a728fe104ed212f130e34ad2ec51bc4b7f05a3517713f69a39abeb59aa8973e6"
+    },
+    {
+      "path": "tests/test_hires_heads.py",
+      "git_blob": "133e7f16bf602618bebf02602d30b40a987c5797",
+      "sha256": "d4f0b16bba4cad582c12a3e5a5cf59338507c83a5e86773950d848884c3b7aac"
+    },
+    {
+      "path": "tests/test_hires_negatives.py",
+      "git_blob": "c655973fb94255d336a24b2cb3072eabd2786c3a",
+      "sha256": "38ae1affc95774e7e45b2d5ee8e2451925fc8752e6896a7af7d9a62178f0e992"
+    },
+    {
+      "path": "tests/test_losses.py",
+      "git_blob": "5c50a2933c6b6b88c28f790f6c00cc0be27c6ad0",
+      "sha256": "300588a269a8792e699bb828d3d37a8bc5af96175ec2c7459d1ace4dbc853c93"
+    }
+  ]
+}

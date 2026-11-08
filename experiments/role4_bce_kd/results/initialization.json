@@ -1,0 +1,42 @@
+{
+  "model_sha256": "5cbfb96fbcfd9e56a63ce170a884c41693c2c898d1a446191e9b0b465a058530",
+  "pretrained": true,
+  "pretrained_cfg": {
+    "url": "https://dl.fbaipublicfiles.com/convnext/convnext_tiny_22k_1k_384.pth",
+    "hf_hub_id": "timm/convnext_tiny.fb_in22k_ft_in1k_384",
+    "architecture": "convnext_tiny",
+    "tag": "fb_in22k_ft_in1k_384",
+    "custom_load": false,
+    "input_size": [
+      3,
+      384,
+      384
+    ],
+    "fixed_input_size": false,
+    "interpolation": "bicubic",
+    "crop_pct": 1.0,
+    "crop_mode": "squash",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "num_classes": 1000,
+    "pool_size": [
+      12,
+      12
+    ],
+    "first_conv": "stem.0",
+    "classifier": "head.fc",
+    "license": "apache-2.0"
+  },
+  "seed": 42,
+  "init_ckpt": null,
+  "source_sha256": "e3fbb192b9fcc2b49a4eb0d646ea95bb2e0e77fcf0ccfb5ea766e9470578f48e",
+  "adapter": "Only finals list changed: holdout only; all model/loss/sampler/initialization code unchanged"
+}

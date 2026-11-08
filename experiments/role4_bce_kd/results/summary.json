@@ -1,0 +1,15 @@
+{
+  "exp_id": "R4_bce_kd_s42",
+  "best_epoch": 15,
+  "epochs_run": 18,
+  "params_total": 27853563,
+  "train_minutes": 307.0,
+  "amp_skipped": 7,
+  "holdout": {
+    "micro_f1": 0.8720293536550946,
+    "macro_f1": 0.7891345061789125,
+    "image_f1": 0.8687445387412194,
+    "bce": 0.10795613378286362
+  },
+  "holdout_forward_ms_per_image": 10.31620874463283
+}

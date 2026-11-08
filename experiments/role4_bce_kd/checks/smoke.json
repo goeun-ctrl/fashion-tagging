@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "device": "cpu",
+  "pretrained": true,
+  "initial_model_sha256": "53210dd91e91ab974395659ad06e47e83eb2c4a0ada1f045b2e47ee4f28700fd",
+  "initialization": "pinned train_hires.set_seed(42) then build_hires_model(config,27,True); cached timm pretrained backbone; no init_ckpt",
+  "params": 27853563,
+  "output_shape": [
+    2,
+    27
+  ],
+  "synthetic_teacher_matching": true,
+  "synthetic_teacher_shift": true,
+  "bce_kd_backward": true,
+  "ema": true,
+  "checkpoint_roundtrip": true,
+  "actual_teacher_validated": false,
+  "gpu_smoke": false,
+  "limitation": "2 real train_inner images at short64, synthetic teacher, CPU; not full-size AMP GPU validation"
+}

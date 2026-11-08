@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "batch": 8,
+  "canvas": [
+    1344,
+    800
+  ],
+  "amp": true,
+  "ema": true,
+  "checkpoint": true,
+  "allocated_gib": 10.462376117706299,
+  "reserved_gib": 11.09375
+}
