@@ -1,0 +1,16 @@
+﻿id,name,group,input,loss,external,distill,threshold_tta,params,owner,holdout_micro,holdout_macro,holdout_image,val_micro,val_macro,val_image,source
+S2,ConvNeXt-T 기준선,A,384² 패딩,BCE,없음,없음,0.5,27.8M,2번,0.8054,0.7074,0.8090,0.8255,0.6608,0.8277,results_hires_convnext.md 2장 표
+EVA,EVA02-S 기준선,A,378² 패딩,BCE,없음,없음,0.5,21.8M,3번,0.8043,0.7085,0.8047,0.8111,0.6324,0.8156,role3 comparison_summary.csv
+EVA+,EVA02-S + wd 제외·drop path·EMA,A,378² 패딩,BCE,없음,없음,0.5,21.8M,5번,0.8254,0.7387,0.8249,0.8397,0.6589,0.8414,results_hires_convnext.md 2장 표
+S2-ctl,"ConvNeXt-T 공통 증강, 원본만",A,384² 패딩,BCE,없음,없음,0.5,27.8M,2번,0.8048,0.7018,0.8056,0.8186,0.6526,0.8224,role2 comparison_three_runs.csv
+S2-3458,"ConvNeXt-T + 외부 3,458장",A,384² 패딩,Masked BCE,"3,458장",없음,0.5,27.8M,2번,0.8093,0.7071,0.8095,0.8253,0.6431,0.8263,role2 comparison_three_runs.csv
+EVA-V2,"EVA02-S + 외부 3,458장",A,378² 패딩,Masked BCE,"3,458장",없음,0.5,21.8M,3번,0.8000,0.6994,-,0.8094,0.5953,-,"EVA02_V2_RESULTS_ANALYSIS.md, per_class_*.csv"
+HR-low,"ConvNeXt-T 고해상도 레시피, 384 고정",B,384 비율 유지,ASL,없음,없음,0.5,27.8M,5번,0.8333,0.7603,0.8419,0.8335,0.6948,0.8404,results_hires_convnext.md 1장 표
+HR,ConvNeXt-T 고해상도 (기본),B,800/1333 비율 유지,ASL,없음,없음,0.5,27.8M,5번,0.8435,0.7790,0.8466,0.8545,0.7277,0.8593,results_hires_convnext.md 1장 표
+HR-tta,위 + 임계값 0.60(3개 0.5) + 반전 TTA,B,800/1333 비율 유지,ASL,없음,없음,0.60 + TTA,27.8M,5번,0.8572,0.7907,0.8578,0.8669,0.7442,0.8684,results_hires_convnext.md TTA 표
+C1-BCE,"고해상도, BCE",B,800/1333 비율 유지,BCE,없음,없음,0.5,27.8M,4번,0.8572,0.7841,0.8520,0.8702,0.7361,0.8670,role4 C1 summary.csv
+C1-BCE-t,위 + 임계값 0.25 + 반전 TTA,B,800/1333 비율 유지,BCE,없음,없음,0.25 + TTA,27.8M,4번,0.8604,0.7939,0.8583,0.8740,0.7587,0.8731,role4 C1 summary.csv
+C1-ASL,"고해상도, ASL",B,800/1333 비율 유지,ASL,없음,없음,0.5,27.8M,4번,0.8472,0.7835,0.8484,0.8558,0.7404,0.8593,role4 C1 summary.csv
+C1-ASL-t,위 + 임계값 0.55 + 반전 TTA,B,800/1333 비율 유지,ASL,없음,없음,0.55 + TTA,27.8M,4번,0.8536,0.7843,0.8540,0.8628,0.7532,0.8657,role4 C1 summary.csv
+KD,"고해상도, BCE + Fashionformer 증류",B,800/1333 비율 유지,BCE + 증류,없음,Fashionformer,0.4(3개 0.5) + TTA,27.9M,4번,0.8707,0.7987,0.8720,0.8762,0.7378,0.8786,role4 BCE KD val_metrics.json
+FF,"Fashionformer R50 (검출·분할 모델, 참고)",R,800/1333 비율 유지,검출 손실,없음,-,0.3,44.1M,5번 측정,-,-,-,0.8575,0.7048,0.8608,fashionformer_eval/README.md
