@@ -1,0 +1,15 @@
+{
+  "experiment_id": "R4_bce_kd_s42",
+  "team_baseline_id": "R5_bce_kd_s42",
+  "threshold": 0.4,
+  "special": {
+    "sweater": 0.5,
+    "leg warmer": 0.5,
+    "umbrella": 0.5
+  },
+  "best_epoch": 15,
+  "checkpoint_sha256": "ae202a614ecd4a1c1cdb71011d8315670d9f70248c0fdd89ba4242288191c213",
+  "config_sha256": "8686370d842deeea56546af113ba4f480b991469b7a488859a8eb4ace2ed5491",
+  "holdout_predictions_sha256": "669f4bf34853c713b5085c94b6b4075596f248669b968aa1f992cdaeaf013f4b",
+  "selection": "holdout TTA Macro, tie Micro then higher threshold; .05..95/.05"
+}
