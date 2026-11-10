@@ -1,0 +1,70 @@
+{
+  "exp_id": "S2_cnxt_t_common3458_b_hires_ema_s42",
+  "owner": "이정은",
+  "source_commit": "c5827dfa749e276d4e5431628a06730b26c4841f",
+  "source_repository": "https://github.com/goeun-ctrl/fashion-tagging",
+  "work_branch": "local-only-retrain",
+  "model": "convnext_tiny.fb_in22k_ft_in1k_384",
+  "pretrained": true,
+  "head": "gap_linear_27",
+  "num_classes": 27,
+  "parameter_limit": 50000000,
+  "input_size": 800,
+  "input_color": "RGB",
+  "preprocess_mode": "orientation_bucket",
+  "resize_interp": "bilinear",
+  "pad_color": [
+    0,
+    0,
+    0
+  ],
+  "mean_std": "from_timm",
+  "augmentation": {
+    "hflip_p": 0.5,
+    "color_jitter": {
+      "brightness": 0.1,
+      "contrast": 0.1,
+      "saturation": 0.05,
+      "hue": 0,
+      "high_p": 0.35,
+      "general_p": 0.2
+    }
+  },
+  "loss": "bce",
+  "optimizer": "adamw",
+  "lr_backbone": 0.0001,
+  "lr_head": 0.001,
+  "weight_decay": 0.05,
+  "epochs": 18,
+  "scheduler": "cosine",
+  "warmup_ratio": 0.05,
+  "batch_size": 8,
+  "accum": 4,
+  "effective_batch": 32,
+  "seed": 42,
+  "threshold": 0.5,
+  "early_stopping": {
+    "patience": 19,
+    "metric": "macro_f1",
+    "on": "holdout"
+  },
+  "num_workers": 4,
+  "amp": true,
+  "deterministic": true,
+  "notes": "V2 hires; fixed 18 epochs; EMA best on holdout Macro F1; clip norm 1; fresh pretrained initialization.",
+  "label_mode": "partial",
+  "data_version": "fashion-common-expanded-partial-20261106-v2",
+  "loss_implementation": "masked BCE; sum known BCE / known count over full accumulation window; zero-known window skip",
+  "head_actual_structure": "Valid-area masked GAP -> LayerNorm -> Linear(768,27)",
+  "train_short_levels": [
+    416,
+    544,
+    672,
+    800
+  ],
+  "test_short": 800,
+  "max_long": 1333,
+  "ema_decay": 0.9995,
+  "drop_path_rate": 0.1,
+  "gradient_clip_norm": 1.0
+}
