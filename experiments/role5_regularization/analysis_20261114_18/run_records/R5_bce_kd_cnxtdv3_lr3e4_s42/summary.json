@@ -1,0 +1,22 @@
+{
+ "exp_id": "R5_bce_kd_cnxtdv3_lr3e4_s42",
+ "best_epoch": 18,
+ "epochs_run": 18,
+ "params_total": 27853563,
+ "train_minutes": 344.8,
+ "amp_skipped": 8,
+ "holdout": {
+  "micro_f1": 0.8374949307687851,
+  "macro_f1": 0.7043818195401249,
+  "image_f1": 0.8318799806189292,
+  "bce": 0.12899382412433624
+ },
+ "holdout_forward_ms_per_image": 11.480988028852902,
+ "val": {
+  "micro_f1": 0.8495212038303693,
+  "macro_f1": 0.6719848015340817,
+  "image_f1": 0.8448318257256081,
+  "bce": 0.11419709026813507
+ },
+ "val_forward_ms_per_image": 11.399146586026038
+}

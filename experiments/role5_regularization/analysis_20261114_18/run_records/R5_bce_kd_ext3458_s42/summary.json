@@ -1,0 +1,22 @@
+{
+ "exp_id": "R5_bce_kd_ext3458_s42",
+ "best_epoch": 15,
+ "epochs_run": 18,
+ "params_total": 27853563,
+ "train_minutes": 349.7,
+ "amp_skipped": 8,
+ "holdout": {
+  "micro_f1": 0.8706891685951346,
+  "macro_f1": 0.7888292543285692,
+  "image_f1": 0.8664496302374123,
+  "bce": 0.10747204720973969
+ },
+ "holdout_forward_ms_per_image": 11.130004015933608,
+ "val": {
+  "micro_f1": 0.8852194925493355,
+  "macro_f1": 0.7303953881796132,
+  "image_f1": 0.8831312925224842,
+  "bce": 0.0962902382016182
+ },
+ "val_forward_ms_per_image": 11.218576165863565
+}

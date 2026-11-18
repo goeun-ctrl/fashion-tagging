@@ -1,0 +1,22 @@
+{
+ "exp_id": "R4re_bce_kd_s44",
+ "best_epoch": 16,
+ "epochs_run": 18,
+ "params_total": 27853563,
+ "train_minutes": 322.5,
+ "amp_skipped": 6,
+ "holdout": {
+  "micro_f1": 0.8737897061321556,
+  "macro_f1": 0.7901735865833958,
+  "image_f1": 0.8700317871213787,
+  "bce": 0.10863243788480759
+ },
+ "holdout_forward_ms_per_image": 10.494326470112524,
+ "val": {
+  "micro_f1": 0.8866478418717225,
+  "macro_f1": 0.7462466774239266,
+  "image_f1": 0.8860017429317949,
+  "bce": 0.09581861644983292
+ },
+ "val_forward_ms_per_image": 10.626266064445629
+}
