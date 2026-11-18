@@ -1,0 +1,22 @@
+{
+ "exp_id": "R5_bce_kd_dinov3sp_noema_s42",
+ "best_epoch": 17,
+ "epochs_run": 18,
+ "params_total": 28705563,
+ "train_minutes": 626.7,
+ "amp_skipped": 6,
+ "holdout": {
+  "micro_f1": 0.892915424005402,
+  "macro_f1": 0.8172039732675466,
+  "image_f1": 0.8908722814852846,
+  "bce": 0.10091032832860947
+ },
+ "holdout_forward_ms_per_image": 21.340398481403735,
+ "val": {
+  "micro_f1": 0.900522158254117,
+  "macro_f1": 0.7645640176754283,
+  "image_f1": 0.9016316489114417,
+  "bce": 0.09145388752222061
+ },
+ "val_forward_ms_per_image": 21.369395558022617
+}

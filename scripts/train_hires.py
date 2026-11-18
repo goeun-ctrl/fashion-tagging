@@ -63,10 +63,12 @@ def parse_args(argv=None):
     ap.add_argument("--out_dir", default=os.path.join(ROOT, "runs"))
     ap.add_argument("--model", default="convnext_tiny.fb_in22k_ft_in1k_384")
     ap.add_argument("--no_pretrained", action="store_true", help="smoke tests only")
-    ap.add_argument("--head", default="linear", choices=["linear", "linear_ms", "query_ms"],
+    ap.add_argument("--head", default="linear", choices=["linear", "linear_ms", "query_ms", "vit_ms"],
                     help="linear = masked pooling + timm head (C1). linear_ms = masked pooling of the stride-16 AND "
                          "stride-32 maps, concatenated -> LayerNorm -> Linear (~+33k params). query_ms = 27 class "
                          "queries cross-attending to both maps (C3; plan suggests --lr_head 1e-4)")
+    ap.add_argument("--ms_levels", type=int, default=2, choices=[2, 3],
+                    help="linear_ms: how many of the last backbone stages to pool: 2 = stride 16 + 32, 3 adds stride 8")
     ap.add_argument("--pool", default="gap", choices=["gap", "gmp", "gapgmp", "csra"],
                     help="linear / linear_ms pooling over the real image area: average, max, or 0.5*(avg+max) "
                          "(team names, src/fashion_tagging/models/heads.py). Max keeps small-object peaks. "
@@ -77,6 +79,7 @@ def parse_args(argv=None):
     ap.add_argument("--query_dim", type=int, default=384)
     ap.add_argument("--query_heads", type=int, default=8)
     ap.add_argument("--head_dropout", type=float, default=0.1)
+    ap.add_argument("--vit_mid", type=int, default=1, help="vit_ms: 1 = also pool block 2/3 of the depth, 0 = last block only")
     # empty-label negatives (scenes without people, e.g. COCO no-person + Places365) and a "garment present" gate
     ap.add_argument("--neg_list", default=None, help="text file, one absolute image path per line (train negatives)")
     ap.add_argument("--neg_holdout_list", default=None, help="held-out negatives for the empty-rate check")
@@ -507,11 +510,13 @@ class MaskedPoolMSConvNeXt(nn.Module):
     gapgmp), concatenated -> LayerNorm -> Linear. The finer map and the max keep small accessories that a
     stride-32 average dilutes; ~33k new parameters instead of the 2.2M of the query head (C3)."""
 
-    def __init__(self, name, num_classes, pretrained, drop_path, pool="gapgmp", csra_lambda=0.3, csra_t=1.0):
+    def __init__(self, name, num_classes, pretrained, drop_path, pool="gapgmp", csra_lambda=0.3, csra_t=1.0, levels=2):
         super().__init__()
         extra = {"drop_path_rate": drop_path} if drop_path else {}
         self.net = timm.create_model(name, pretrained=pretrained, num_classes=0, global_pool="", **extra)
-        info = self.net.feature_info[-2:]
+        assert levels == 2 or pool != "csra", "the CSRA mask loss expects exactly stride 16 and 32"
+        self.levels = levels
+        info = self.net.feature_info[-levels:]
         assert info[0]["reduction"] < info[1]["reduction"], f"{name}: needs two stages with different strides"
         chs = [f["num_chs"] for f in info]
         self.pool, self.lam, self.t = pool, csra_lambda, csra_t
@@ -525,7 +530,7 @@ class MaskedPoolMSConvNeXt(nn.Module):
             self.fc = nn.Linear(sum(chs), num_classes)
 
     def forward(self, x, sizes, return_maps=False):
-        maps = self.net.forward_intermediates(x, indices=[-2, -1], intermediates_only=True)  # stride 16, 32
+        maps = self.net.forward_intermediates(x, indices=list(range(-self.levels, 0)), intermediates_only=True)  # finest first
         H, W = x.shape[-2:]
         valids = [valid_mask(sizes.to(m.device), *m.shape[-2:], H, W) for m in maps]
         if self.pool != "csra":
@@ -542,6 +547,91 @@ class MaskedPoolMSConvNeXt(nn.Module):
     def head_parameters(self):
         if self.pool == "csra":
             return list(self.norms.parameters()) + list(self.scorers.parameters()) + [self.bias]
+        return list(self.norm.parameters()) + list(self.fc.parameters())
+
+
+class MaskedPoolViT(nn.Module):
+    """timm ViT with RoPE and register tokens (e.g. DINOv3 vit_small_plus_patch16_dinov3) on variable-size padded
+    batches, the transformer counterpart of MaskedPoolMSConvNeXt. Padded patches are removed from attention with a
+    key mask (prefix tokens always attend), so a padded image gives the same tokens as the image alone. The patch
+    tokens after block 2/3 of the depth and after the last block (both through the final norm) are pooled over the
+    real image area (gap / gmp / gapgmp), concatenated -> LayerNorm -> Linear."""
+
+    def __init__(self, name, num_classes, pretrained, drop_path, pool="gapgmp", head_dropout=0.0, use_mid=True):
+        super().__init__()
+        extra = {"drop_path_rate": drop_path} if drop_path else {}
+        self.net = timm.create_model(name, pretrained=pretrained, num_classes=0, dynamic_img_size=True, **extra)
+        assert pool in ("gap", "gmp", "gapgmp"), "MaskedPoolViT supports gap / gmp / gapgmp"
+        self.pool, self.patch = pool, self.net.patch_embed.patch_size[0]
+        self.mid = len(self.net.blocks) * 2 // 3 - 1 if use_mid else -1    # index of the block whose output is taken
+        c = self.net.embed_dim * (2 if use_mid else 1)
+        self.norm, self.drop, self.fc = nn.LayerNorm(c), nn.Dropout(head_dropout), nn.Linear(c, num_classes)
+
+    def _abs_pos_embed(self, t, valid):
+        from timm.layers import resample_abs_pos_embed
+        n = self.net
+        B, h, w, C = t.shape
+        npre = 0 if n.no_embed_class else n.num_prefix_tokens
+        fh, fw = valid[:, :, 0].sum(1).tolist(), valid[:, 0, :].sum(1).tolist()
+        per, cache = t.new_zeros(B, h, w, C), {}
+        for b in range(B):
+            key = (fh[b], fw[b])
+            if key not in cache:
+                pe = resample_abs_pos_embed(n.pos_embed, new_size=key, old_size=n.patch_embed.grid_size,
+                                            num_prefix_tokens=npre)
+                cache[key] = pe[:, npre:].reshape(key[0], key[1], C).to(t.dtype)
+            per[b, :fh[b], :fw[b]] = cache[key]
+        x = (t + per).reshape(B, h * w, C)
+        pre = [tok.expand(B, -1, -1) for tok in (n.cls_token, n.reg_token) if tok is not None]
+        if pre:
+            pre = torch.cat(pre, 1)
+            if npre:
+                pre = pre + n.pos_embed[:, :npre].to(pre.dtype)
+            x = torch.cat([pre, x], 1)
+        return n.pos_drop(x)
+
+    def forward(self, x, sizes):
+        n = self.net
+        H, W = x.shape[-2:]
+        assert H % self.patch == 0 and W % self.patch == 0, "canvas must be a multiple of the patch size"
+        t = n.patch_embed(x)                                                # [B, h, w, C] (dynamic_img_size)
+        B, h, w, C = t.shape
+        valid = valid_mask(sizes.to(x.device), h, w, H, W)                  # [B, h, w]
+        if getattr(n, "rope", None) is None and n.pos_embed is not None and not bool(valid.all()):
+            # learned absolute position embedding (plain timm ViT / DeiT-3): resample it to each image's own real
+            # grid, placed top-left, so a padded image gets the same positions as the image alone.
+            t, rope = self._abs_pos_embed(t, valid), None
+        else:
+            t = n._pos_embed(t)
+            t, rope = t if isinstance(t, tuple) else (t, None)
+        t = n.norm_pre(t)
+        p = t.shape[1] - h * w                                              # prefix tokens (cls + registers)
+        if rope is not None and not bool(valid.all()):
+            # DINOv3 RoPE normalises coordinates by the grid size, so the canvas grid would give a padded image other
+            # positions than the image alone: build each image's RoPE on its own real grid, placed top-left.
+            fh, fw = valid[:, :, 0].sum(1).tolist(), valid[:, 0, :].sum(1).tolist()
+            per, cache = rope.new_zeros(B, h, w, rope.shape[-1]), {}
+            for b in range(B):
+                key = (fh[b], fw[b])
+                if key not in cache:
+                    cache[key] = n.rope.get_embed(shape=list(key)).to(rope.dtype).reshape(fh[b], fw[b], -1)
+                per[b, :fh[b], :fw[b]] = cache[key]
+            rope = per.reshape(B, 1, h * w, -1)                             # [B, heads=1, N, dim]
+        keep = torch.cat([valid.new_ones(B, p), valid.flatten(1)], 1)       # True = may be attended to
+        attn_mask = None if bool(keep.all()) else keep[:, None, None, :]
+        feats = []
+        for i, blk in enumerate(n.blocks):
+            t = blk(t, rope=rope, attn_mask=attn_mask) if rope is not None else blk(t, attn_mask=attn_mask)
+            if i == self.mid:
+                feats.append(t)
+        feats.append(t)
+        pooled = []
+        for f in feats:
+            f = n.norm(f)[:, p:].reshape(B, h, w, C).permute(0, 3, 1, 2)    # [B, C, h, w]
+            pooled.append(masked_pool(f, valid, self.pool))
+        return self.fc(self.drop(self.norm(torch.cat(pooled, 1))))
+
+    def head_parameters(self):
         return list(self.norm.parameters()) + list(self.fc.parameters())
 
 
@@ -603,12 +693,15 @@ class MaskedQueryConvNeXt(nn.Module):
 def build_hires_model(cfg, num_classes, pretrained):
     """cfg: argparse namespace or a saved config dict (older checkpoints have no 'head' key = linear)."""
     g = cfg.get if isinstance(cfg, dict) else (lambda k, d=None: getattr(cfg, k, d))
+    if g("head", "linear") == "vit_ms":
+        return MaskedPoolViT(g("model"), num_classes, pretrained, g("drop_path"), g("pool", "gapgmp"),
+                             g("head_dropout", 0.0), bool(g("vit_mid", 1)))
     if g("head", "linear") == "query_ms":
         return MaskedQueryConvNeXt(g("model"), num_classes, pretrained, g("drop_path"), g("query_dim", 384),
                                    g("query_heads", 8), g("head_dropout", 0.1))
     if g("head", "linear") == "linear_ms":
         return MaskedPoolMSConvNeXt(g("model"), num_classes, pretrained, g("drop_path"), g("pool", "gapgmp"),
-                                    g("csra_lambda", 0.3), g("csra_t", 1.0))
+                                    g("csra_lambda", 0.3), g("csra_t", 1.0), g("ms_levels", 2))
     return MaskedPoolConvNeXt(g("model"), num_classes, pretrained, g("drop_path"), g("pool", "gap"))
 
 

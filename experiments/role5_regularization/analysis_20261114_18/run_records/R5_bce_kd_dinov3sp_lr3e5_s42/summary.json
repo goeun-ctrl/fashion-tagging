@@ -1,0 +1,22 @@
+{
+ "exp_id": "R5_bce_kd_dinov3sp_lr3e5_s42",
+ "best_epoch": 15,
+ "epochs_run": 18,
+ "params_total": 28705563,
+ "train_minutes": 639.1,
+ "amp_skipped": 6,
+ "holdout": {
+  "micro_f1": 0.8889387984278495,
+  "macro_f1": 0.8019003121077988,
+  "image_f1": 0.8876355311621024,
+  "bce": 0.10321052372455597
+ },
+ "holdout_forward_ms_per_image": 21.691178796601665,
+ "val": {
+  "micro_f1": 0.8935488179511153,
+  "macro_f1": 0.7534068092386853,
+  "image_f1": 0.8964462599215722,
+  "bce": 0.09360532462596893
+ },
+ "val_forward_ms_per_image": 21.714421827989487
+}
