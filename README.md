@@ -248,7 +248,11 @@ python scripts/train.py --exp_id R5_cnxt_extra --extra_train data/external/exter
 ## 8. 꼭 지킬 것 (자세히: `docs/guide/README_팀공유.md`)
 
 - **체크포인트·임계값은 holdout으로만 고른다.** 공식 val은 마지막 보고에만 쓴다.
-- 출력은 sigmoid + 임계값. **softmax·argmax·강제 top-1 금지.** 아무것도 안 넘으면 빈 예측 `[]`이 정상이다.
+- 최종 태그 출력은 **클래스별 점수(0~1) + 클래스별 임계값**. 클래스마다 독립으로 판정한다.
+  **태그 단위의 softmax·argmax·강제 top-1 금지**(한 사진에 여러 태그가 동시에 나올 수 있어야 한다).
+  아무것도 안 넘으면 빈 예측 `[]`이 정상이다.
+  예외: 분할 헤드 안에서 **칸(픽셀) 단위**로 그룹별 softmax를 쓰는 것은 허용한다
+  (한 칸에 보이는 옷은 하나라서). 이때도 태그 점수는 클래스별로 따로 모아 클래스별 임계값으로 판정한다.
 - 클래스 순서는 `categories.txt` 그대로(0~26). 이름을 쉼표로 나누지 않는다.
 - mean/std는 모델마다 다르다 (`timm_mean_std(model_name)`로 읽는다).
 - 손실에 BCEWithLogits를 쓰면 모델 출력에 sigmoid를 미리 적용하지 않는다.

@@ -1,0 +1,24 @@
+2026-11-23 02:06:46 queue start: 16 jobs
+2026-11-23 02:06:46 GPU 0 -> S6_base
+2026-11-23 02:08:16 GPU 2 -> S6_coco0
+2026-11-23 02:09:46 GPU 3 -> S6_coco025
+2026-11-23 02:15:16 GPU 1 -> S6_coco05
+2026-11-23 06:05:06 GPU 0 -> S6_lam05
+2026-11-23 06:08:36 GPU 3 -> S6_lam2
+2026-11-23 06:16:06 GPU 1 -> S6_wd01
+2026-11-23 06:17:37 GPU 2 -> S6_dp02
+2026-11-23 08:56:14 queue stopped by user request: dp0 clip5 ema0999 emaoff dropped; rest -> queue_segb_short2.sh
+2026-11-23 08:56:14 queue start: 4 jobs
+2026-11-23 10:04:21 GPU 0 -> S6_gray02
+2026-11-23 10:05:51 GPU 3 -> S6_old01
+2026-11-23 10:17:22 GPU 1 -> S6_mosaic01
+2026-11-23 10:18:52 GPU 2 -> S6_zoom03
+2026-11-23 10:22:22 queue empty
+2026-11-23 11:23:50 queue start: 1 jobs
+2026-11-23 11:53:41 queue part 3 stopped before starting kd0 (replaced by part 4)
+2026-11-23 11:53:41 queue start: 4 jobs
+2026-11-23 14:01:55 GPU 0 -> S6_kd0
+2026-11-23 14:05:25 GPU 3 -> S6_rc03
+2026-11-23 14:18:57 GPU 1 -> S6_rc01
+2026-11-23 14:20:27 GPU 2 -> S6_rc1
+2026-11-23 14:23:57 queue empty

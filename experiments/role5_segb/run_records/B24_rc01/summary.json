@@ -1,0 +1,33 @@
+{
+ "exp_id": "B24_rc01",
+ "best_epoch": 21,
+ "epochs_run": 24,
+ "params_total": 37052038,
+ "train_minutes": 952.2,
+ "amp_skipped": 24,
+ "holdout": {
+  "micro_f1": 0.8749253244989953,
+  "macro_f1": 0.8176487014207278,
+  "image_f1": 0.8762893503745695,
+  "microAP": 0.9420028557472823
+ },
+ "holdout_ms_per_image": 24.892796143918233,
+ "val": {
+  "micro_f1": 0.8810322580645161,
+  "macro_f1": 0.7925883213715125,
+  "image_f1": 0.8864115183415703,
+  "microAP": 0.9494853441013962
+ },
+ "val_ms_per_image": 26.211020187374256,
+ "neg_holdout": {
+  "empty": 0.979,
+  "pred_per_image": 0.046
+ },
+ "crowd": {
+  "micro_f1": 0.634452231648838,
+  "macro_f1": 0.46996206062879176,
+  "image_f1": 0.6204597805064321,
+  "microAP": 0.6508685119746086
+ },
+ "crowd_ms_per_image": 35.941082119825296
+}

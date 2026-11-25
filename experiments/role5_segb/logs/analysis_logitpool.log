@@ -1,0 +1,32 @@
+=== S6_base holdout
+S6_base holdout: 2425 images; recomputed orig vs saved preds max |diff| 0.4245
+variant     microAP  macroAP  confWG    upper lower+dr     head     legs     neck  up-right  layered  single
+orig         0.9254   0.8345  0.9228   0.8519   0.8798   0.9565   0.9402   0.9855     0.789    0.722   0.833
+lo_mean      0.8349   0.7591  0.8489   0.7310   0.8287   0.8326   0.8752   0.9772     0.739    0.591   0.835
+sig_mean     0.8340   0.7587  0.8483   0.7302   0.8253   0.8327   0.8761   0.9771     0.734    0.587   0.831
+fg_split     0.9254   0.8345  0.9228   0.8519   0.8798   0.9565   0.9402   0.9855     0.789    0.722   0.833
+blend        0.9210   0.8306  0.9157   0.8457   0.8788   0.9368   0.9342   0.9828     0.789    0.715   0.838
+=== S6_base val
+S6_base val: 1158 images; recomputed orig vs saved preds max |diff| 0.4556
+variant     microAP  macroAP  confWG    upper lower+dr     head     legs     neck  up-right  layered  single
+orig         0.9367   0.8121  0.9108   0.7935   0.8396   0.9697   0.9515   0.9996     0.811    0.650   0.875
+lo_mean      0.8645   0.7398  0.8430   0.6417   0.7977   0.8630   0.9144   0.9982     0.788    0.584   0.869
+sig_mean     0.8630   0.7417  0.8438   0.6488   0.7949   0.8621   0.9148   0.9984     0.781    0.563   0.867
+fg_split     0.9367   0.8121  0.9108   0.7935   0.8396   0.9697   0.9515   0.9996     0.811    0.650   0.875
+blend        0.9338   0.8084  0.9047   0.7852   0.8375   0.9576   0.9441   0.9989     0.811    0.635   0.881
+=== S6_rc01 holdout
+S6_rc01 holdout: 2425 images; recomputed orig vs saved preds max |diff| 0.3328
+variant     microAP  macroAP  confWG    upper lower+dr     head     legs     neck  up-right  layered  single
+orig         0.9273   0.8367  0.9268   0.8634   0.8887   0.9545   0.9420   0.9855     0.803    0.751   0.837
+lo_mean      0.8357   0.7574  0.8445   0.7247   0.8349   0.8212   0.8625   0.9791     0.755    0.621   0.842
+sig_mean     0.8344   0.7571  0.8441   0.7243   0.8320   0.8216   0.8636   0.9792     0.752    0.618   0.839
+fg_split     0.9273   0.8367  0.9268   0.8634   0.8887   0.9545   0.9420   0.9855     0.803    0.751   0.837
+blend        0.9227   0.8334  0.9197   0.8567   0.8869   0.9350   0.9358   0.9837     0.796    0.733   0.837
+=== S6_rc01 val
+S6_rc01 val: 1158 images; recomputed orig vs saved preds max |diff| 0.5230
+variant     microAP  macroAP  confWG    upper lower+dr     head     legs     neck  up-right  layered  single
+orig         0.9369   0.8094  0.9145   0.8002   0.8504   0.9690   0.9532   1.0000     0.831    0.701   0.883
+lo_mean      0.8597   0.7258  0.8358   0.6267   0.7951   0.8505   0.9083   0.9983     0.787    0.569   0.873
+sig_mean     0.8577   0.7263  0.8350   0.6272   0.7914   0.8491   0.9092   0.9983     0.781    0.548   0.873
+fg_split     0.9369   0.8094  0.9145   0.8002   0.8504   0.9690   0.9532   1.0000     0.831    0.701   0.883
+blend        0.9336   0.8068  0.9086   0.7884   0.8495   0.9572   0.9488   0.9991     0.829    0.695   0.881

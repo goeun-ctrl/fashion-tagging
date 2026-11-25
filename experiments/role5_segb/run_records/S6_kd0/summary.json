@@ -1,0 +1,33 @@
+{
+ "exp_id": "S6_kd0",
+ "best_epoch": 6,
+ "epochs_run": 6,
+ "params_total": 37052038,
+ "train_minutes": 234.9,
+ "amp_skipped": 12,
+ "holdout": {
+  "micro_f1": 0.8503026667393794,
+  "macro_f1": 0.769195875500841,
+  "image_f1": 0.8548438006409663,
+  "microAP": 0.9282038012644394
+ },
+ "holdout_ms_per_image": 24.418843794642882,
+ "val": {
+  "micro_f1": 0.8688054251434533,
+  "macro_f1": 0.7332610416704646,
+  "image_f1": 0.8735211112839883,
+  "microAP": 0.9401826427450274
+ },
+ "val_ms_per_image": 25.76437832464726,
+ "neg_holdout": {
+  "empty": 0.957,
+  "pred_per_image": 0.066
+ },
+ "crowd": {
+  "micro_f1": 0.6319936958234831,
+  "macro_f1": 0.4702069827301627,
+  "image_f1": 0.610058711529717,
+  "microAP": 0.6510208069533637
+ },
+ "crowd_ms_per_image": 34.91502529010177
+}

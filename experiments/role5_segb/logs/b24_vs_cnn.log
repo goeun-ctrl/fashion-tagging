@@ -1,0 +1,198 @@
+reference baseline | holdout n=2425, val n=1158, crowd n=200 | small positives holdout 1990, val 749
+
+== baseline  (threshold 0.46)
+  holdout/microAP          0.9507
+  holdout/macroAP          0.8695
+  holdout/confWG_AP        0.9422
+  holdout/wg_upper         0.8907
+  holdout/wg_lower+dress   0.8986
+  holdout/wg_head          0.9689
+  holdout/wg_legs          0.9630
+  holdout/wg_neck          0.9900
+  holdout/largeWG_AP       0.8947
+  holdout/small_recall     0.8121
+  holdout/small_rank       0.9760
+  holdout/loc_topk         0.8432
+  holdout/loc_mass         0.5193
+  holdout/loc_topk_small   0.6569
+  holdout/loc_topk_missed  0.6369
+  val/microAP              0.9537
+  val/macroAP              0.8442
+  val/confWG_AP            0.9230
+  val/wg_upper             0.8093
+  val/wg_lower+dress       0.8632
+  val/wg_head              0.9788
+  val/wg_legs              0.9640
+  val/wg_neck              0.9996
+  val/largeWG_AP           0.8363
+  val/small_recall         0.8598
+  val/small_rank           0.9796
+  val/loc_topk             0.8380
+  val/loc_mass             0.5383
+  val/loc_topk_small       0.6217
+  val/loc_topk_missed      0.6095
+  crowd/microAP            0.7217
+  neg/fp_image_rate        0.3050
+
+== B24_base  (threshold 0.60)
+  holdout/microAP          0.9457 | -0.0050 [-0.0078,-0.0026]*
+  holdout/macroAP          0.8815 | +0.0121 [+0.0018,+0.0255]*
+  holdout/confWG_AP        0.9451 | +0.0029 [-0.0008,+0.0068] 
+  holdout/wg_upper         0.8914 | +0.0007 [-0.0103,+0.0123] 
+  holdout/wg_lower+dress   0.9117 | +0.0131 [+0.0017,+0.0257]*
+  holdout/wg_head          0.9734 | +0.0046 [-0.0003,+0.0095] 
+  holdout/wg_legs          0.9590 | -0.0040 [-0.0121,+0.0029] 
+  holdout/wg_neck          0.9901 | +0.0001 [-0.0036,+0.0045] 
+  holdout/largeWG_AP       0.9016 | +0.0069 [-0.0010,+0.0154] 
+  holdout/small_recall     0.7794 | -0.0327 [-0.0456,-0.0198]*
+  holdout/small_rank       0.9700 | -0.0060 [-0.0079,-0.0040]*
+  holdout/loc_topk         0.9313 | +0.0881 [+0.0836,+0.0921]*
+  holdout/loc_mass         0.8614 | +0.3421 [+0.3376,+0.3466]*
+  holdout/loc_topk_small   0.8131 | +0.1563 [+0.1450,+0.1670]*
+  holdout/loc_topk_missed  0.7054 | +0.0685 [+0.0467,+0.0915]*
+  val/microAP              0.9505 | -0.0032 [-0.0072,+0.0002] 
+  val/macroAP              0.8458 | +0.0017 [-0.0210,+0.0237] 
+  val/confWG_AP            0.9306 | +0.0076 [-0.0038,+0.0172] 
+  val/wg_upper             0.8487 | +0.0394 [-0.0062,+0.0761] 
+  val/wg_lower+dress       0.8665 | +0.0032 [-0.0255,+0.0311] 
+  val/wg_head              0.9810 | +0.0022 [-0.0086,+0.0115] 
+  val/wg_legs              0.9567 | -0.0073 [-0.0216,+0.0057] 
+  val/wg_neck              1.0000 | +0.0004 [+0.0000,+0.0022] 
+  val/largeWG_AP           0.8576 | +0.0213 [-0.0053,+0.0440] 
+  val/small_recall         0.8024 | -0.0574 [-0.0776,-0.0382]*
+  val/small_rank           0.9747 | -0.0049 [-0.0098,-0.0006]*
+  val/loc_topk             0.9383 | +0.1003 [+0.0938,+0.1060]*
+  val/loc_mass             0.8802 | +0.3419 [+0.3352,+0.3482]*
+  val/loc_topk_small       0.8230 | +0.2013 [+0.1812,+0.2210]*
+  val/loc_topk_missed      0.7268 | +0.1173 [+0.0852,+0.1491]*
+  crowd/microAP            0.6444 | -0.0774 [-0.1091,-0.0472]*
+  neg/fp_image_rate        0.0220 | -0.2830 [-0.3100,-0.2550]*
+  -> 위치 ★ 개선 ['holdout/loc_topk', 'val/loc_topk'] 하락 - | micro AP 허용(-0.030) True | 작은 물체 ★ ['holdout/small_recall-', 'val/small_recall-', 'holdout/loc_topk_small+', 'val/loc_topk_small+'] | 헷갈리는 그룹 ★ 개선 ['holdout/wg_lower+dress'] 하락 - | 판정: 검수 대상 (헷갈리는 분류는 사람이 판단)
+
+== B24_rc01  (threshold 0.63)
+  holdout/microAP          0.9420 | -0.0087 [-0.0121,-0.0059]*
+  holdout/macroAP          0.8804 | +0.0110 [-0.0006,+0.0262] 
+  holdout/confWG_AP        0.9405 | -0.0017 [-0.0060,+0.0027] 
+  holdout/wg_upper         0.8854 | -0.0053 [-0.0184,+0.0075] 
+  holdout/wg_lower+dress   0.8972 | -0.0014 [-0.0146,+0.0120] 
+  holdout/wg_head          0.9722 | +0.0033 [-0.0023,+0.0093] 
+  holdout/wg_legs          0.9560 | -0.0070 [-0.0148,+0.0006] 
+  holdout/wg_neck          0.9919 | +0.0019 [-0.0017,+0.0065] 
+  holdout/largeWG_AP       0.8913 | -0.0034 [-0.0125,+0.0063] 
+  holdout/small_recall     0.7668 | -0.0452 [-0.0587,-0.0325]*
+  holdout/small_rank       0.9701 | -0.0059 [-0.0079,-0.0039]*
+  holdout/loc_topk         0.9295 | +0.0863 [+0.0818,+0.0904]*
+  holdout/loc_mass         0.8567 | +0.3374 [+0.3330,+0.3419]*
+  holdout/loc_topk_small   0.8130 | +0.1561 [+0.1438,+0.1674]*
+  holdout/loc_topk_missed  0.6937 | +0.0568 [+0.0361,+0.0797]*
+  val/microAP              0.9495 | -0.0043 [-0.0080,-0.0003]*
+  val/macroAP              0.8466 | +0.0025 [-0.0191,+0.0275] 
+  val/confWG_AP            0.9284 | +0.0054 [-0.0069,+0.0159] 
+  val/wg_upper             0.8392 | +0.0299 [-0.0128,+0.0668] 
+  val/wg_lower+dress       0.8678 | +0.0046 [-0.0279,+0.0374] 
+  val/wg_head              0.9826 | +0.0038 [-0.0069,+0.0139] 
+  val/wg_legs              0.9523 | -0.0116 [-0.0295,+0.0043] 
+  val/wg_neck              1.0000 | +0.0004 [+0.0000,+0.0022] 
+  val/largeWG_AP           0.8535 | +0.0172 [-0.0098,+0.0417] 
+  val/small_recall         0.8117 | -0.0481 [-0.0690,-0.0278]*
+  val/small_rank           0.9730 | -0.0066 [-0.0111,-0.0021]*
+  val/loc_topk             0.9364 | +0.0984 [+0.0914,+0.1045]*
+  val/loc_mass             0.8770 | +0.3387 [+0.3320,+0.3451]*
+  val/loc_topk_small       0.8177 | +0.1960 [+0.1745,+0.2170]*
+  val/loc_topk_missed      0.7184 | +0.1089 [+0.0735,+0.1435]*
+  crowd/microAP            0.6509 | -0.0709 [-0.1011,-0.0413]*
+  neg/fp_image_rate        0.0190 | -0.2860 [-0.3130,-0.2570]*
+  -> 위치 ★ 개선 ['holdout/loc_topk', 'val/loc_topk'] 하락 - | micro AP 허용(-0.030) True | 작은 물체 ★ ['holdout/small_recall-', 'val/small_recall-', 'holdout/loc_topk_small+', 'val/loc_topk_small+'] | 헷갈리는 그룹 ★ 개선 - 하락 - | 판정: 검수 대상 (헷갈리는 분류는 사람이 판단)
+
+== B24_lam2  (threshold 0.69)
+  holdout/microAP          0.9423 | -0.0084 [-0.0117,-0.0058]*
+  holdout/macroAP          0.8788 | +0.0093 [-0.0003,+0.0218] 
+  holdout/confWG_AP        0.9406 | -0.0017 [-0.0055,+0.0024] 
+  holdout/wg_upper         0.8875 | -0.0032 [-0.0142,+0.0088] 
+  holdout/wg_lower+dress   0.9015 | +0.0029 [-0.0076,+0.0140] 
+  holdout/wg_head          0.9679 | -0.0009 [-0.0070,+0.0047] 
+  holdout/wg_legs          0.9557 | -0.0073 [-0.0155,-0.0000]*
+  holdout/wg_neck          0.9903 | +0.0003 [-0.0036,+0.0050] 
+  holdout/largeWG_AP       0.8945 | -0.0001 [-0.0077,+0.0088] 
+  holdout/small_recall     0.7628 | -0.0492 [-0.0636,-0.0352]*
+  holdout/small_rank       0.9681 | -0.0079 [-0.0103,-0.0057]*
+  holdout/loc_topk         0.9317 | +0.0885 [+0.0839,+0.0925]*
+  holdout/loc_mass         0.8686 | +0.3494 [+0.3447,+0.3539]*
+  holdout/loc_topk_small   0.8146 | +0.1577 [+0.1455,+0.1693]*
+  holdout/loc_topk_missed  0.7075 | +0.0706 [+0.0502,+0.0943]*
+  val/microAP              0.9482 | -0.0055 [-0.0100,-0.0014]*
+  val/macroAP              0.8418 | -0.0024 [-0.0246,+0.0282] 
+  val/confWG_AP            0.9287 | +0.0057 [-0.0066,+0.0165] 
+  val/wg_upper             0.8502 | +0.0409 [-0.0088,+0.0810] 
+  val/wg_lower+dress       0.8594 | -0.0039 [-0.0315,+0.0229] 
+  val/wg_head              0.9843 | +0.0054 [-0.0066,+0.0171] 
+  val/wg_legs              0.9496 | -0.0143 [-0.0328,+0.0026] 
+  val/wg_neck              1.0000 | +0.0004 [+0.0000,+0.0022] 
+  val/largeWG_AP           0.8548 | +0.0185 [-0.0104,+0.0426] 
+  val/small_recall         0.8091 | -0.0507 [-0.0729,-0.0287]*
+  val/small_rank           0.9737 | -0.0059 [-0.0110,-0.0011]*
+  val/loc_topk             0.9370 | +0.0990 [+0.0927,+0.1044]*
+  val/loc_mass             0.8862 | +0.3479 [+0.3412,+0.3543]*
+  val/loc_topk_small       0.8175 | +0.1958 [+0.1763,+0.2156]*
+  val/loc_topk_missed      0.7179 | +0.1084 [+0.0739,+0.1428]*
+  crowd/microAP            0.6485 | -0.0732 [-0.1039,-0.0419]*
+  neg/fp_image_rate        0.0190 | -0.2860 [-0.3130,-0.2570]*
+  -> 위치 ★ 개선 ['holdout/loc_topk', 'val/loc_topk'] 하락 - | micro AP 허용(-0.030) True | 작은 물체 ★ ['holdout/small_recall-', 'val/small_recall-', 'holdout/loc_topk_small+', 'val/loc_topk_small+'] | 헷갈리는 그룹 ★ 개선 - 하락 ['holdout/wg_legs'] | 판정: 검수 대상 (헷갈리는 분류는 사람이 판단)
+
+== B24_lam2_rc005  (threshold 0.65)
+  holdout/microAP          0.9415 | -0.0092 [-0.0124,-0.0065]*
+  holdout/macroAP          0.8800 | +0.0105 [-0.0001,+0.0245] 
+  holdout/confWG_AP        0.9412 | -0.0010 [-0.0053,+0.0034] 
+  holdout/wg_upper         0.8916 | +0.0009 [-0.0103,+0.0133] 
+  holdout/wg_lower+dress   0.8988 | +0.0002 [-0.0132,+0.0130] 
+  holdout/wg_head          0.9696 | +0.0007 [-0.0054,+0.0066] 
+  holdout/wg_legs          0.9551 | -0.0079 [-0.0167,+0.0005] 
+  holdout/wg_neck          0.9910 | +0.0010 [-0.0029,+0.0057] 
+  holdout/largeWG_AP       0.8952 | +0.0005 [-0.0084,+0.0102] 
+  holdout/small_recall     0.7804 | -0.0317 [-0.0450,-0.0180]*
+  holdout/small_rank       0.9682 | -0.0078 [-0.0101,-0.0055]*
+  holdout/loc_topk         0.9317 | +0.0885 [+0.0839,+0.0928]*
+  holdout/loc_mass         0.8682 | +0.3489 [+0.3445,+0.3534]*
+  holdout/loc_topk_small   0.8126 | +0.1558 [+0.1434,+0.1674]*
+  holdout/loc_topk_missed  0.6849 | +0.0480 [+0.0278,+0.0715]*
+  val/microAP              0.9478 | -0.0060 [-0.0109,-0.0014]*
+  val/macroAP              0.8363 | -0.0078 [-0.0294,+0.0232] 
+  val/confWG_AP            0.9270 | +0.0040 [-0.0075,+0.0143] 
+  val/wg_upper             0.8334 | +0.0241 [-0.0191,+0.0656] 
+  val/wg_lower+dress       0.8644 | +0.0011 [-0.0269,+0.0303] 
+  val/wg_head              0.9845 | +0.0057 [-0.0038,+0.0151] 
+  val/wg_legs              0.9526 | -0.0114 [-0.0284,+0.0034] 
+  val/wg_neck              1.0000 | +0.0004 [+0.0000,+0.0022] 
+  val/largeWG_AP           0.8489 | +0.0126 [-0.0139,+0.0370] 
+  val/small_recall         0.8198 | -0.0401 [-0.0610,-0.0177]*
+  val/small_rank           0.9744 | -0.0052 [-0.0098,-0.0007]*
+  val/loc_topk             0.9385 | +0.1005 [+0.0938,+0.1065]*
+  val/loc_mass             0.8862 | +0.3479 [+0.3414,+0.3543]*
+  val/loc_topk_small       0.8201 | +0.1983 [+0.1783,+0.2198]*
+  val/loc_topk_missed      0.7066 | +0.0971 [+0.0622,+0.1310]*
+  crowd/microAP            0.6523 | -0.0695 [-0.0997,-0.0394]*
+  neg/fp_image_rate        0.0220 | -0.2830 [-0.3110,-0.2530]*
+  -> 위치 ★ 개선 ['holdout/loc_topk', 'val/loc_topk'] 하락 - | micro AP 허용(-0.030) True | 작은 물체 ★ ['holdout/small_recall-', 'val/small_recall-', 'holdout/loc_topk_small+', 'val/loc_topk_small+'] | 헷갈리는 그룹 ★ 개선 - 하락 - | 판정: 검수 대상 (헷갈리는 분류는 사람이 판단)
+
+crowd per-class AP (>= 10 positives): baseline | B24_base | B24_rc01 | B24_lam2 | B24_lam2_rc005
+  shirt                n= 93 0.743 0.726 0.736 0.787 0.817
+  top                  n=150 0.854 0.940 0.940 0.936 0.937
+  sweater              n= 16 0.508 0.401 0.448 0.412 0.466
+  jacket               n= 56 0.674 0.649 0.690 0.688 0.709
+  vest                 n= 19 0.304 0.320 0.371 0.301 0.329
+  pants                n=146 0.933 0.952 0.958 0.959 0.961
+  shorts               n= 47 0.678 0.785 0.795 0.819 0.843
+  dress                n= 16 0.565 0.556 0.492 0.592 0.518
+  glasses              n= 76 0.621 0.614 0.611 0.664 0.667
+  hat                  n= 98 0.893 0.917 0.944 0.935 0.940
+  headband             n= 10 0.405 0.520 0.439 0.420 0.487
+  tie                  n= 12 0.780 0.920 0.925 0.888 0.883
+  glove                n= 29 0.623 0.535 0.507 0.520 0.520
+  watch                n= 25 0.458 0.682 0.713 0.754 0.734
+  belt                 n= 26 0.596 0.581 0.663 0.648 0.627
+  sock                 n= 28 0.761 0.754 0.762 0.834 0.779
+  shoe                 n=103 0.895 0.721 0.729 0.721 0.713
+  bag                  n= 32 0.574 0.849 0.851 0.867 0.859
+  umbrella             n= 12 0.745 0.974 0.950 0.950 0.961
+
+wrote $W/runs_segb/diag/diag_vs_baseline.json

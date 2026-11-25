@@ -1,0 +1,31 @@
+S6_base vs baseline holdout upper (only_ref): 140 images, analysed 140, skipped 0 (no / misaligned mask)
+
+(가) pooling   map max in mask >= 0.5:   81 (58%)   of which visible cells < k: 8
+(나) map       map max in mask <  0.5:   59 (42%)
+   (threshold 0.3: 가 84% / 나 16%)
+   (threshold 0.7: 가 37% / 나 63%)
+
+counterfactual: pooling = top-4 mean for every class (same map) -> group right on 31/140 of these images
+
+visible cells of the losing class vs its k: median 2838 vs 546
+
+inside the losing class's GT mask: mean garment prob (1 - none) median 0.87, >= 0.7 in 75%;  that class's share of the garment mass median 0.29, < 0.5 in 86%
+
+losing class (count) | winner inside its mask, cases where the map misses it (나):
+  jacket     n= 32  가  17  나  15  나 winners: coat 8, top 4, shirt 3
+  top        n= 30  가  19  나  11  나 winners: coat 6, jacket 2, top 1
+  shirt      n= 26  가  14  나  12  나 winners: top 7, jacket 3, shirt 2
+  cardigan   n= 15  가   8  나   7  나 winners: coat 3, jacket 2, top 1
+  sweater    n= 14  가  10  나   4  나 winners: top 2, jacket 1, coat 1
+  vest       n= 12  가   5  나   7  나 winners: top 3, coat 2, shirt 2
+  coat       n= 11  가   8  나   3  나 winners: coat 1, sweater 1, top 1
+
+who beats the losing positive (top negative), count:
+  shirt      < top        19
+  jacket     < coat       15
+  sweater    < top        11
+  top        < shirt      10
+  top        < coat       7
+  jacket     < top        7
+  cardigan   < jacket     6
+  jacket     < shirt      6

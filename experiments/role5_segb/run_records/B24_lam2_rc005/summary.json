@@ -1,0 +1,33 @@
+{
+ "exp_id": "B24_lam2_rc005",
+ "best_epoch": 23,
+ "epochs_run": 24,
+ "params_total": 37052038,
+ "train_minutes": 945.2,
+ "amp_skipped": 26,
+ "holdout": {
+  "micro_f1": 0.8738458234915182,
+  "macro_f1": 0.8231667598764573,
+  "image_f1": 0.8754288071713944,
+  "microAP": 0.9415329399326463
+ },
+ "holdout_ms_per_image": 24.011727232610827,
+ "val": {
+  "micro_f1": 0.8804806340278666,
+  "macro_f1": 0.7854017108047714,
+  "image_f1": 0.885440743544218,
+  "microAP": 0.9477873490257105
+ },
+ "val_ms_per_image": 25.60973773744208,
+ "neg_holdout": {
+  "empty": 0.972,
+  "pred_per_image": 0.047
+ },
+ "crowd": {
+  "micro_f1": 0.6446345256609642,
+  "macro_f1": 0.46699881123700443,
+  "image_f1": 0.6270230523858367,
+  "microAP": 0.6522525669807103
+ },
+ "crowd_ms_per_image": 36.60137125989422
+}

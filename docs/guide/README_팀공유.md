@@ -93,7 +93,8 @@ ZIP에서 바로 읽을 때는 `--images 파일.zip --zip_prefix val`. 실패 �
 - **mean/std는 모델마다 다르다.** ConvNeXt-T는 ImageNet 값, EVA02-S는 (0.481, 0.458, 0.408)/(0.269, 0.261, 0.276), EfficientNetV2-S는 0.5/0.5. `timm_mean_std`로 읽어서 쓴다.
 - 체크포인트(early stopping)와 임계값은 **holdout**으로 고른다. 공식 val은 마지막 보고에만 쓴다.
 - 손실에 `BCEWithLogitsLoss`를 쓰면 모델 출력에 sigmoid를 미리 적용하지 않는다. sigmoid는 평가·추론 때만.
-- softmax/argmax/강제 top-1 금지. 아무것도 안 넘으면 빈 예측 `[]`이 정상이다.
+- 태그 단위의 softmax/argmax/강제 top-1 금지. 태그는 클래스별 점수 + 클래스별 임계값으로 따로 판정한다. 아무것도 안 넘으면 빈 예측 `[]`이 정상이다.
+  예외: 분할 헤드 안의 칸(픽셀) 단위 그룹별 softmax는 허용(한 칸에 보이는 옷은 하나). 태그 점수는 여전히 클래스별로 따로 모아 판정한다.
 - 클래스 순서는 `categories.txt` 그대로(0~26). 이름을 쉼표로 나누지 않는다.
 
 ## 지표 정의 (`metrics.py` 맨 위에도 적혀 있음)

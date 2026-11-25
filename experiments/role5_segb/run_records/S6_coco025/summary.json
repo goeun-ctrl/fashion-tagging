@@ -1,0 +1,33 @@
+{
+ "exp_id": "S6_coco025",
+ "best_epoch": 6,
+ "epochs_run": 6,
+ "params_total": 37052038,
+ "train_minutes": 234.7,
+ "amp_skipped": 13,
+ "holdout": {
+  "micro_f1": 0.846820653637,
+  "macro_f1": 0.7568039384430143,
+  "image_f1": 0.8508888734847051,
+  "microAP": 0.9261079152234243
+ },
+ "holdout_ms_per_image": 24.240566274660072,
+ "val": {
+  "micro_f1": 0.8613924862161816,
+  "macro_f1": 0.7192089127401086,
+  "image_f1": 0.8676277857625008,
+  "microAP": 0.9372226923511239
+ },
+ "val_ms_per_image": 25.35020968133249,
+ "neg_holdout": {
+  "empty": 0.972,
+  "pred_per_image": 0.055
+ },
+ "crowd": {
+  "micro_f1": 0.5980538922155688,
+  "macro_f1": 0.4391312170824041,
+  "image_f1": 0.575429073455672,
+  "microAP": 0.5910000073239556
+ },
+ "crowd_ms_per_image": 34.42177084507421
+}

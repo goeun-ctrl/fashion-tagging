@@ -1,0 +1,32 @@
+=== S6_base holdout
+S6_base holdout: 2425 images; regions used upper 1618 / lower 2221 images; misaligned masks skipped 0
+variant         microAP  confWG   upper  low+dr  up-right  layered  single  lo-right  lo-lay
+orig (top-k)     0.9254  0.9228  0.8519  0.8798     0.789    0.722   0.833     0.889   0.847
+oracle share     0.9322  0.9315  0.8812  0.8942     0.803    0.741   0.844     0.911   0.864
+oracle hard      0.9099  0.9314  0.8806  0.8941     0.803    0.741   0.844     0.911   0.864
+blend            0.9333  0.9302  0.8769  0.8918     0.802    0.741   0.842     0.910   0.881
+layered = >= 2 positives of the group (upper n=634, lower n=59)
+=== S6_base val
+S6_base val: 1158 images; regions used upper 697 / lower 1079 images; misaligned masks skipped 0
+variant         microAP  confWG   upper  low+dr  up-right  layered  single  lo-right  lo-lay
+orig (top-k)     0.9367  0.9108  0.7935  0.8396     0.811    0.650   0.875     0.900   0.966
+oracle share     0.9385  0.9186  0.8130  0.8593     0.817    0.660   0.879     0.916   0.931
+oracle hard      0.9139  0.9190  0.8161  0.8582     0.817    0.660   0.879     0.916   0.931
+blend            0.9402  0.9171  0.8094  0.8552     0.818    0.655   0.883     0.912   0.931
+layered = >= 2 positives of the group (upper n=197, lower n=29)
+=== S6_rc01 holdout
+S6_rc01 holdout: 2425 images; regions used upper 1618 / lower 2221 images; misaligned masks skipped 0
+variant         microAP  confWG   upper  low+dr  up-right  layered  single  lo-right  lo-lay
+orig (top-k)     0.9273  0.9268  0.8634  0.8887     0.803    0.751   0.837     0.887   0.847
+oracle share     0.9365  0.9368  0.8956  0.9063     0.822    0.763   0.859     0.925   0.864
+oracle hard      0.9178  0.9369  0.8961  0.9063     0.822    0.765   0.859     0.925   0.864
+blend            0.9369  0.9352  0.8901  0.9036     0.824    0.771   0.858     0.918   0.881
+layered = >= 2 positives of the group (upper n=634, lower n=59)
+=== S6_rc01 val
+S6_rc01 val: 1158 images; regions used upper 697 / lower 1079 images; misaligned masks skipped 0
+variant         microAP  confWG   upper  low+dr  up-right  layered  single  lo-right  lo-lay
+orig (top-k)     0.9369  0.9145  0.8002  0.8504     0.831    0.701   0.883     0.909   0.931
+oracle share     0.9401  0.9250  0.8344  0.8687     0.840    0.711   0.891     0.922   0.931
+oracle hard      0.9193  0.9248  0.8331  0.8687     0.840    0.711   0.891     0.922   0.931
+blend            0.9415  0.9216  0.8208  0.8652     0.844    0.721   0.893     0.919   0.966
+layered = >= 2 positives of the group (upper n=197, lower n=29)

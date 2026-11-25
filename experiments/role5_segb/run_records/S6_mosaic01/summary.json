@@ -1,0 +1,33 @@
+{
+ "exp_id": "S6_mosaic01",
+ "best_epoch": 6,
+ "epochs_run": 6,
+ "params_total": 37052038,
+ "train_minutes": 237.1,
+ "amp_skipped": 13,
+ "holdout": {
+  "micro_f1": 0.8460754332313966,
+  "macro_f1": 0.7571548020719862,
+  "image_f1": 0.8505190963041335,
+  "microAP": 0.9265733270573169
+ },
+ "holdout_ms_per_image": 24.494020701434042,
+ "val": {
+  "micro_f1": 0.8583493282149712,
+  "macro_f1": 0.721011854802061,
+  "image_f1": 0.8632125238990523,
+  "microAP": 0.938232627713541
+ },
+ "val_ms_per_image": 25.331743837644655,
+ "neg_holdout": {
+  "empty": 0.959,
+  "pred_per_image": 0.076
+ },
+ "crowd": {
+  "micro_f1": 0.6399055489964581,
+  "macro_f1": 0.46653582863560755,
+  "image_f1": 0.6144756787830855,
+  "microAP": 0.64212785913837
+ },
+ "crowd_ms_per_image": 35.1097032148391
+}

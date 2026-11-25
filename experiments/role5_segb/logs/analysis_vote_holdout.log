@@ -1,0 +1,10 @@
+S6_base holdout: 2425 images; recomputed top-k vs saved preds max |diff| 0.4245
+variant         microAP  macroAP  confWG    upper lower+dr     head     legs     neck  up-right  layered  single
+orig (top-k)     0.9254   0.8345  0.9228   0.8519   0.8798   0.9565   0.9402   0.9855     0.789    0.722   0.833
+vote t=0.3       0.8628   0.7721  0.8967   0.8025   0.8763   0.9352   0.8962   0.9732     0.704    0.521   0.823
+blend t=0.3      0.8926   0.8059  0.9120   0.8278   0.8805   0.9488   0.9216   0.9812     0.748    0.625   0.828
+vote t=0.5       0.8645   0.7695  0.8890   0.8018   0.8785   0.9254   0.8887   0.9507     0.700    0.524   0.815
+blend t=0.5      0.8915   0.8020  0.9071   0.8267   0.8818   0.9383   0.9162   0.9725     0.744    0.629   0.818
+vote t=0.7       0.8620   0.7647  0.8755   0.7983   0.8805   0.9069   0.8773   0.9145     0.687    0.509   0.803
+blend t=0.7      0.8875   0.7955  0.8979   0.8244   0.8829   0.9212   0.9088   0.9520     0.732    0.620   0.805
+up-right = share of images with an upper GT positive where every upper positive outscores every upper negative; layered = >= 2 upper positives
