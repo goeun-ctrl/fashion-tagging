@@ -46,6 +46,8 @@ def main():
     ap.add_argument("--batch_size", type=int, default=8)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--limit_eval", type=int, default=0)
+    ap.add_argument("--interp", default=None, choices=["bilinear", "bicubic"],
+                    help="override the resize of the run's config; a different one writes to tta_<interp>/")
     for k in ("train_dir", "val_dir", "splits_dir"):
         ap.add_argument(f"--{k}", default=None, help="override the path stored in the checkpoint config")
     a = ap.parse_args()
@@ -71,7 +73,8 @@ def main():
               "val": (cfg["val_dir"], vnames, vtargets)}
     por = {k: oriented_portrait(r, n) for k, (r, n, _) in splits.items()}
     thr = thresholds(cats, a)
-    out_dir = os.path.join(a.run_dir, "tta")
+    interp = a.interp or cfg.get("interp", "bilinear")
+    out_dir = os.path.join(a.run_dir, "tta" if interp == cfg.get("interp", "bilinear") else f"tta_{interp}")
     os.makedirs(out_dir, exist_ok=True)
 
     summary = {"ckpt": a.ckpt, "epoch": st["epoch"], "threshold": a.threshold,
@@ -81,7 +84,7 @@ def main():
         for split, (root, n, y) in splits.items():
             lg = {}
             for mirror in (False, True):
-                ds = HiResDataset(root, n, y, mean, std, False, max_long, 0.0, mirror=mirror)
+                ds = HiResDataset(root, n, y, mean, std, False, max_long, 0.0, mirror=mirror, interp=interp)
                 dl = DataLoader(ds, batch_sampler=BucketBatchSampler(por[split], [short], a.batch_size, 0, False),
                                 num_workers=a.workers, pin_memory=True, collate_fn=pad_collate)
                 lg[mirror], fwd = predict(model, dl, device, True)

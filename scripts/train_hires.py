@@ -67,15 +67,37 @@ def parse_args(argv=None):
                     help="linear = masked pooling + timm head (C1). linear_ms = masked pooling of the stride-16 AND "
                          "stride-32 maps, concatenated -> LayerNorm -> Linear (~+33k params). query_ms = 27 class "
                          "queries cross-attending to both maps (C3; plan suggests --lr_head 1e-4)")
-    ap.add_argument("--ms_levels", type=int, default=2, choices=[2, 3],
-                    help="linear_ms: how many of the last backbone stages to pool: 2 = stride 16 + 32, 3 adds stride 8")
-    ap.add_argument("--pool", default="gap", choices=["gap", "gmp", "gapgmp", "csra"],
+    ap.add_argument("--ms_levels", type=int, default=2, choices=[2, 3, 4],
+                    help="linear_ms: how many of the last backbone stages to pool: 2 = stride 16 + 32, 3 adds stride 8, "
+                         "4 adds stride 4 (all four ConvNeXt stages)")
+    ap.add_argument("--ms_neck", default="none", choices=["none", "proj", "fpn"],
+                    help="linear_ms: per-stage processing before pooling. proj = 1x1 conv to --ms_dim + LayerNorm + GELU "
+                         "per stage (equal width and scale for every stage). fpn = proj with a top-down pathway "
+                         "(stage 4 -> 3 -> 2 -> 1, nearest upsampling + add) and a 3x3 conv per level, so the fine stages "
+                         "also carry the semantics of the coarse ones")
+    ap.add_argument("--ms_dim", type=int, default=256, help="--ms_neck: width of every stage after the neck")
+    ap.add_argument("--ms_deep_sup", type=float, default=0.0,
+                    help="linear_ms with --ms_neck: weight of per-stage auxiliary classifiers (LayerNorm + Linear on each "
+                         "stage's pooled feature, same hard+KD objective, averaged over stages). Training only; 0 = off")
+    ap.add_argument("--pool", default="gap", choices=["gap", "gmp", "gapgmp", "concat", "gem", "topk", "csra"],
                     help="linear / linear_ms pooling over the real image area: average, max, or 0.5*(avg+max) "
                          "(team names, src/fashion_tagging/models/heads.py). Max keeps small-object peaks. "
                          "csra (linear_ms only): class-specific residual attention, Zhu & Wu ICCV 2021 - every class "
-                         "scores every cell and adds an attention-pooled score of its own region to the average")
+                         "scores every cell and adds an attention-pooled score of its own region to the average. "
+                         "linear_ms only: concat = [avg, max] side by side (2x width); gem = generalized mean "
+                         "(x^p mean)^(1/p), p learnable per stage, init --gem_p; topk = mean of the top --topk_frac "
+                         "of the real cells")
+    ap.add_argument("--gem_p", type=float, default=3.0, help="--pool gem: initial p (learnable, kept >= 1, no weight decay)")
+    ap.add_argument("--topk_frac", type=float, default=0.03, help="--pool topk: share of the real cells averaged")
     ap.add_argument("--csra_lambda", type=float, default=0.3)
     ap.add_argument("--csra_t", type=float, default=1.0, help="softmax temperature over cells (large = max)")
+    ap.add_argument("--interp", default="bilinear", choices=["bilinear", "bicubic"],
+                    help="resize to the train/test short side (train and eval). DINOv3 pretraining used bicubic")
+    ap.add_argument("--feat_norm", default="none", choices=["none", "pretrained"],
+                    help="linear_ms: 'pretrained' passes each stage map, at every location, through the pretrained "
+                         "norm that follows that stage in the backbone (next stage's downsample norm; head.norm for the "
+                         "last), then pools, then one LayerNorm PER STAGE (scales differ ~15x after these norms). "
+                         "Removes the few huge-mean channels that dominate the joint LayerNorm (head diagnosis 11-18)")
     ap.add_argument("--query_dim", type=int, default=384)
     ap.add_argument("--query_heads", type=int, default=8)
     ap.add_argument("--head_dropout", type=float, default=0.1)
@@ -149,6 +171,10 @@ def parse_args(argv=None):
     ap.add_argument("--distill_alpha", type=float, default=0.5, help="loss = (1-a) * hard loss + a * soft BCE")
     ap.add_argument("--distill_shift", type=float, default=0.3,
                     help="teacher operating threshold; scores are shifted in logit space so it maps to 0.5")
+    ap.add_argument("--distill_sibling_clean", type=int, default=0,
+                    help="1 = where a confusable sibling is labelled and this class is not (e.g. sweater labelled, top "
+                         "not), the teacher target for this class becomes 0. Stops KD from teaching double tags "
+                         "(teacher gives 36%% of sweater-only images a shifted top target >= 0.5, 11-18 analysis)")
     ap.add_argument("--drop_path", type=float, default=0.1)
     ap.add_argument("--patience", type=int, default=0, help="early stopping on holdout macro F1 (0 = off)")
     ap.add_argument("--threshold", type=float, default=0.5)
@@ -272,7 +298,7 @@ class BucketBatchSampler:
 class HiResDataset(Dataset):
     def __init__(self, root, names, targets, mean, std, train, max_long, flip, mirror=False, soft=None, gray_p=0.0,
                  zoom_p=0.0, zoom_min=0.35, mosaic_p=0.0, mosaic_n=0, old_p=0.0, mask_dir=None, mask_kind=None,
-                 mosaic_sizes=(2, 4)):
+                 mosaic_sizes=(2, 4), interp="bilinear"):
         """mosaic_n: indices < mosaic_n (the labelled Fashionpedia images) can form or join a mosaic.
         mask_dir / mask_kind (train): per index 1 = mask file <mask_dir>/<name>.npz, 0 = no garment anywhere
         (negatives: an all-zero mask is exact), -1 = unknown (person positives: no mask loss). The masks follow
@@ -288,6 +314,7 @@ class HiResDataset(Dataset):
         self.gray_p, self.zoom_p, self.zoom_min, self.old_p = gray_p, zoom_p, zoom_min, old_p
         self.mosaic_p, self.mosaic_n, self.mosaic_sizes = mosaic_p, mosaic_n, tuple(mosaic_sizes)
         self.mask_dir, self.mask_kind = mask_dir, mask_kind
+        self.interp = {"bilinear": Image.BILINEAR, "bicubic": Image.BICUBIC}[interp]   # the main resize only
         self.fill = tuple(int(round(255 * m)) for m in np.asarray(mean).reshape(-1)[:3])
 
     def __len__(self):
@@ -416,7 +443,7 @@ class HiResDataset(Dataset):
                 img, mask = self.zoom_out(img, mask)
             else:
                 img = self.zoom_out(img)
-        img = img.resize(target_size(*img.size, level, long_cap(level, self.max_long)), Image.BILINEAR)
+        img = img.resize(target_size(*img.size, level, long_cap(level, self.max_long)), self.interp)
         if self.mirror or (self.train and random.random() < self.flip):
             img = ImageOps.mirror(img)
             if mask is not None:
@@ -471,14 +498,26 @@ def valid_mask(sizes, h, w, H, W):
     return rows & cols
 
 
-def masked_pool(f, valid, mode="gap"):
-    """f [B, C, h, w], valid bool [B, h, w] -> [B, C]: average / max / 0.5*(avg+max) over the valid cells only.
-    Padded cells never enter: they are zeroed for the average and set to the dtype minimum for the max."""
+def masked_pool(f, valid, mode="gap", p=None, k_frac=0.03):
+    """f [B, C, h, w], valid bool [B, h, w] -> [B, C] (concat: [B, 2C]): average / max / 0.5*(avg+max) /
+    [avg, max] / GeM / top-k mean over the valid cells only. Padded cells never enter: they are zeroed for the
+    averages, set to the dtype minimum for the max and never selected by the top-k."""
     m = valid.unsqueeze(1)
+    if mode == "gem":      # float32: x^p overflows fp16. ConvNeXt maps have negatives -> clamp at a small epsilon
+        x = f.float().clamp(min=1e-6).pow(p) * m.float()
+        return (x.sum((2, 3)) / m.sum((2, 3)).float()).pow(1.0 / p).to(f.dtype)
+    if mode == "topk":     # per image k = share of ITS real cells, so padding does not change k
+        n = valid.flatten(1).sum(1)
+        k = (n.float() * k_frac).round().clamp(min=1).long()                       # [B]
+        v = f.masked_fill(~m, torch.finfo(f.dtype).min).flatten(2).topk(int(k.max()), dim=2).values   # [B, C, kmax]
+        sel = (torch.arange(v.shape[2], device=f.device)[None] < k[:, None])[:, None]               # [B, 1, kmax]
+        return (torch.where(sel, v, torch.zeros_like(v)).float().sum(2) / k[:, None].float()).to(f.dtype)
     avg = (f * m.to(f.dtype)).sum((2, 3)) / m.sum((2, 3)).to(f.dtype)
     if mode == "gap":
         return avg
     mx = f.masked_fill(~m, torch.finfo(f.dtype).min).amax((2, 3))
+    if mode == "concat":
+        return torch.cat([avg, mx], 1)
     return mx if mode == "gmp" else 0.5 * (avg + mx)
 
 
@@ -510,7 +549,8 @@ class MaskedPoolMSConvNeXt(nn.Module):
     gapgmp), concatenated -> LayerNorm -> Linear. The finer map and the max keep small accessories that a
     stride-32 average dilutes; ~33k new parameters instead of the 2.2M of the query head (C3)."""
 
-    def __init__(self, name, num_classes, pretrained, drop_path, pool="gapgmp", csra_lambda=0.3, csra_t=1.0, levels=2):
+    def __init__(self, name, num_classes, pretrained, drop_path, pool="gapgmp", csra_lambda=0.3, csra_t=1.0, levels=2,
+                 feat_norm="none", gem_p=3.0, topk_frac=0.03, neck="none", ms_dim=256, deep_sup=0.0):
         super().__init__()
         extra = {"drop_path_rate": drop_path} if drop_path else {}
         self.net = timm.create_model(name, pretrained=pretrained, num_classes=0, global_pool="", **extra)
@@ -520,22 +560,67 @@ class MaskedPoolMSConvNeXt(nn.Module):
         assert info[0]["reduction"] < info[1]["reduction"], f"{name}: needs two stages with different strides"
         chs = [f["num_chs"] for f in info]
         self.pool, self.lam, self.t = pool, csra_lambda, csra_t
+        self.topk_frac = topk_frac
+        if pool == "gem":
+            self.gem_p = nn.Parameter(torch.full((levels,), float(gem_p)))
+        self.neck, self.deep_sup, self._aux = neck, deep_sup, None
+        assert neck != "none" or deep_sup == 0, "--ms_deep_sup needs --ms_neck proj / fpn"
+        if neck != "none":
+            assert pool != "csra" and feat_norm == "none", "--ms_neck: not with csra / feat_norm pretrained"
+            self.lat = nn.ModuleList(nn.Conv2d(c, ms_dim, 1) for c in chs)
+            if neck == "fpn":
+                self.smooth = nn.ModuleList(nn.Conv2d(ms_dim, ms_dim, 3, padding=1) for _ in chs)
+            self.nln = nn.ModuleList(nn.LayerNorm(ms_dim) for _ in chs)
+            chs = [ms_dim] * len(chs)
+        if pool == "concat":
+            chs = [2 * c for c in chs]
+        if deep_sup > 0:
+            self.aux = nn.ModuleList(nn.Sequential(nn.LayerNorm(c), nn.Linear(c, num_classes)) for c in chs)
         if pool == "csra":
             # per level: LayerNorm over channels of every cell, then a 1x1 class scorer -> [B, K, h, w] score maps
             self.norms = nn.ModuleList(nn.LayerNorm(c) for c in chs)
             self.scorers = nn.ModuleList(nn.Linear(c, num_classes, bias=False) for c in chs)
             self.bias = nn.Parameter(torch.zeros(num_classes))
+        elif feat_norm == "pretrained":
+            import copy
+            n_st = len(self.net.stages)
+            idx = [int(f["module"].split(".")[1]) for f in info]
+            # copies, so they are trained at the backbone lr (not head params) and stage 4's real downsample is untouched
+            self.fnorms = nn.ModuleList(copy.deepcopy(self.net.stages[i + 1].downsample[0] if i + 1 < n_st
+                                                      else self.net.head.norm) for i in idx)
+            self.lnorms = nn.ModuleList(nn.LayerNorm(c) for c in chs)
+            self.fc = nn.Linear(sum(chs), num_classes)
         else:
             self.norm = nn.LayerNorm(sum(chs))
             self.fc = nn.Linear(sum(chs), num_classes)
+        self.feat_norm = feat_norm if pool != "csra" else "none"
 
     def forward(self, x, sizes, return_maps=False):
         maps = self.net.forward_intermediates(x, indices=list(range(-self.levels, 0)), intermediates_only=True)  # finest first
         H, W = x.shape[-2:]
         valids = [valid_mask(sizes.to(m.device), *m.shape[-2:], H, W) for m in maps]
+        if self.neck == "proj":
+            lat = [l(m) for l, m in zip(self.lat, maps)]
+            maps = [F.gelu(ln(t.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)) for ln, t in zip(self.nln, lat)]
+        elif self.neck == "fpn":
+            # fp32: the top-down sums pile 4 levels onto stage 1 and overflowed fp16 (non-finite loss at epoch 5)
+            with torch.autocast(device_type=x.device.type, enabled=False):
+                lat = [l(m.float()) for l, m in zip(self.lat, maps)]
+                for i in range(len(lat) - 2, -1, -1):                       # coarse -> fine
+                    lat[i] = lat[i] + F.interpolate(lat[i + 1], size=lat[i].shape[-2:], mode="nearest")
+                lat = [sm(t) for sm, t in zip(self.smooth, lat)]
+                maps = [F.gelu(ln(t.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)) for ln, t in zip(self.nln, lat)]
         if self.pool != "csra":
             assert not return_maps, "score maps exist only for --pool csra"
-            pooled = [masked_pool(m, v, self.pool) for m, v in zip(maps, valids)]
+            if self.feat_norm == "pretrained":
+                assert self.pool in ("gap", "gmp", "gapgmp", "concat", "topk"), "feat_norm pretrained: gem not wired"
+                pooled = [ln(masked_pool(fn(m), v, self.pool, None, self.topk_frac))
+                          for m, v, fn, ln in zip(maps, valids, self.fnorms, self.lnorms)]
+                return self.fc(torch.cat(pooled, 1))
+            ps = self.gem_p.clamp(min=1.0) if self.pool == "gem" else [None] * len(maps)
+            pooled = [masked_pool(m, v, self.pool, p, self.topk_frac) for m, v, p in zip(maps, valids, ps)]
+            if self.deep_sup > 0 and self.training:
+                self._aux = [h(q) for h, q in zip(self.aux, pooled)]   # read (and cleared) by the training loop
             return self.fc(self.norm(torch.cat(pooled, 1)))
         out, smaps = self.bias, []
         for m, v, norm, scorer in zip(maps, valids, self.norms, self.scorers):
@@ -547,7 +632,17 @@ class MaskedPoolMSConvNeXt(nn.Module):
     def head_parameters(self):
         if self.pool == "csra":
             return list(self.norms.parameters()) + list(self.scorers.parameters()) + [self.bias]
-        return list(self.norm.parameters()) + list(self.fc.parameters())
+        if self.feat_norm == "pretrained":
+            return list(self.lnorms.parameters()) + list(self.fc.parameters())   # fnorms stay with the backbone
+        extra = []
+        for k in ("lat", "smooth", "nln", "aux"):
+            if hasattr(self, k):
+                extra += list(getattr(self, k).parameters())
+        return extra + list(self.norm.parameters()) + list(self.fc.parameters())
+
+    def no_decay_parameters(self):
+        """head-lr parameters trained WITHOUT weight decay (decay would pull GeM p toward 0 = toward nothing)."""
+        return [self.gem_p] if self.pool == "gem" else []
 
 
 class MaskedPoolViT(nn.Module):
@@ -701,7 +796,9 @@ def build_hires_model(cfg, num_classes, pretrained):
                                    g("query_heads", 8), g("head_dropout", 0.1))
     if g("head", "linear") == "linear_ms":
         return MaskedPoolMSConvNeXt(g("model"), num_classes, pretrained, g("drop_path"), g("pool", "gapgmp"),
-                                    g("csra_lambda", 0.3), g("csra_t", 1.0), g("ms_levels", 2))
+                                    g("csra_lambda", 0.3), g("csra_t", 1.0), g("ms_levels", 2), g("feat_norm", "none"),
+                                    g("gem_p", 3.0), g("topk_frac", 0.03), g("ms_neck", "none"), g("ms_dim", 256),
+                                    g("ms_deep_sup", 0.0))
     return MaskedPoolConvNeXt(g("model"), num_classes, pretrained, g("drop_path"), g("pool", "gap"))
 
 
@@ -774,6 +871,22 @@ def soft_bce(logits, soft):
     if not bool(have.any()):
         return logits.sum() * 0.0
     return F.binary_cross_entropy_with_logits(logits[have].float(), soft[have])
+
+
+SIBLING_GROUPS = ([0, 1, 2, 3, 4, 5, 9], [6, 7, 8, 10, 11], [20, 21, 22])   # upper, lower+dress, legwear
+
+
+def clean_siblings(soft, targets):
+    """soft [N, C] teacher targets, targets [N, C] labels (1 / 0 / -1 unknown). Zero the target of an unlabelled class
+    whose group has another labelled class. Unknown rows (-1) and NaN rows are left alone."""
+    soft = soft.copy(); y = targets[:, :soft.shape[1]] == 1; known = (targets[:, :soft.shape[1]] >= 0).all(1)
+    n = 0
+    for cs in SIBLING_GROUPS:
+        for c in cs:
+            m = known & ~y[:, c] & y[:, [k for k in cs if k != c]].any(1) & ~np.isnan(soft[:, c])
+            n += int(m.sum()); soft[m, c] = 0.0
+    print(f"distill_sibling_clean: {n} teacher targets set to 0", flush=True)
+    return soft
 
 
 def load_teacher(a, names):
@@ -861,6 +974,8 @@ def main(argv=None):
     if exts:
         pools.append((len(train_names) - len(exts), len(train_names), ext_per_epoch))
     soft = load_teacher(a, train_names) if a.distill_npz else None
+    if soft is not None and a.distill_sibling_clean:
+        soft = clean_siblings(soft, t_train)
     mean, std = timm_mean_std(a.model)
 
     levels = short_levels(a)
@@ -882,7 +997,7 @@ def main(argv=None):
         ds = HiResDataset(root, n, t, mean, std, train, a.max_long, a.flip, soft=soft if train else None,
                           gray_p=a.gray_p if train else 0.0, zoom_p=a.zoom_p, zoom_min=a.zoom_min,
                           mosaic_p=a.mosaic_p, mosaic_n=n_pos if train else 0, old_p=a.old_p,
-                          mosaic_sizes=a.mosaic_sizes,
+                          mosaic_sizes=a.mosaic_sizes, interp=a.interp,
                           mask_dir=a.mask_dir if train else None, mask_kind=mask_kind if train else None)
         return DataLoader(ds, batch_sampler=sampler,
                           num_workers=a.workers, pin_memory=device.type == "cuda", collate_fn=pad_collate,
@@ -915,11 +1030,15 @@ def main(argv=None):
     model = model.to(memory_format=torch.channels_last)
     n_params = sum(p.numel() for p in model.parameters())
     assert n_params <= PARAM_LIMIT, f"{n_params:,} parameters exceed the 50M limit"
-    head_ids = {id(p) for p in model.head_parameters()}
-    opt = torch.optim.AdamW([
+    nd = model.no_decay_parameters() if hasattr(model, "no_decay_parameters") else []
+    head_ids = {id(p) for p in model.head_parameters()} | {id(p) for p in nd}
+    groups = [
         {"params": [p for p in model.parameters() if id(p) not in head_ids], "lr": a.lr_backbone, "name": "backbone"},
         {"params": model.head_parameters(), "lr": a.lr_head, "name": "head"},
-    ], weight_decay=a.weight_decay)
+    ]
+    if nd:
+        groups.append({"params": nd, "lr": a.lr_head, "weight_decay": 0.0, "name": "head_nodecay"})
+    opt = torch.optim.AdamW(groups, weight_decay=a.weight_decay)
     sampler = train_loader.batch_sampler
     per_epoch = [math.ceil(len(sampler.plan(e)) / a.accum) for e in range(1, a.epochs + 1)]
     steps_per_epoch, total = round(sum(per_epoch) / len(per_epoch)), sum(per_epoch)
@@ -966,6 +1085,16 @@ def main(argv=None):
                 loss = loss + a.gate_weight * F.binary_cross_entropy_with_logits(logits[:, n_cls].float(), y[:, n_cls])
             if soft is not None:
                 loss = (1 - a.distill_alpha) * loss + a.distill_alpha * soft_bce(logits[:, :n_cls], batch[4].to(device))
+            aux = getattr(model, "_aux", None)
+            if aux:                                   # per-stage classifiers, same objective as the main head
+                la = []
+                for al in aux:
+                    l_ = loss_fn(al[:, :n_cls].float(), y[:, :n_cls])
+                    if soft is not None:
+                        l_ = (1 - a.distill_alpha) * l_ + a.distill_alpha * soft_bce(al[:, :n_cls], batch[4].to(device))
+                    la.append(l_)
+                loss = loss + a.ms_deep_sup * torch.stack(la).mean()
+                model._aux = None
             assert torch.isfinite(loss), "non-finite training loss"
             scaler.scale(loss / a.accum).backward()
             run_loss += loss.item() * len(x)
@@ -992,6 +1121,8 @@ def main(argv=None):
                    holdout_micro=m["micro_f1"], holdout_macro=m["macro_f1"], holdout_image=m["image_f1"],
                    lr_backbone=opt.param_groups[0]["lr"], lr_head=opt.param_groups[1]["lr"],
                    updates=step, amp_skipped=skipped, train_sec=round(train_sec, 1))
+        if getattr(eval_model, "pool", None) == "gem":
+            row["gem_p"] = [round(float(v), 3) for v in eval_model.gem_p.clamp(min=1.0)]
         if g_ho is not None:
             row["holdout_gate_drop"] = float((sigmoid(g_ho) < a.gate_threshold).mean())   # positives wrongly emptied
         if neg_loader is not None:
